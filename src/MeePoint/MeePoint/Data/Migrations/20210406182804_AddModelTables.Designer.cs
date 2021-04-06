@@ -4,14 +4,16 @@ using MeePoint.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MeePoint.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210406182804_AddModelTables")]
+    partial class AddModelTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,7 +50,6 @@ namespace MeePoint.Data.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("DocumentPath")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("MeetingID")
@@ -68,25 +69,16 @@ namespace MeePoint.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("Manager")
-                        .HasColumnType("int");
+                    b.Property<string>("Manager")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("NIF")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("EntityID");
-
-                    b.HasIndex("Manager");
-
-                    b.HasIndex("NIF")
-                        .IsUnique();
-
-                    b.HasIndex("Name")
-                        .IsUnique();
 
                     b.ToTable("Entities");
                 });
@@ -98,19 +90,18 @@ namespace MeePoint.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("EntityID")
+                    b.Property<int?>("EntityID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EntityNIF")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("GroupID");
 
                     b.HasIndex("EntityID");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
 
                     b.ToTable("Groups");
                 });
@@ -124,7 +115,6 @@ namespace MeePoint.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Role")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("GroupID", "UserID");
@@ -144,7 +134,7 @@ namespace MeePoint.Data.Migrations
                     b.Property<int>("GroupID")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("MeetingDate")
+                    b.Property<DateTime>("MeetingData")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Quorum")
@@ -165,27 +155,15 @@ namespace MeePoint.Data.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserID");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("PasswordHash")
-                        .IsUnique();
-
-                    b.HasIndex("Username")
-                        .IsUnique();
 
                     b.ToTable("RegisteredUsers");
                 });
@@ -414,20 +392,11 @@ namespace MeePoint.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MeePoint.Models.Entity", b =>
-                {
-                    b.HasOne("MeePoint.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("Manager");
-                });
-
             modelBuilder.Entity("MeePoint.Models.Group", b =>
                 {
                     b.HasOne("MeePoint.Models.Entity", "Entity")
                         .WithMany("Groups")
-                        .HasForeignKey("EntityID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("EntityID");
                 });
 
             modelBuilder.Entity("MeePoint.Models.GroupMember", b =>
