@@ -3,14 +3,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MeePoint.Models
 {
-    public class User
+    public class RegisteredUser
     {
-        public int UserID { get; set; }
-
+        public int RegisteredUserID { get; set; }
         public string Email { get; set; }
-
         public string PasswordHash { get; set; }
-
         public string Username { get; set; }
 
         public virtual ICollection<GroupMember> Groups { get; set; }

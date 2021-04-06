@@ -16,7 +16,7 @@ namespace MeePoint.Data
 
         public DbSet<Entity> Entities { get; set; }
         public DbSet<Group> Groups { get; set; }
-        public DbSet<User> RegisteredUsers { get; set; }
+        public DbSet<RegisteredUser> RegisteredUsers { get; set; }
         public DbSet<Meeting> Meetings { get; set; }
         public DbSet<Convocation> Convocations { get; set; }
         public DbSet<GroupMember> GroupMembers { get; set; }
@@ -91,27 +91,27 @@ namespace MeePoint.Data
             .IsRequired();
 
             //User
-            builder.Entity<User>()
+            builder.Entity<RegisteredUser>()
             .HasIndex(u => u.Email)
             .IsUnique();
 
-            builder.Entity<User>()
+            builder.Entity<RegisteredUser>()
             .HasIndex(u => u.Username)
             .IsUnique();
 
-            builder.Entity<User>()
+            builder.Entity<RegisteredUser>()
             .HasIndex(u => u.PasswordHash)
             .IsUnique();
 
-            builder.Entity<User>()
+            builder.Entity<RegisteredUser>()
             .Property(u => u.Email)
             .IsRequired();
 
-            builder.Entity<User>()
+            builder.Entity<RegisteredUser>()
             .Property(u => u.Username)
             .IsRequired();
 
-            builder.Entity<User>()
+            builder.Entity<RegisteredUser>()
             .Property(u => u.PasswordHash)
             .IsRequired();
 

@@ -9,7 +9,7 @@ namespace MeePoint.Models
         public int UserID { get; set; }
 
         public virtual Group Group { get; set; }
-        public virtual User User { get; set; }
+        public virtual RegisteredUser User { get; set; }
 
         [Required]
         public string Role { get; set; }

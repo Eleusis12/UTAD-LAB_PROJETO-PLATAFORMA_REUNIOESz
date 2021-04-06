@@ -14,7 +14,7 @@ namespace MeePoint.Models
         [ForeignKey("User")]
         public int? Manager { get; set; }
 
-        public User User { get; set; }
+        public RegisteredUser User { get; set; }
         public virtual ICollection<Group> Groups { get; set; }
     }
 }
