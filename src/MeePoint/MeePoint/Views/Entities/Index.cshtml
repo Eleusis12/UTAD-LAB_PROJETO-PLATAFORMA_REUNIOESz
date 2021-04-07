@@ -1,0 +1,104 @@
+﻿@model IEnumerable<MeePoint.Models.Entity>
+
+@{
+	ViewData["Title"] = "Lista De Entidades";
+}
+@Html.Partial("_BreadCrumb", @ViewData["Title"])
+<section class="content">
+
+	<!-- Default box -->
+	<div class="card">
+		<div class="card-header">
+			<h3 class="card-title">Entidades</h3>
+
+			<div class="card-tools">
+				<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+					<i class="fas fa-minus"></i>
+				</button>
+				<button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+					<i class="fas fa-times"></i>
+				</button>
+			</div>
+		</div>
+		<div class="card-body p-0">
+			<table class="table table-striped projects">
+				<thead>
+					<tr>
+						<th style="width: 1%">
+							#
+						</th>
+						<th style="width: 20%">
+							Nome da Entidade
+						</th>
+						<th style="width: 30%">
+							Username Do Responsável
+						</th>
+						<th>
+							Estado
+						</th>
+						<th>
+							Grupos
+						</th>
+
+						<th style="width: 8%" class="text-center">
+							Utilizadores ativos
+						</th>
+						<th style="width: 20%">
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var item in Model)
+					{
+						<tr>
+							<td>
+								#
+							</td>
+							<td>
+								<a>
+									@Html.DisplayFor(modelItem => item.Name)
+								</a>
+								<br />
+								<small>
+									Adicionado na data x
+								</small>
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.User.Username)
+							</td>
+							<td class="project-state">
+								<span class="badge badge-success">Aceite</span>
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Groups.Count)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Groups)
+							</td>
+
+							<td class="project-actions text-right">
+								<a class="btn btn-primary btn-sm" asp-controller="Entities" asp-action="Details" asp-route-id="@item.EntityID">
+									<i class="fas fa-folder">
+									</i>
+									Detalhes
+								</a>
+								<a class="btn btn-info btn-sm" asp-controller="Entities" asp-action="Edit" asp-route-id="@item.EntityID">
+									<i class="fas fa-pencil-alt">
+									</i>
+									Editar
+								</a>
+								<a class="btn btn-danger btn-sm" asp-controller="Entities" asp-action="Delete" asp-route-id="@item.EntityID">
+									<i class="fas fa-trash">
+									</i>
+									Apagar
+								</a>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+		<!-- /.card-body -->
+	</div>
+	<!-- /.card -->
+</section>
