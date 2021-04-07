@@ -4,26 +4,11 @@
 	ViewData["Title"] = "Create";
 }
 
-<!-- Content Header (Page header) -->
-<!--<section class="content-header">
-	<div class="container-fluid">
-		<div class="row mb-2">
-			<div class="col-sm-6">
-				<h1>Project Add</h1>
-			</div>
-			<div class="col-sm-6">
-				<ol class="breadcrumb float-sm-right">
-					<li class="breadcrumb-item"><a href="#">Home</a></li>
-					<li class="breadcrumb-item active">Project Add</li>
-				</ol>
-			</div>
-		</div>
-	</div>-->
-<!-- /.container-fluid -->
-<!--</section>-->
-<!-- Main content -->
+@Html.Partial("_BreadCrumb", @ViewData["Title"])
+
 <section class="content">
 	<form asp-action="Create">
+		<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 		<div class="row">
 			<div class="col-md-6">
 				<div class="card card-primary">
@@ -49,6 +34,32 @@
 							<input asp-for="NIF" class="form-control" />
 							<span asp-validation-for="NIF" class="text-danger"></span>
 						</div>
+						<div class="form-group">
+
+							<label asp-for="Description"></label>
+							<textarea asp-for="Description" class="form-control" rows="4"> </textarea>
+							<span asp-validation-for="Description" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+
+							<label asp-for="MaxUsers"></label>
+							<input asp-for="MaxUsers" class="form-control" />
+							<span asp-validation-for="MaxUsers" class="text-danger"></span>
+						</div>
+
+						<div class="form-group">
+
+							<label asp-for="SubscriptionDays"></label>
+							<input asp-for="SubscriptionDays" class="form-control" />
+							<span asp-validation-for="SubscriptionDays" class="text-danger"></span>
+						</div>
+
+						<div class="form-check">
+
+							<input asp-for="StatusEntity" class="form-check-input" />
+							<label asp-for="StatusEntity"></label>
+							<span asp-validation-for="StatusEntity" class="text-danger"></span>
+						</div>
 					</div>
 					<!-- /.card-body -->
 				</div>
@@ -57,7 +68,7 @@
 			<div class="col-md-6">
 				<div class="card card-secondary">
 					<div class="card-header">
-						<h3 class="card-title">Responsável pela Entidade</h3>
+						<h3 class="card-title">Contacto</h3>
 
 						<div class="card-tools">
 							<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -67,15 +78,29 @@
 					</div>
 					<div class="card-body">
 						<div class="form-group">
-							<label asp-for="User.Email"></label>
-							<input asp-for="User.Email" class="form-control" />
-							<span asp-validation-for="User.Email" class="text-danger"></span>
+
+							<label asp-for="ManagerName"></label>
+							<input asp-for="ManagerName" class="form-control" />
+							<span asp-validation-for="ManagerName" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+
+							<label asp-for="PhoneNumber"></label>
+							<input asp-for="PhoneNumber" class="form-control" />
+							<span asp-validation-for="PhoneNumber" class="text-danger"></span>
 						</div>
 
 						<div class="form-group">
-							<label asp-for="User.Username"></label>
-							<input asp-for="User.Username" class="form-control" />
-							<span asp-validation-for="User.Username" class="text-danger"></span>
+
+							<label asp-for="PostalCode"></label>
+							<input asp-for="PostalCode" class="form-control" />
+							<span asp-validation-for="PostalCode" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+
+							<label asp-for="PostalCode"></label>
+							<input asp-for="Address" class="form-control" />
+							<span asp-validation-for="Address" class="text-danger"></span>
 						</div>
 					</div>
 					<!-- /.card-body -->
@@ -85,7 +110,7 @@
 		</div>
 		<div class="row">
 			<div class="col-12">
-				<a href="#" class="btn btn-secondary">Cancelar</a>
+				<a asp-controller="Entities" asp-action="Index" class="btn btn-secondary">Cancelar</a>
 				<input type="submit" value="Adicionar nova entidade" class="btn btn-success float-right">
 			</div>
 		</div>

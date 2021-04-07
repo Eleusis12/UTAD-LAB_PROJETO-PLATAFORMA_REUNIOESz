@@ -4,14 +4,16 @@ using MeePoint.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MeePoint.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210407151656_FixedEntityPropertyName")]
+    partial class FixedEntityPropertyName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,12 +104,6 @@ namespace MeePoint.Data.Migrations
 
                     b.Property<bool>("StatusEntity")
                         .HasColumnType("bit");
-
-                    b.Property<DateTime>("SubscriptionDateEnd")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("SubscriptionDateStart")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("EntityID");
 

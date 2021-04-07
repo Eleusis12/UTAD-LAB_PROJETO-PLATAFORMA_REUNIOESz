@@ -28,20 +28,20 @@
 							#
 						</th>
 						<th style="width: 20%">
-							Nome da Entidade
+							@Html.DisplayNameFor(model => model.Name)
 						</th>
-						<th style="width: 30%">
-							Username Do Responsável
+						<th style="width: 20%">
+							@Html.DisplayNameFor(model => model.ManagerName)
 						</th>
 						<th>
 							Estado
 						</th>
 						<th>
-							Grupos
+							Atuais/Máx. no Utilizadores
 						</th>
 
 						<th style="width: 8%" class="text-center">
-							Utilizadores ativos
+							@Html.DisplayNameFor(model => model.SubscriptionDateEnd)
 						</th>
 						<th style="width: 20%">
 						</th>
@@ -60,20 +60,20 @@
 								</a>
 								<br />
 								<small>
-									Adicionado na data x
+									Adicionado na data @Html.DisplayFor(modelItem => item.SubscriptionDateStart)
 								</small>
 							</td>
 							<td>
-								@Html.DisplayFor(modelItem => item.User.Username)
+								@Html.DisplayFor(modelItem => item.ManagerName)
 							</td>
 							<td class="project-state">
-								<span class="badge badge-success">Aceite</span>
+								<span class="badge badge-success">@(item.StatusEntity == true ? "Aceite" : "Por Aprovar")</span>
 							</td>
 							<td>
-								@Html.DisplayFor(modelItem => item.Groups.Count)
+								@Html.DisplayFor(modelItem => item.MaxUsers)
 							</td>
 							<td>
-								@Html.DisplayFor(modelItem => item.Groups)
+								@Html.DisplayFor(modelItem => item.SubscriptionDateEnd)
 							</td>
 
 							<td class="project-actions text-right">

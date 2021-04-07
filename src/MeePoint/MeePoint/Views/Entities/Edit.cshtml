@@ -3,9 +3,11 @@
 @{
 	ViewData["Title"] = "Edit";
 }
+@Html.Partial("_BreadCrumb", @ViewData["Title"])
 
 <section class="content">
 	<form asp-action="Edit">
+		<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 		<div class="row">
 			<div class="col-md-6">
 				<div class="card card-primary">
@@ -22,53 +24,98 @@
 						<div class="form-group">
 
 							<label asp-for="Name"></label>
-							<input type="text" asp-for="Name" class="form-control" value="@Model.Name" />
+							<input type="text" asp-for="Name" class="form-control" />
 							<span asp-validation-for="Name" class="text-danger"></span>
 						</div>
 						<div class="form-group">
 
 							<label asp-for="NIF"></label>
 							<input asp-for="NIF" class="form-control" />
-							<span asp-validation-for="NIF" class="text-danger" value="@Model.NIF"></span>
+							<span asp-validation-for="NIF" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+
+							<label asp-for="Description"></label>
+							<textarea asp-for="Description" class="form-control" rows="4"> </textarea>
+							<span asp-validation-for="Description" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+
+							<label asp-for="MaxUsers"></label>
+							<input asp-for="MaxUsers" class="form-control" />
+							<span asp-validation-for="MaxUsers" class="text-danger"></span>
+						</div>
+						<div class="form-check">
+
+							<input asp-for="StatusEntity" class="form-check-input" />
+							<label asp-for="StatusEntity"></label>
+							<span asp-validation-for="StatusEntity" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+
+							<label asp-for="SubscriptionDateStart"></label>
+							<input asp-for="SubscriptionDateStart" type="date" asp-format="{0:dd/MM/yyyy}" class="form-control" disabled value="@Model.SubscriptionDateStart.ToString("")" />
+							<span asp-validation-for="SubscriptionDateStart" class="text-danger"></span>
+						</div>
+
+						<div class="form-group">
+
+							<label asp-for="SubscriptionDateEnd"></label>
+							<input asp-for="SubscriptionDateEnd" type="date" asp-format="{0:dd/MM/yyyy}" class="form-control" disabled value="@Model.SubscriptionDateEnd.ToString("dd/MM/yyyy")" />
+							<span asp-validation-for="SubscriptionDateEnd" class="text-danger"></span>
 						</div>
 					</div>
 				</div>
 				<!-- /.card-body -->
 			</div>
 			<!-- /.card -->
-		</div>
-		<div class="col-md-6">
-			<div class="card card-secondary">
-				<div class="card-header">
-					<h3 class="card-title">Responsável pela Entidade</h3>
+			<div class="col-md-6">
+				<div class="card card-secondary">
+					<div class="card-header">
+						<h3 class="card-title">Responsável pela Entidade</h3>
 
-					<div class="card-tools">
-						<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-							<i class="fas fa-minus"></i>
-						</button>
+						<div class="card-tools">
+							<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+								<i class="fas fa-minus"></i>
+							</button>
+						</div>
 					</div>
-				</div>
-				<div class="card-body">
-					<div class="form-group">
-						<label asp-for="User.Email"></label>
-						<input asp-for="User.Email" class="form-control" value="@Model.User.Email" />
-						<span asp-validation-for="User.Email" class="text-danger"></span>
-					</div>
+					<div class="card-body">
+						<div class="form-group">
 
-					<div class="form-group">
-						<label asp-for="User.Username"></label>
-						<input asp-for="User.Username" class="form-control" value="@Model.User.Username" />
-						<span asp-validation-for="User.Username" class="text-danger"></span>
+							<label asp-for="ManagerName"></label>
+							<input asp-for="ManagerName" class="form-control" />
+							<span asp-validation-for="ManagerName" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+
+							<label asp-for="PhoneNumber"></label>
+							<input asp-for="PhoneNumber" class="form-control" />
+							<span asp-validation-for="PhoneNumber" class="text-danger"></span>
+						</div>
+
+						<div class="form-group">
+
+							<label asp-for="PostalCode"></label>
+							<input asp-for="PostalCode" class="form-control" />
+							<span asp-validation-for="PostalCode" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+
+							<label asp-for="Address"></label>
+							<input asp-for="Address" class="form-control" />
+							<span asp-validation-for="Address" class="text-danger"></span>
+						</div>
 					</div>
+					<!-- /.card-body -->
 				</div>
-				<!-- /.card-body -->
+
+				<!-- /.card -->
 			</div>
-
-			<!-- /.card -->
 		</div>
 		<div class="row">
 			<div class="col-12">
-				<a href="#" class="btn btn-secondary">Cancelar</a>
+				<a asp-controller="Entities" asp-action="Index" class="btn btn-secondary">Cancelar</a>
 				<input type="submit" value="Guardar alterações" class="btn btn-success float-right">
 			</div>
 		</div>

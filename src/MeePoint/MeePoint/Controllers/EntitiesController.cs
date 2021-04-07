@@ -55,9 +55,15 @@ namespace MeePoint.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Create([Bind("EntityID,NIF,Name,Manager,User")] Entity entity)
+		public async Task<IActionResult> Create([Bind("EntityID,NIF,Name,Description,PhoneNumber,ManagerName,StatusEntity,SubscriptionDays,MaxUsers,PostalCode,Address,Manager,User")] Entity entity)
 		{
-			if (ModelState.IsValid)
+			entity.SubscriptionDateStart = DateTime.Now;
+			entity.SubscriptionDateEnd = entity.SubscriptionDateStart.AddDays(entity.SubscriptionDays);
+
+			// Limpar os erros
+			ModelState.Clear();
+
+			if (TryValidateModel(entity))
 			{
 				_context.Add(entity);
 				await _context.SaveChangesAsync();
@@ -87,7 +93,7 @@ namespace MeePoint.Controllers
 		// POST: Permite alterar dados de uma entidade já existente
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Edit(int id, [Bind("EntityID,NIF,Name,Manager")] Entity entity)
+		public async Task<IActionResult> Edit(int id, [Bind("EntityID,NIF,Name,Description,PhoneNumber,ManagerName,StatusEntity,SubscriptionDays,MaxUsers,PostalCode,Address,Manager,User")] Entity entity)
 		{
 			if (id != entity.EntityID)
 			{

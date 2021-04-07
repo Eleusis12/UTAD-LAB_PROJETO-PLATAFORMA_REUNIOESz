@@ -10,6 +10,8 @@ namespace MeePoint.Models
 		public string PasswordHash { get; set; }
 		public string Username { get; set; }
 
+		public string MyProperty { get; set; }
+
 		public virtual ICollection<GroupMember> Groups { get; set; }
 		public virtual ICollection<Convocation> Convocations { get; set; }
 	}
