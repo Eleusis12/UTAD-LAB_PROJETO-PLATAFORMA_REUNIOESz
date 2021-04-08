@@ -1,0 +1,71 @@
+﻿@page
+@model LoginModel
+
+@{
+	ViewData["Title"] = "Log in";
+}
+
+@Html.Partial("_BreadCrumb", @ViewData["Title"])
+<div class="hold-transition login-page">
+	<div class="login-box">
+		<!-- /.login-logo -->
+		<div class="card card-outline card-primary">
+			<div class="card-header text-center">
+				<a href="../../index2.html" class="h1"><b>Mee</b>Point</a>
+			</div>
+			<div class="card-body">
+				<p class="login-box-msg">Inicia a sessão para acederes à aplicação</p>
+				<div asp-validation-summary="All" class="text-danger"></div>
+
+				<form id="account" method="post">
+					<div class="input-group mb-3">
+						<input asp-for="Input.Email" class="form-control" placeholder="Email" />
+						<span asp-validation-for="Input.Email" class="text-danger"></span>
+						<div class="input-group-append">
+							<div class="input-group-text">
+								<span class="fas fa-envelope"></span>
+							</div>
+						</div>
+					</div>
+					<div class="input-group mb-3">
+						<input asp-for="Input.Password" class="form-control" placeholder="Password" />
+						<span asp-validation-for="Input.Password" class="text-danger"></span>
+						<div class="input-group-append">
+							<div class="input-group-text">
+								<span class="fas fa-lock"></span>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-8">
+							<div class="icheck-primary">
+								<input asp-for="Input.RememberMe" />
+								<label for="remember">
+									Guardar Credenciais
+								</label>
+							</div>
+						</div>
+						<!-- /.col -->
+						<div class="col-4">
+							<button type="submit" class="btn btn-primary btn-block">Login</button>
+						</div>
+						<!-- /.col -->
+					</div>
+				</form>
+
+				<p class="mb-1">
+					<a id="forgot-password" asp-page="./ForgotPassword">Esqueci-me da Password</a>
+				</p>
+				<p class="mb-0">
+					<a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Regista aqui a tua empresa</a>
+				</p>
+			</div>
+			<!-- /.card-body -->
+		</div>
+		<!-- /.card -->
+	</div>
+</div>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}
