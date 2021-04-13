@@ -73,6 +73,30 @@ namespace MeePoint.Controllers
 			return View(entity);
 		}
 
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public IActionResult ApproveEntity(int? id)
+		{
+			// The Post method is incomplete
+			if (id == null)
+			{
+				return BadRequest();
+			}
+
+			Entity entity = new Entity();
+
+			// Obtain correct Entity object
+			entity = _context.Entities.FirstOrDefault(x => x.EntityID == id);
+
+			// Update Entity status
+			entity.StatusEntity = true;
+
+			// Save Changes
+			_context.SaveChanges();
+
+			return PartialView("_EntitiesTablePartial", _context.Entities);
+		}
+
 		// GET: Apresenta página no qual o administrador possa alterar dados das entidades
 		public async Task<IActionResult> Edit(int? id)
 		{
