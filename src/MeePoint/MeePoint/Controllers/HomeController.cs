@@ -1,4 +1,5 @@
-﻿using MeePoint.Models;
+﻿using MeePoint.Filters;
+using MeePoint.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -18,6 +19,7 @@ namespace MeePoint.Controllers
 			_logger = logger;
 		}
 
+		[ViewLayout("_LandingPageLayout")]
 		public IActionResult Index()
 		{
 			return View();

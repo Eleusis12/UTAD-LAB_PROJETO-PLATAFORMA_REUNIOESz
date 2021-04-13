@@ -1,4 +1,5 @@
 using MeePoint.Data;
+using MeePoint.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

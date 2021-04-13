@@ -2,10 +2,15 @@
 @model LoginModel
 
 @{
+	Layout = "_CleanLayout";
+}
+
+@{
 	ViewData["Title"] = "Log in";
 }
 
-@Html.Partial("_BreadCrumb", @ViewData["Title"])
+
+
 <div class="hold-transition login-page">
 	<div class="login-box">
 		<!-- /.login-logo -->
