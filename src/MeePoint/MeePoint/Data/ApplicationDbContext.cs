@@ -108,10 +108,6 @@ namespace MeePoint.Data
             .IsRequired();
 
             builder.Entity<RegisteredUser>()
-            .Property(u => u.Username)
-            .IsRequired();
-
-            builder.Entity<RegisteredUser>()
             .Property(u => u.PasswordHash)
             .IsRequired();
 
