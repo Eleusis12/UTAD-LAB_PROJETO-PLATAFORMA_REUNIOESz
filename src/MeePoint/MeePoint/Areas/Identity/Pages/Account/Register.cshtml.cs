@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using MeePoint.Data;
 using MeePoint.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace MeePoint.Areas.Identity.Pages.Account
@@ -26,17 +28,25 @@ namespace MeePoint.Areas.Identity.Pages.Account
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly ILogger<RegisterModel> _logger;
 		private readonly IEmailSender _emailSender;
+		private readonly ApplicationDbContext _context;
+		private readonly RoleManager<IdentityRole> _roleManager;
+		private readonly IHostEnvironment _he;
 
 		public RegisterModel(
 			UserManager<IdentityUser> userManager,
 			SignInManager<IdentityUser> signInManager,
 			ILogger<RegisterModel> logger,
-			IEmailSender emailSender)
+			IEmailSender emailSender,
+			ApplicationDbContext dbContext,
+			RoleManager<IdentityRole> roleManager, IHostEnvironment host)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
 			_logger = logger;
 			_emailSender = emailSender;
+			_context = dbContext;
+			_roleManager = roleManager;
+			_he = host;
 		}
 
 		[BindProperty]
@@ -101,8 +111,6 @@ namespace MeePoint.Areas.Identity.Pages.Account
 			// Clear Model Erros
 			ModelState.Clear();
 
-			
-
 			returnUrl = returnUrl ?? Url.Content("~/");
 			ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 			// Check for errors
@@ -113,6 +121,31 @@ namespace MeePoint.Areas.Identity.Pages.Account
 				if (result.Succeeded)
 				{
 					_logger.LogInformation("User created a new account with password.");
+
+					// The user we added must have entityManager permissions
+					await _userManager.AddToRoleAsync(user, "EntityManager");
+
+					// Create Registered User in our database
+					RegisteredUser newUser = new RegisteredUser();
+					newUser.Name = Input.Entity.ManagerName;
+					newUser.Email = Input.Email;
+					newUser.PasswordHash = user.PasswordHash;
+
+					// Registered User and Asp Net core Users are linked by their emails
+
+					// Clean Models Errors- At this point there should be no model erros, but just to make sure let's clean it
+					ModelState.Clear();
+
+					// Link the newly user created to entity
+					Input.Entity.User = newUser;
+
+					// Validate entity model, to check if it respects all requirementes
+					if (TryValidateModel(Input.Entity))
+					{
+						// Add Entity to database
+						_context.Add(Input.Entity);
+						await _context.SaveChangesAsync();
+					}
 
 					var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 					code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));

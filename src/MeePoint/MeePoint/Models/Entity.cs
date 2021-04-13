@@ -18,15 +18,14 @@ namespace MeePoint.Models
 
 		[DataType(DataType.Date)]
 		[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
-
 		public DateTime SubscriptionDateEnd { get; set; }
 
 		[NotMapped]
 		[Display(Name = "Dias de Subscrição")]
+		[Range(0, int.MaxValue, ErrorMessage = "Ó número de dias de subscrição tem que ser superior a 0")]
 		public int SubscriptionDays { get; set; }
 
 		[Display(Name = "Nome da entidade/empresa")]
-
 		public string Name { get; set; }
 
 		[StringLength(1000)]
@@ -47,7 +46,7 @@ namespace MeePoint.Models
 		public int MaxUsers { get; set; }
 
 		[StringLength(8)]
-		[RegularExpression(@"^\d{4}(-\d{3})$", ErrorMessage = "Must be a valid Postal Code")]
+		[RegularExpression(@"^\d{4}(-\d{3})$", ErrorMessage = "Introduza um código Postal válido")]
 		[Display(Name = "Código Postal")]
 		public string PostalCode { get; set; }
 

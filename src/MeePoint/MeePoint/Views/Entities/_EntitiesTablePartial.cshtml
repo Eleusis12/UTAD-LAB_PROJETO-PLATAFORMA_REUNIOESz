@@ -1,0 +1,92 @@
+﻿@model IEnumerable<MeePoint.Models.Entity>
+@*
+	For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<table id="EntitiesTable" class="table table-striped projects">
+	<thead>
+		<tr>
+			<th style="width: 1%">
+				#
+			</th>
+			<th style="width: 20%">
+				@Html.DisplayNameFor(model => model.Name)
+			</th>
+			<th style="width: 20%">
+				@Html.DisplayNameFor(model => model.ManagerName)
+			</th>
+			<th>
+				Estado
+			</th>
+			<th>
+				Atuais/Máx. no Utilizadores
+			</th>
+
+			<th style="width: 8%" class="text-center">
+				@Html.DisplayNameFor(model => model.SubscriptionDateEnd)
+			</th>
+			<th style="width: 20%">
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>
+					#
+				</td>
+				<td>
+					<a>
+						@Html.DisplayFor(modelItem => item.Name)
+					</a>
+					<br />
+					<small>
+						Adicionado na data @Html.DisplayFor(modelItem => item.SubscriptionDateStart)
+					</small>
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.ManagerName)
+				</td>
+				<td class="project-state">
+					@if (item.StatusEntity == true)
+					{
+						<span class="badge badge-success">Aprovado</span>
+					}
+					else
+					{
+						<form asp-controller="Entities" asp-action="ApproveEntity" data-ajax="true" data-ajax-method="post"
+							  data-ajax-mode="replace" data-ajax-update="#EntitiesTable" data-ajax-success="AjaxSucess" data-ajax-failure="AjaxError">
+							<input hidden type="text" name="id" value="@item.EntityID" />
+							<button type="submit" class="badge badge-warning">Aprovar?</button>
+						</form>
+
+					}
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.MaxUsers)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.SubscriptionDateEnd)
+				</td>
+
+				<td class="project-actions text-right">
+					<a class="btn btn-primary btn-sm" asp-controller="Entities" asp-action="Details" asp-route-id="@item.EntityID">
+						<i class="fas fa-folder">
+						</i>
+						Detalhes
+					</a>
+					<a class="btn btn-info btn-sm" asp-controller="Entities" asp-action="Edit" asp-route-id="@item.EntityID">
+						<i class="fas fa-pencil-alt">
+						</i>
+						Editar
+					</a>
+					<a class="btn btn-danger btn-sm" asp-controller="Entities" asp-action="Delete" asp-route-id="@item.EntityID">
+						<i class="fas fa-trash">
+						</i>
+						Apagar
+					</a>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
