@@ -19,7 +19,6 @@ namespace MeePoint.Controllers
 			_logger = logger;
 		}
 
-		[ViewLayout("_LandingPageLayout")]
 		public IActionResult Index()
 		{
 			return View();

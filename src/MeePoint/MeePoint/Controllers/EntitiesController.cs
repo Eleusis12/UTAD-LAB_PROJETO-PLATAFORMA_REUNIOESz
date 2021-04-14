@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MeePoint.Data;
 using MeePoint.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MeePoint.Controllers
 {
