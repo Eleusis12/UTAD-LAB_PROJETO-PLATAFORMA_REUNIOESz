@@ -31,37 +31,35 @@ namespace MeePoint
 			services.AddDbContext<ApplicationDbContext>(options =>
 				options.UseSqlServer(
 					Configuration.GetConnectionString("DefaultConnection")));
-			services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-				.AddRoles<IdentityRole>()
+			services.AddIdentity<IdentityUser, IdentityRole>(
+				options =>
+				{
+					// Password settings.
+					options.Password.RequireDigit = true;
+					options.Password.RequireLowercase = false;
+					options.Password.RequireNonAlphanumeric = false;
+					options.Password.RequireUppercase = false;
+					options.Password.RequiredLength = 6;
+					options.Password.RequiredUniqueChars = 1;
+
+					// Lockout settings.
+					options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+					options.Lockout.MaxFailedAccessAttempts = 5;
+					options.Lockout.AllowedForNewUsers = true;
+
+					// User settings.
+					options.User.AllowedUserNameCharacters =
+				"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+					options.User.RequireUniqueEmail = false;
+
+					// Sign In setttings
+					options.SignIn.RequireConfirmedEmail = false;
+					options.SignIn.RequireConfirmedAccount = false;
+					options.SignIn.RequireConfirmedPhoneNumber = false;
+				}).AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
 			services.AddControllersWithViews();
 			services.AddRazorPages().AddRazorRuntimeCompilation();
-
-			services.Configure<IdentityOptions>(options =>
-			{
-				// Password settings.
-				options.Password.RequireDigit = true;
-				options.Password.RequireLowercase = false;
-				options.Password.RequireNonAlphanumeric = false;
-				options.Password.RequireUppercase = false;
-				options.Password.RequiredLength = 6;
-				options.Password.RequiredUniqueChars = 1;
-
-				// Lockout settings.
-				options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-				options.Lockout.MaxFailedAccessAttempts = 5;
-				options.Lockout.AllowedForNewUsers = true;
-
-				// User settings.
-				options.User.AllowedUserNameCharacters =
-				"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-				options.User.RequireUniqueEmail = false;
-
-				// Sign In setttings
-				options.SignIn.RequireConfirmedEmail = false;
-				options.SignIn.RequireConfirmedAccount = false;
-				options.SignIn.RequireConfirmedPhoneNumber = false;
-			});
 
 			services.ConfigureApplicationCookie(options =>
 			{

@@ -1,0 +1,39 @@
+﻿@model MeePoint.Models.Entity
+
+@{
+	ViewData["Title"] = "Adiciona Logins";
+}
+
+@Html.Partial("_BreadCrumb", @ViewData["Title"])
+
+<section class="content">
+	<div class="row">
+		<div class="col-md-6">
+			<span>Adicione os emails dos colaboradores da sua organização. Separe os emails com vírgulas (,) </span>>
+
+			<form asp-action="AddLogins">
+				<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+				<div class="input-group mb-3">
+					<div class="input-group-prepend">
+						<span class="input-group-text"><i class="fas fa-envelope"></i></span>
+					</div>
+					<input name="emails" type="text" id="email-addresses" class="form-control" placeholder="Email">
+				</div>
+
+				<button type="submit" class="btn btn-success ">Adicionar novos logins</button>
+			</form>
+		</div>
+	</div>
+</section>
+
+@section Scripts{
+	<script>
+		$(function () {
+			$("#email-addresses").multiEmails({
+				color: "#343a40",
+				textColor: "#000000"
+			});
+		});
+	</script>
+
+} 
