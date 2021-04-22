@@ -1,173 +1,181 @@
 ﻿@page
 @model RegisterModel
+
+@{
+    Layout = "_CleanLayout";
+}
+
 @{
 	ViewData["Title"] = "Register";
 }
 
-@Html.Partial("_BreadCrumb", @ViewData["Title"])
+<div class="container-fluid p-5 mb-2 bg-light ">
+	<div class="card-header text-center mb-2">
+		<span class="h2">Começa agora a usar</span><a asp-controller="Home" asp-action="MeePoint" class="h1 "> <b>Mee</b>Point </a>
+	</div>
+	<section class="content">
+		<form asp-route-returnUrl="@Model.ReturnUrl" method="post">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="card card-primary">
+						<div class="card-header">
+							<h3 class="card-title">Entidade</h3>
 
-<section class="content">
-	<form asp-route-returnUrl="@Model.ReturnUrl" method="post">
-		<div asp-validation-summary="ModelOnly" class="text-danger"></div>
-		<div class="row">
-			<div class="col-md-6">
-				<div class="card card-primary">
-					<div class="card-header">
-						<h3 class="card-title">Entidade</h3>
-
-						<div class="card-tools">
-							<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-								<i class="fas fa-minus"></i>
-							</button>
-						</div>
-					</div>
-					<div class="card-body">
-						<div class="form-group">
-
-							<label asp-for="Input.Entity.Name"></label>
-							<input type="text" asp-for="Input.Entity.Name" class="form-control" />
-							<span asp-validation-for="Input.Entity.Name" class="text-danger"></span>
-						</div>
-						<div class="form-group">
-
-							<label asp-for="Input.Entity.NIF"></label>
-							<input asp-for="Input.Entity.NIF" class="form-control" />
-							<span asp-validation-for="Input.Entity.NIF" class="text-danger"></span>
-						</div>
-						<div class="form-group">
-
-							<label asp-for="Input.Entity.Description"></label>
-							<textarea asp-for="Input.Entity.Description" class="form-control" rows="4"> </textarea>
-							<span asp-validation-for="Input.Entity.Description" class="text-danger"></span>
-						</div>
-						<div class="form-group">
-
-							<label class=" control-label">Tipo de Subscrição</label>
-							<select asp-for="Input.Entity.MaxUsers" class="custom-select rounded-0" asp-items='ViewBag.Plans'>
-								<option selected=""> --  Seleciona o tipo de subscrição </option>
-							</select>
-							<span asp-validation-for="Input.Entity.SubscriptionDays" class="text-danger"></span>
-						</div>
-
-						<div class="form-group">
-
-							<label asp-for="Input.Entity.SubscriptionDays"></label>
-							<input asp-for="Input.Entity.SubscriptionDays" class="form-control" />
-							<span asp-validation-for="Input.Entity.SubscriptionDays" class="text-danger"></span>
-						</div>
-
-						<div class="form-group">
-
-							<label asp-for="Input.Entity.PhoneNumber"></label>
-							<input asp-for="Input.Entity.PhoneNumber" class="form-control" />
-							<span asp-validation-for="Input.Entity.PhoneNumber" class="text-danger"></span>
-						</div>
-
-						<div class="form-group">
-
-							<label asp-for="Input.Entity.PostalCode"></label>
-							<input asp-for="Input.Entity.PostalCode" class="form-control" />
-							<span asp-validation-for="Input.Entity.PostalCode" class="text-danger"></span>
-						</div>
-						<div class="form-group">
-
-							<label asp-for="Input.Entity.Address"></label>
-							<input asp-for="Input.Entity.Address" class="form-control" />
-							<span asp-validation-for="Input.Entity.Address" class="text-danger"></span>
-						</div>
-					</div>
-					<!-- /.card-body -->
-				</div>
-				<!-- /.card -->
-			</div>
-			<div class="col-md-6">
-				<div class="card card-secondary">
-					<div class="card-header">
-						<h3 class="card-title">Responsável</h3>
-
-						<div class="card-tools">
-							<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-								<i class="fas fa-minus"></i>
-							</button>
-						</div>
-					</div>
-					<div class="card-body">
-
-						<div class="form-group">
-							<label asp-for="Input.Entity.ManagerName"></label>
-							<div class="input-group mb-3">
-
-								<input asp-for="Input.Entity.ManagerName" class="form-control" />
-								<div class="input-group-append">
-									<div class="input-group-text">
-										<span class="fas fa-user"></span>
-									</div>
-								</div>
-								<span asp-validation-for="Input.Entity.ManagerName" class="text-danger"></span>
+							<div class="card-tools">
+								<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+									<i class="fas fa-minus"></i>
+								</button>
 							</div>
 						</div>
-						<div class="form-group">
-							<label asp-for="Input.Email"></label>
-							<div class="input-group mb-3">
-								<input asp-for="Input.Email" class="form-control" />
+						<div class="card-body">
+							<div class="form-group">
 
-								<div class="input-group-append">
-									<div class="input-group-text">
-										<span class="fas fa-envelope"></span>
-									</div>
-								</div>
-								<span asp-validation-for="Input.Email" class="text-danger"></span>
+								<label asp-for="Input.Entity.Name"></label>
+								<input type="text" asp-for="Input.Entity.Name" class="form-control" />
+								<span asp-validation-for="Input.Entity.Name" class="text-danger"></span>
 							</div>
-						</div>
-						<div class="form-group">
-							<label asp-for="Input.Password"></label>
-							<div class="input-group mb-3">
-								<input asp-for="Input.Password" class="form-control" />
-								<div class="input-group-append">
-									<div class="input-group-text">
-										<span class="fas fa-lock"></span>
-									</div>
-								</div>
-								<span asp-validation-for="Input.Password" class="text-danger"></span>
+							<div class="form-group">
+
+								<label asp-for="Input.Entity.NIF"></label>
+								<input asp-for="Input.Entity.NIF" class="form-control" />
+								<span asp-validation-for="Input.Entity.NIF" class="text-danger"></span>
 							</div>
-						</div>
-						<div class="form-group">
-							<label asp-for="Input.ConfirmPassword"></label>
-							<div class="input-group mb-3">
-								<input asp-for="Input.ConfirmPassword" class="form-control" />
-								<div class="input-group-append">
-									<div class="input-group-text">
-										<span class="fas fa-lock"></span>
-									</div>
-								</div>
-								<span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+							<div class="form-group">
+
+								<label asp-for="Input.Entity.Description"></label>
+								<textarea asp-for="Input.Entity.Description" class="form-control" rows="4"> </textarea>
+								<span asp-validation-for="Input.Entity.Description" class="text-danger"></span>
 							</div>
+							<div class="form-group">
+
+								<label class=" control-label">Tipo de Subscrição</label>
+								<select asp-for="Input.Entity.MaxUsers" class="custom-select rounded-0" asp-items='ViewBag.Plans'>
+									<option selected=""> --  Seleciona o tipo de subscrição </option>
+								</select>
+								<span asp-validation-for="Input.Entity.SubscriptionDays" class="text-danger"></span>
+							</div>
+
+							<div class="form-group">
+
+								<label asp-for="Input.Entity.SubscriptionDays"></label>
+								<input asp-for="Input.Entity.SubscriptionDays" class="form-control" />
+								<span asp-validation-for="Input.Entity.SubscriptionDays" class="text-danger"></span>
+							</div>
+
+							<div class="form-group">
+
+								<label asp-for="Input.Entity.PhoneNumber"></label>
+								<input asp-for="Input.Entity.PhoneNumber" class="form-control" />
+								<span asp-validation-for="Input.Entity.PhoneNumber" class="text-danger"></span>
+							</div>
+
+							<div class="form-group">
+
+								<label asp-for="Input.Entity.PostalCode"></label>
+								<input asp-for="Input.Entity.PostalCode" class="form-control" />
+								<span asp-validation-for="Input.Entity.PostalCode" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+
+								<label asp-for="Input.Entity.Address"></label>
+								<input asp-for="Input.Entity.Address" class="form-control" />
+								<span asp-validation-for="Input.Entity.Address" class="text-danger"></span>
 							</div>
 						</div>
 						<!-- /.card-body -->
 					</div>
-				<!-- /.card -->
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-6">
-				<a asp-area="Identity" asp-page="/Account/Login" class="btn btn-secondary">Fazer Login</a>
-			</div>
-			<div class="col-3">
+					<!-- /.card -->
+				</div>
+				<div class="col-md-6">
+					<div class="card card-secondary">
+						<div class="card-header">
+							<h3 class="card-title">Responsável</h3>
 
-				<input type="checkbox" id="agreeTerms" name="terms" value="agree">
-				<label for="agreeTerms">
-					Eu concordo com os <a href="#">termos e condições</a>
-				</label>
+							<div class="card-tools">
+								<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+									<i class="fas fa-minus"></i>
+								</button>
+							</div>
+						</div>
+						<div class="card-body">
+
+							<div class="form-group">
+								<label asp-for="Input.Entity.ManagerName"></label>
+								<div class="input-group mb-3">
+
+									<input asp-for="Input.Entity.ManagerName" class="form-control" />
+									<div class="input-group-append">
+										<div class="input-group-text">
+											<span class="fas fa-user"></span>
+										</div>
+									</div>
+									<span asp-validation-for="Input.Entity.ManagerName" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label asp-for="Input.Email"></label>
+								<div class="input-group mb-3">
+									<input asp-for="Input.Email" class="form-control" />
+
+									<div class="input-group-append">
+										<div class="input-group-text">
+											<span class="fas fa-envelope"></span>
+										</div>
+									</div>
+									<span asp-validation-for="Input.Email" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label asp-for="Input.Password"></label>
+								<div class="input-group mb-3">
+									<input asp-for="Input.Password" class="form-control" />
+									<div class="input-group-append">
+										<div class="input-group-text">
+											<span class="fas fa-lock"></span>
+										</div>
+									</div>
+									<span asp-validation-for="Input.Password" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label asp-for="Input.ConfirmPassword"></label>
+								<div class="input-group mb-3">
+									<input asp-for="Input.ConfirmPassword" class="form-control" />
+									<div class="input-group-append">
+										<div class="input-group-text">
+											<span class="fas fa-lock"></span>
+										</div>
+									</div>
+									<span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+								</div>
+							</div>
+						</div>
+						<!-- /.card-body -->
+					</div>
+					<!-- /.card -->
+				</div>
 			</div>
-			<!-- /.col -->
-			<div class="col-3">
-				<button type="submit" class="btn btn-primary">Submeter</button>
+			<div class="row">
+				<div class="col-6">
+					<a asp-area="Identity" asp-page="/Account/Login" class="btn btn-secondary">Fazer Login</a>
+				</div>
+				<div class="col-3">
+
+					<input type="checkbox" id="agreeTerms" name="terms" value="agree">
+					<label for="agreeTerms">
+						Eu concordo com os <a href="#">termos e condições</a>
+					</label>
+				</div>
+				<!-- /.col -->
+				<div class="col-3">
+					<button type="submit" class="btn btn-primary">Submeter</button>
+				</div>
+				<!-- /.col -->
 			</div>
-			<!-- /.col -->
-		</div>
-	</form>
-</section>
+		</form>
+	</section>
+</div>
 
 @section Scripts {
 	<partial name="_ValidationScriptsPartial" />

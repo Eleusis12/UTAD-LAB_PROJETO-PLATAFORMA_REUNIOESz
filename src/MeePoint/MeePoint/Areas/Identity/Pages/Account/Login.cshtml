@@ -2,16 +2,19 @@
 @model LoginModel
 
 @{
+    Layout = "_CleanLayout";
+}
+
+@{
 	ViewData["Title"] = "Log in";
 }
 
-@Html.Partial("_BreadCrumb", @ViewData["Title"])
 <div class="hold-transition login-page">
 	<div class="login-box">
 		<!-- /.login-logo -->
 		<div class="card card-outline card-primary">
 			<div class="card-header text-center">
-				<a href="../../index2.html" class="h1"><b>Mee</b>Point</a>
+				<a asp-controller="Home" asp-action="MeePoint" class="h1"><b>Mee</b>Point</a>
 			</div>
 			<div class="card-body">
 				<p class="login-box-msg">Inicia a sessão para acederes à aplicação</p>

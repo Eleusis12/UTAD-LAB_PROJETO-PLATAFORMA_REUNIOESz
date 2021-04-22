@@ -1,4 +1,5 @@
 using MeePoint.Data;
+using MeePoint.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -108,7 +109,7 @@ namespace MeePoint
 			{
 				endpoints.MapControllerRoute(
 					name: "default",
-					pattern: "{controller=Home}/{action=Index}/{id?}");
+					pattern: "{controller=Home}/{action=MeePoint}");
 				endpoints.MapRazorPages();
 			});
 

@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using MeePoint.Data;
+using MeePoint.Filters;
 using MeePoint.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -22,6 +23,7 @@ using Microsoft.Extensions.Logging;
 namespace MeePoint.Areas.Identity.Pages.Account
 {
 	[AllowAnonymous]
+	
 	public class RegisterModel : PageModel
 	{
 		private readonly SignInManager<IdentityUser> _signInManager;
@@ -85,6 +87,7 @@ namespace MeePoint.Areas.Identity.Pages.Account
 				get; set;
 			}
 		}
+
 
 		public async Task OnGetAsync(string returnUrl = null)
 		{
