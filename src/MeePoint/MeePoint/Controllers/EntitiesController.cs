@@ -132,7 +132,7 @@ namespace MeePoint.Controllers
 			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
 
 			// Obtém a entidade
-			var entity = _context.Entities.Include(m => m.Groups).First(m => m.User.Email == user.Email);
+			var entity = _context.Entities.Include(m => m.Groups).Include("Groups.Members").First(m => m.User.Email == user.Email);
 
 			// Se a empresa não existe
 			if (entity == null)
@@ -151,6 +151,8 @@ namespace MeePoint.Controllers
 			Group group;
 			if (entity.Groups == null)
 			{
+
+				// TODO: Verificar se isto está correto
 				// Não existe o grupo main dentro da entidade
 				group = new Group();
 				group.Entity = entity;
@@ -192,6 +194,8 @@ namespace MeePoint.Controllers
 
 				// Adicionar credenciais à lista
 				credentials.Add(Tuple.Create(singleEmail, password));
+				
+				// TODO: Verificar se isto está correto
 				if (group.Members == null)
 				{
 					group.Members = new List<GroupMember>();
