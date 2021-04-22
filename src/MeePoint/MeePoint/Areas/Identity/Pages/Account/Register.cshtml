@@ -3,13 +3,11 @@
 @{
 	ViewData["Title"] = "Register";
 }
-@{
-	Layout = "_Layout";
-}
+
 
 <div class="container-fluid p-5 mb-2 bg-light ">
 	<div class="card-header text-center mb-2">
-		<a asp-controller="Home" asp-action="Index" class="h1 ">Começa agora a usar <b>Mee</b>Point </a>
+		<span class="h2">Começa agora a usar</span><a asp-controller="Home" asp-action="Index" class="h1 "> <b>Mee</b>Point </a>
 	</div>
 	<section class="content">
 		<form asp-route-returnUrl="@Model.ReturnUrl" method="post">
