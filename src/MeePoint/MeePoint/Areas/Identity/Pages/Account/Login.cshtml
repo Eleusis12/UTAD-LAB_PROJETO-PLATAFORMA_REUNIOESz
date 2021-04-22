@@ -1,7 +1,9 @@
 ﻿@page
 @model LoginModel
 
-
+@{
+    Layout = "_CleanLayout";
+}
 
 @{
 	ViewData["Title"] = "Log in";
@@ -12,7 +14,7 @@
 		<!-- /.login-logo -->
 		<div class="card card-outline card-primary">
 			<div class="card-header text-center">
-				<a asp-controller="Home" asp-action="Index" class="h1"><b>Mee</b>Point</a>
+				<a asp-controller="Home" asp-action="MeePoint" class="h1"><b>Mee</b>Point</a>
 			</div>
 			<div class="card-body">
 				<p class="login-box-msg">Inicia a sessão para acederes à aplicação</p>

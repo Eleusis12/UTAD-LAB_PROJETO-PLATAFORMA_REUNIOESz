@@ -74,7 +74,10 @@ namespace MeePoint.Areas.Identity.Pages.Account
 
 		public async Task<IActionResult> OnPostAsync(string returnUrl = null)
 		{
-			returnUrl = returnUrl ?? Url.Content("~/");
+			if (returnUrl == "/MeePoint")
+				returnUrl = "/";
+
+			returnUrl = returnUrl ?? Url.Content("~/Home/MainPage");
 
 			if (ModelState.IsValid)
 			{
