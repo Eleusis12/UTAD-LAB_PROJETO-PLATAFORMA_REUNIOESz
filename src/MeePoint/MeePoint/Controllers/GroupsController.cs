@@ -86,16 +86,48 @@ namespace MeePoint.Controllers
 		// more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Create([Bind("GroupID,Name,EntityID")] Group @group)
+		[Authorize(Roles = "EntityManager")]
+		public async Task<IActionResult> Create(string groupName, int[] managers, int[] coManagers, int[] participants)
 		{
-			if (ModelState.IsValid)
+			// Obtém o utilizador que está autenticado
+			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+			string email = applicationUser?.Email; // will give the user's Email
+			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+
+			// Obtém a entidade que pretende adicionar um novo grupo
+			var entity = _context.Entities.First(m => m.User.Email == user.Email);
+
+			// Proceder à criação do grupo
+			Group group = new Group()
 			{
-				_context.Add(@group);
-				await _context.SaveChangesAsync();
-				return RedirectToAction(nameof(Index));
+				Entity = entity,
+				EntityID = entity.EntityID,
+				Name = groupName,
+				Members = new List<GroupMember>()
+			};
+
+			// Adicionar os managers ao membros do grupo
+			foreach (var manager in managers)
+			{
+				group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = manager, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == manager), Role = "Manager" });
 			}
-			ViewData["EntityID"] = new SelectList(_context.Entities, "EntityID", "Name", @group.EntityID);
-			return View(@group);
+			// Adicionar os comanagers aos membros do grupo
+			foreach (var coManager in coManagers)
+			{
+				group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = coManager, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == coManager), Role = "CoManager" });
+			}
+			// Adicionar os participantes aos membros do grupo
+			foreach (var participant in participants)
+			{
+				group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = participant, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == participant), Role = "Participant" });
+			}
+
+			if (TryValidateModel(group))
+			{
+				_context.Add(group);
+				await _context.SaveChangesAsync();
+			}
+			return RedirectToAction(nameof(Create));
 		}
 
 		// GET: Groups/Edit/5

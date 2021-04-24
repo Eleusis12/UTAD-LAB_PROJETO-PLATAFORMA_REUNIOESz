@@ -1,9 +1,8 @@
 ﻿@model MeePoint.Models.Group
 
 @{
-    ViewData["Title"] = "Create";
+	ViewData["Title"] = "Create";
 }
-
 
 <div class="card card-default">
 	<div class="card-header">
@@ -20,61 +19,59 @@
 	</div>
 	<!-- /.card-header -->
 	<div class="card-body">
-		<div class="row">
-			<div class="col-12 col-sm-6">
-				<label>Nome do Grupo</label>
-				<input class="form-control"  />
+		<form asp-action="Create">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<div class="row">
+				<div class="col-12 col-sm-6">
+					<label>Nome do Grupo</label>
+					<input name="groupName" class="form-control" />
+				</div>
 			</div>
-		</div>
-		<hr />
-		<div class="row">
+			<hr />
+			<div class="row">
 
-			<div class="col-6 col-sm-3">
-				<div class="form-group">
-					<label>Responsáveis</label>
-					<div class="select2-purple">
-						<select class="select2" multiple="multiple" data-placeholder="Select a State" data-dropdown-css-class="select2-purple" style="width: 100%;"  asp-items="@ViewBag.GroupMembers">
-							
-						</select>
+				<div class="col-6 col-sm-3">
+					<div class="form-group">
+						<label>Responsáveis</label>
+						<div class="select2-purple">
+							<select name="managers" class="select2" multiple="multiple" data-placeholder="Seleciona os Responsáveis Pelo Grupo" data-dropdown-css-class="select2-purple" style="width: 100%;" asp-items="@ViewBag.GroupMembers">
+							</select>
+						</div>
+					</div>
+					<!-- /.form-group -->
+				</div>
+				<div class="col-6 col-sm-3">
+					<div class="form-group">
+						<label>Co-responsáveis</label>
+						<div class="select2-purple">
+							<select name="coManagers" class="select2" multiple="multiple" data-placeholder="Selecions os Co-Responsáveis do Grupo" data-dropdown-css-class="select2-purple" style="width: 100%;" asp-items="@ViewBag.GroupMembers">
+							</select>
+						</div>
 					</div>
 				</div>
-				<!-- /.form-group -->
 			</div>
-			<div class="col-6 col-sm-3">
-				<div class="form-group">
-					<label>Co-responsáveis</label>
-					<div class="select2-purple">
-						<select class="select2" multiple="multiple" data-placeholder="Select a State" data-dropdown-css-class="select2-purple" style="width: 100%;"  asp-items="@ViewBag.GroupMembers">
-							
-						</select>
+
+			<div class="row">
+				<div class="col-12 col-sm-6">
+					<div class="form-group">
+						<label>Participantes</label>
+						<div class="select2-purple">
+							<select name="participants" class="select2" multiple="multiple" data-placeholder="Seleciona os Participantes do Grupo" data-dropdown-css-class="select2-purple" style="width: 100%;" asp-items="@ViewBag.GroupMembers">
+							</select>
+						</div>
 					</div>
+					<!-- /.form-group -->
 				</div>
-				
 			</div>
-		</div>
-		
-		<div class="row">
-			<div class="col-12 col-sm-6">
-				<div class="form-group">
-					<label>Participantes</label>
-					<div class="select2-purple">
-						<select class="select2" multiple="multiple" data-placeholder="Select a State" data-dropdown-css-class="select2-purple" style="width: 100%;"  asp-items="@ViewBag.GroupMembers">
-							
-						</select>
-					</div>
-				</div>
-				<!-- /.form-group -->
-			</div>
-		</div>
+
+			<button type="submit" class="btn btn-success ">Criar Novo Grupo</button>
+		</form>
 
 		<!-- /.col -->
-
 	</div>
-	
 </div>
 
 @section Scripts
-
 
 {
 	<script>
@@ -82,6 +79,5 @@
 
 			$('.select2').select2()
 		});
-	  </script>
+	</script>
 }
-
