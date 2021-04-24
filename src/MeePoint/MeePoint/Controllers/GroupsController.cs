@@ -26,9 +26,22 @@ namespace MeePoint.Controllers
 		}
 
 		// GET: Groups
+		[Authorize(Roles = "EntityManager")]
 		public async Task<IActionResult> Index()
 		{
-			var applicationDbContext = _context.Groups.Include(m => m.Entity);
+			// Obtém o utilizador que está autenticado
+			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+			string email = applicationUser?.Email; // will give the user's Email
+			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+
+			// Verifica se o utilizador que quer aceder a esta página é de facto um entityManager de alguma entidade
+			var entity = _context.Entities.First(m => m.User.Email == user.Email);
+
+			// Entidade == null, significa que o utilizador não tem permissões. FORBIDDEN
+			if (entity == null)
+				return StatusCode(403);
+
+			var applicationDbContext = _context.Groups.Include(m => m.Entity).Include(m => m.Members).Include("Members.User").Where(m => m.EntityID == entity.EntityID).Where(m => m.Name.ToLower() != "main".ToLower());
 			return View(await applicationDbContext.ToListAsync());
 		}
 

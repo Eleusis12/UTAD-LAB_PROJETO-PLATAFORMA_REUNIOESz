@@ -29,11 +29,12 @@
 		</tr>
 	</thead>
 	<tbody>
+		@{ int i = 1;}
 		@foreach (var item in Model)
 		{
 			<tr>
 				<td>
-					#
+					@(i++)
 				</td>
 				<td>
 					<a>

@@ -1,41 +1,99 @@
 ﻿@model IEnumerable<MeePoint.Models.Group>
 
 @{
-    ViewData["Title"] = "Index";
+	ViewData["Title"] = "Index";
 }
+@Html.Partial("_BreadCrumb", @ViewData["Title"])
+<section class="content">
 
-<h1>Index</h1>
+	<!-- Default box -->
+	<div class="card">
+		<div class="card-header">
+			<h3 class="card-title">Grupos</h3>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Entity)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Entity.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.GroupID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.GroupID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.GroupID">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+			<div class="card-tools">
+				<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+					<i class="fas fa-minus"></i>
+				</button>
+				<button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+					<i class="fas fa-times"></i>
+				</button>
+			</div>
+		</div>
+		<div class="card-body p-0">
+			<table id="GroupsTable" class="table table-striped projects">
+				<thead>
+					<tr>
+						<th style="width: 1%">
+							#
+						</th>
+						<th style="width: 20%">
+							Nome do Responsável 
+						</th>
+						<th style="width: 20%">
+							Nome do Co-Responsável 
+						</th>
+						<th>
+							Participantes
+						</th>
+						
+						<th style="width: 20%">
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					@{ int i = 1;}
+					@foreach (var item in Model)
+					{
+						<tr>
+							<td>
+								@(i++)
+							</td>
+							<td>
+								<a>
+									@{ 
+
+										var manager = item.Members.FirstOrDefault(m => m.Role.ToLower() == "Manager".ToLower());
+
+									}
+									@(manager?.User?.Name?? manager?.User?.Email)
+								</a>
+								
+							</td>
+							<td>
+								@{
+
+									var coManager = item.Members.FirstOrDefault(m => m.Role.ToLower() == "CoManager".ToLower());
+								}
+								@(coManager?.User?.Name?? coManager?.User?.Email)
+							</td>
+							<td >
+								@{ 
+									var amountParticipants = item.Members.Count();
+								}
+								@(amountParticipants)
+							</td>
+							
+
+							<td class="project-actions text-right">
+								
+								<a class="btn btn-info btn-sm" asp-controller="Groups" asp-action="Edit" asp-route-id="@item.GroupID">
+									<i class="fas fa-pencil-alt">
+									</i>
+									Editar
+								</a>
+								<a class="btn btn-danger btn-sm" asp-controller="Groups" asp-action="Delete" asp-route-id="@item.GroupID">
+									<i class="fas fa-trash">
+									</i>
+									Apagar
+								</a>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+		<!-- /.card-body -->
+	</div>
+	<!-- /.card -->
+</section>
