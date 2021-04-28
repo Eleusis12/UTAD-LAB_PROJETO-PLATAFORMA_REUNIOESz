@@ -17,6 +17,7 @@ using System.IO;
 
 namespace MeePoint.Controllers
 {
+	[Route("[controller]/[action]")]
 	public class EntitiesController : Controller
 	{
 		private readonly ApplicationDbContext _context;
@@ -24,6 +25,7 @@ namespace MeePoint.Controllers
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly SignInManager<IdentityUser> _signInManager;
 
+		
 		public EntitiesController(ApplicationDbContext context, IHostEnvironment host,
 			UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
 		{
@@ -34,6 +36,7 @@ namespace MeePoint.Controllers
 		}
 
 		// GET : Apresenta uma lista de Entidades
+		[Authorize(Roles = "Administrator")]
 		public async Task<IActionResult> Index()
 		{
 			var applicationDbContext = _context.Entities.Include(e => e.User);
@@ -41,6 +44,7 @@ namespace MeePoint.Controllers
 		}
 
 		// GET: Apresenta os detalhes de uma determinada entidade
+		[Authorize(Roles = "Administrator")]
 		public async Task<IActionResult> Details(int? id)
 		{
 			if (id == null)
@@ -60,6 +64,7 @@ namespace MeePoint.Controllers
 		}
 
 		// GET: Apresenta página no qual o administrador possa adicionar uma nova entidade
+		[Authorize(Roles = "Administrator")]
 		public IActionResult Create()
 		{
 			return View();
@@ -69,6 +74,7 @@ namespace MeePoint.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
+		[Authorize(Roles = "Administrator")]
 		public async Task<IActionResult> Create([Bind("EntityID,NIF,Name,Description,PhoneNumber,ManagerName,StatusEntity,SubscriptionDays,MaxUsers,PostalCode,Address,Manager,User")] Entity entity)
 		{
 			entity.SubscriptionDateStart = DateTime.Now;
@@ -89,6 +95,7 @@ namespace MeePoint.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
+		[Authorize(Roles = "Administrator")]
 		public IActionResult ApproveEntity(int? id)
 		{
 			// The Post method is incomplete
@@ -270,6 +277,8 @@ namespace MeePoint.Controllers
 		}
 
 		// GET: Apresenta página no qual o administrador possa alterar dados das entidades
+		[Route("{id}")]
+		[Authorize(Roles = "Administrator,EntityManager")]
 		public async Task<IActionResult> Edit(int? id)
 		{
 			if (id == null)
@@ -287,10 +296,12 @@ namespace MeePoint.Controllers
 		}
 
 		// POST: Permite alterar dados de uma entidade já existente
-		[HttpPost]
+		[HttpPost("{id}")]
 		[ValidateAntiForgeryToken]
+		[Authorize(Roles = "Administrator,EntityManager")]
 		public async Task<IActionResult> Edit(int id, [Bind("EntityID,NIF,Name,Description,PhoneNumber,ManagerName,StatusEntity,SubscriptionDays,MaxUsers,PostalCode,Address,Manager,User")] Entity entity)
 		{
+
 			if (id != entity.EntityID)
 			{
 				return NotFound();
@@ -321,6 +332,8 @@ namespace MeePoint.Controllers
 		}
 
 		// GET: Apresenta página no qual pede ao administrado a confirmação de eliminiação de uma entidade
+		[Route("{id}")]
+		[Authorize(Roles = "Administrator")]
 		public async Task<IActionResult> Delete(int? id)
 		{
 			if (id == null)
@@ -340,10 +353,13 @@ namespace MeePoint.Controllers
 		}
 
 		// POST: Permite Eliminar uma Entidade
-		[HttpPost, ActionName("Delete")]
+		[HttpPost("{id}"), ActionName("Delete")]
 		[ValidateAntiForgeryToken]
+		[Authorize(Roles = "Administrator")]
 		public async Task<IActionResult> DeleteConfirmed(int id)
 		{
+			string s = Request.QueryString.ToString();
+
 			var entity = await _context.Entities.FindAsync(id);
 			_context.Entities.Remove(entity);
 			await _context.SaveChangesAsync();
