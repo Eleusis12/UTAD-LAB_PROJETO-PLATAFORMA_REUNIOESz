@@ -144,6 +144,33 @@ namespace MeePoint.Areas.Identity.Pages.Account
 					// Validate entity model, to check if it respects all requirementes
 					if (TryValidateModel(Input.Entity))
 					{
+						// inicio
+
+						// Vamos criar um grupo de trabalho com o nome de "main" ao qual vamos adicionar o admin que estamos agora a registar
+						Group group = new Group();
+
+						group.Entity = Input.Entity;
+						group.EntityID = Input.Entity.EntityID;
+						group.Name = "main";
+
+						// Agora que temos o grupo criado, vamos adicionar o membro
+						group.Members = new List<GroupMember>();
+
+						group.Members.Add(new GroupMember
+						{
+							Group = group,
+							GroupID = group.GroupID,
+							Role = "User",
+							User = newUser,
+							UserID = newUser.RegisteredUserID
+						});
+
+						// Criar uma lista de grupos
+						List<Group> Groups = new List<Group>();
+						Groups.Add(group);
+						Input.Entity.Groups = Groups;
+
+						// fim
 						// Add Entity to database
 						_context.Add(Input.Entity);
 						await _context.SaveChangesAsync();
