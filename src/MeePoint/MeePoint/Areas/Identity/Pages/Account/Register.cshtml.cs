@@ -23,14 +23,15 @@ using Microsoft.Extensions.Logging;
 namespace MeePoint.Areas.Identity.Pages.Account
 {
 	[AllowAnonymous]
-	
 	public class RegisterModel : PageModel
 	{
 		private readonly SignInManager<IdentityUser> _signInManager;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly ILogger<RegisterModel> _logger;
-		private readonly IEmailSender _emailSender;
+
+		//private readonly IEmailSender _emailSender;
 		private readonly ApplicationDbContext _context;
+
 		private readonly RoleManager<IdentityRole> _roleManager;
 		private readonly IHostEnvironment _he;
 
@@ -38,14 +39,13 @@ namespace MeePoint.Areas.Identity.Pages.Account
 			UserManager<IdentityUser> userManager,
 			SignInManager<IdentityUser> signInManager,
 			ILogger<RegisterModel> logger,
-			IEmailSender emailSender,
 			ApplicationDbContext dbContext,
 			RoleManager<IdentityRole> roleManager, IHostEnvironment host)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
 			_logger = logger;
-			_emailSender = emailSender;
+			//_emailSender = emailSender;
 			_context = dbContext;
 			_roleManager = roleManager;
 			_he = host;
@@ -87,7 +87,6 @@ namespace MeePoint.Areas.Identity.Pages.Account
 				get; set;
 			}
 		}
-
 
 		public async Task OnGetAsync(string returnUrl = null)
 		{
@@ -145,6 +144,33 @@ namespace MeePoint.Areas.Identity.Pages.Account
 					// Validate entity model, to check if it respects all requirementes
 					if (TryValidateModel(Input.Entity))
 					{
+						// inicio
+
+						// Vamos criar um grupo de trabalho com o nome de "main" ao qual vamos adicionar o admin que estamos agora a registar
+						Group group = new Group();
+
+						group.Entity = Input.Entity;
+						group.EntityID = Input.Entity.EntityID;
+						group.Name = "main";
+
+						// Agora que temos o grupo criado, vamos adicionar o membro
+						group.Members = new List<GroupMember>();
+
+						group.Members.Add(new GroupMember
+						{
+							Group = group,
+							GroupID = group.GroupID,
+							Role = "User",
+							User = newUser,
+							UserID = newUser.RegisteredUserID
+						});
+
+						// Criar uma lista de grupos
+						List<Group> Groups = new List<Group>();
+						Groups.Add(group);
+						Input.Entity.Groups = Groups;
+
+						// fim
 						// Add Entity to database
 						_context.Add(Input.Entity);
 						await _context.SaveChangesAsync();
@@ -158,8 +184,8 @@ namespace MeePoint.Areas.Identity.Pages.Account
 						values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
 						protocol: Request.Scheme);
 
-					await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-						$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+					//await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+					//	$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
 					if (_userManager.Options.SignIn.RequireConfirmedAccount)
 					{
