@@ -92,10 +92,6 @@ namespace MeePoint.Areas.Identity.Pages.Account
 				if (result.Succeeded)
 				{
 					_logger.LogInformation("User logged in.");
-					var registeredUser = _context.RegisteredUsers.SingleOrDefault(m => m.Email == Input.Email);
-
-					HttpContext.Session.SetString("UserName", registeredUser.Name ?? "Nome");
-					HttpContext.Session.SetString("Photo", registeredUser.Photo ?? "Foto");
 
 					return LocalRedirect(returnUrl);
 				}

@@ -33,10 +33,10 @@
 					<a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
 				</li>
 				<li class="nav-item d-none d-sm-inline-block">
-					<a href="index3.html" class="nav-link">Home</a>
+					<a asp-controller="Home" asp-action="MainPage" class="nav-link">Home</a>
 				</li>
 				<li class="nav-item d-none d-sm-inline-block">
-					<a href="#" class="nav-link">Contact</a>
+					<a href="#" class="nav-link">Contactos</a>
 				</li>
 			</ul>
 
@@ -176,20 +176,10 @@
 				<div class="user-panel mt-3 pb-3 mb-3 d-flex">
 					<div class="image">
 
-						@{
-							@*if (Context.Session.GetString("Photo").ToLower() == "Foto".ToLower())
-								{
-									<img src="~/assets/images/Profile.png" class="img-circle elevation-2" alt="Não tem Imagem">
-								}
-								else
-								{
-									<img src="@Context.Session.GetString("Photo")" class="img-circle elevation-2" alt="Não tem Imagem">
-								}*@
-
-						}
+						@await Component.InvokeAsync("MyProfilePhoto", new { Email = UserManager.GetUserName(User) })
 					</div>
 					<div class="info">
-						@*<a asp-area="Identity" asp-page="/Account/Manage/Index" class="d-block">@Context.Session.GetString("UserName")</a>*@
+						@await Component.InvokeAsync("MyName", new { Email = UserManager.GetUserName(User) })
 					</div>
 				</div>
 
@@ -214,29 +204,29 @@
 						@if (User.IsInRole("Admin"))
 						{
 
-							<li class="nav-item">
-								<a class="nav-link">
-									<i class="nav-icon fas fa-copy"></i>
-									<p>
-										Entidades
-										<i class="fas fa-angle-left right"></i>
-									</p>
-								</a>
-								<ul class="nav nav-treeview">
-									<li class="nav-item">
-										<a asp-controller="Entities" asp-action="Index" class="nav-link">
-											<i class="far fa-circle nav-icon"></i>
-											<p>Lista</p>
-										</a>
-									</li>
-									<li class="nav-item">
-										<a asp-controller="Entities" asp-action="Create" class="nav-link">
-											<i class="far fa-circle nav-icon"></i>
-											<p>Nova Entidade</p>
-										</a>
-									</li>
-								</ul>
-							</li>
+						<li class="nav-item">
+							<a class="nav-link">
+								<i class="nav-icon fas fa-copy"></i>
+								<p>
+									Entidades
+									<i class="fas fa-angle-left right"></i>
+								</p>
+							</a>
+							<ul class="nav nav-treeview">
+								<li class="nav-item">
+									<a asp-controller="Entities" asp-action="Index" class="nav-link">
+										<i class="far fa-circle nav-icon"></i>
+										<p>Lista</p>
+									</a>
+								</li>
+								<li class="nav-item">
+									<a asp-controller="Entities" asp-action="Create" class="nav-link">
+										<i class="far fa-circle nav-icon"></i>
+										<p>Nova Entidade</p>
+									</a>
+								</li>
+							</ul>
+						</li>
 						}
 						<li class="nav-item">
 							<a class="nav-link">
@@ -252,12 +242,12 @@
 
 								@if (User.IsInRole("EntityManager"))
 								{
-									<li class="nav-item">
-										<a asp-controller="Groups" asp-action="Create" class="nav-link">
-											<i class="far fa-circle nav-icon"></i>
-											<p>Adicionar Grupo</p>
-										</a>
-									</li>
+								<li class="nav-item">
+									<a asp-controller="Groups" asp-action="Create" class="nav-link">
+										<i class="far fa-circle nav-icon"></i>
+										<p>Adicionar Grupo</p>
+									</a>
+								</li>
 								}
 							</ul>
 						</li>
