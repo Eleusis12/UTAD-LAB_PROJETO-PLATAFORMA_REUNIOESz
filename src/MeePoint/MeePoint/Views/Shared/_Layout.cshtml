@@ -1,5 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity;
 @using System.Web;
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 
 <!DOCTYPE html>
 <html lang="en">
@@ -175,19 +177,19 @@
 					<div class="image">
 
 						@{
-							if (Context.Session.GetString("Photo").ToLower() == "Foto".ToLower())
-							{
-								<img src="~/assets/images/Profile.png" class="img-circle elevation-2" alt="Não tem Imagem">
-							}
-							else
-							{
-								<img src="@Context.Session.GetString("Photo")" class="img-circle elevation-2" alt="Não tem Imagem">
-							}
+							@*if (Context.Session.GetString("Photo").ToLower() == "Foto".ToLower())
+								{
+									<img src="~/assets/images/Profile.png" class="img-circle elevation-2" alt="Não tem Imagem">
+								}
+								else
+								{
+									<img src="@Context.Session.GetString("Photo")" class="img-circle elevation-2" alt="Não tem Imagem">
+								}*@
 
 						}
 					</div>
 					<div class="info">
-						<a asp-area="Identity" asp-page="/Account/Manage/Index" class="d-block">@Context.Session.GetString("UserName")</a>
+						@*<a asp-area="Identity" asp-page="/Account/Manage/Index" class="d-block">@Context.Session.GetString("UserName")</a>*@
 					</div>
 				</div>
 
@@ -245,6 +247,9 @@
 								</p>
 							</a>
 							<ul class="nav nav-treeview">
+
+								@await Component.InvokeAsync("MyGroups", new { Email = UserManager.GetUserName(User) })
+
 								@if (User.IsInRole("EntityManager"))
 								{
 									<li class="nav-item">

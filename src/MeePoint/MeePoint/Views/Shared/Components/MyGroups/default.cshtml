@@ -1,0 +1,15 @@
+﻿@model IEnumerable<MeePoint.Models.GroupMember>
+
+@{
+
+	foreach (var groupMember in Model)
+	{
+		<li class="nav-item">
+			<a asp-controller="Groups" asp-action="Details" asp-route-id="@groupMember.Group.GroupID" class="nav-link">
+				<i class="far fa-circle nav-icon"></i>
+				<p>@groupMember.Group.Name</p>
+			</a>
+		</li>
+	}
+
+}
