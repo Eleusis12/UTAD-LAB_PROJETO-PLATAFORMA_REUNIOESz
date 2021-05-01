@@ -13,7 +13,7 @@ namespace MeePoint.Models
 		public string Name { get; set; }
 
 		[StringLength(500)]
-		public string Foto { get; set; }
+		public string Photo { get; set; }
 
 		public virtual ICollection<GroupMember> Groups { get; set; }
 		public virtual ICollection<Convocation> Convocations { get; set; }
