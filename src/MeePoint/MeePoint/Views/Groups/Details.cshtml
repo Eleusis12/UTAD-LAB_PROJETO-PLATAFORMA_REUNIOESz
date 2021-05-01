@@ -4,27 +4,197 @@
 	ViewData["Title"] = "Details";
 }
 @Html.Partial("_BreadCrumb", @ViewData["Title"])
-<h1>Details</h1>
 
-<div>
-	<h4>Group</h4>
-	<hr />
-	<dl class="row">
-		<dt class="col-sm-2">
-			@Html.DisplayNameFor(model => model.Name)
-		</dt>
-		<dd class="col-sm-10">
-			@Html.DisplayFor(model => model.Name)
-		</dd>
-		<dt class="col-sm-2">
-			@Html.DisplayNameFor(model => model.Entity)
-		</dt>
-		<dd class="col-sm-10">
-			@Html.DisplayFor(model => model.Entity.Name)
-		</dd>
-	</dl>
+<!-- Small boxes (Stat box) -->
+<div class="row">
+	<div class="col-lg-3 col-6">
+		<!-- small box -->
+		<div class="small-box bg-info">
+			<div class="inner">
+				<h3>@Model.Name</h3>
+
+				<p>Nome do Responsável: @Model.Entity.ManagerName</p>
+			</div>
+			<div class="icon">
+				<i class="ion ion-bag"></i>
+			</div>
+			<a asp-controller="RegisteredUsers" asp-action="Details" asp-route-id="@Model.Entity.User.RegisteredUserID" class="small-box-footer">Ver Perfil do Responsável <i class="fas fa-arrow-circle-right"></i></a>
+		</div>
+	</div>
+	<!-- ./col -->
+	<div class="col-lg-3 col-6">
+		<!-- small box -->
+		<div class="small-box bg-success">
+			<div class="inner">
+				<h3>
+					@{
+						var firstDay = DateTime.Today.AddDays(-30);
+						var countMeetings = Model.Meetings.Where(x => x.MeetingDate >= firstDay).Count();
+					}
+					@countMeetings
+				</h3>
+
+				<p>Reuniões efetuadas no último mês</p>
+			</div>
+			<div class="icon">
+				<i class="ion ion-stats-bars"></i>
+			</div>
+			<a asp-controller="Groups" asp-action="History" asp-route-id="@Model.GroupID" class="small-box-footer">Ver o histórico de reuniões <i class="fas fa-arrow-circle-right"></i></a>
+		</div>
+	</div>
+	<!-- ./col -->
+	<div class="col-lg-3 col-6">
+		<!-- small box -->
+		<div class="small-box bg-warning">
+			<div class="inner">
+				<h3>@Model.Members.Count()</h3>
+
+				<p>Participantes</p>
+			</div>
+			<div class="icon">
+				<i class="ion ion-person-add"></i>
+			</div>
+			<a asp-controller="Groups" asp-action="Participants" asp-route-id="@Model.GroupID" class="small-box-footer">Ver Lista de Participantes <i class="fas fa-arrow-circle-right"></i></a>
+		</div>
+	</div>
+	<!-- ./col -->
+	<div class="col-lg-3 col-6">
+		<!-- small box -->
+		<div class="small-box bg-danger">
+			<div class="inner">
+				<h3>
+					@{
+						var nextMeetingDate = Model.Meetings.OrderByDescending(x => x.MeetingDate).Where(x => x.MeetingDate >= DateTime.Now).FirstOrDefault();
+						string dateString;
+						if (nextMeetingDate != null)
+						{
+							dateString = String.Format("{0:ddd d MMM }", nextMeetingDate.MeetingDate);
+						}
+						else
+						{
+							dateString = "Sem reuniões";
+						}
+					}
+					@dateString
+				</h3>
+
+				<p>Próxima Reunião</p>
+			</div>
+			<div class="icon">
+				<i class="ion ion-pie-graph"></i>
+			</div>
+
+			@if (nextMeetingDate != null)
+			{
+				<a asp-controller="Meetings" asp-action="Details" asp-route-id="@nextMeetingDate.MeetingID" class="small-box-footer">Ver Detalhes da Reunião <i class="fas fa-arrow-circle-right"></i></a>
+
+			}
+		</div>
+	</div>
+	<!-- ./col -->
 </div>
-<div>
-	<a asp-action="Edit" asp-route-id="@Model.GroupID">Edit</a> |
-	<a asp-action="Index">Back to List</a>
+
+<!-- Timelime example  -->
+<div class="row">
+	<div class="col-md-12">
+		<!-- The time line -->
+		<div class="timeline">
+			<!-- timeline time label -->
+			<div class="time-label">
+				<span class="bg-red">10 Feb. 2014</span>
+			</div>
+			<!-- /.timeline-label -->
+			<!-- timeline item -->
+			<div>
+				<i class="fas fa-envelope bg-blue"></i>
+				<div class="timeline-item">
+					<span class="time"><i class="fas fa-clock"></i> 12:05</span>
+					<h3 class="timeline-header"><a href="#">Support Team</a> sent you an email</h3>
+
+					<div class="timeline-body">
+						Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles,
+						weebly ning heekya handango imeem plugg dopplr jibjab, movity
+						jajah plickers sifteo edmodo ifttt zimbra. Babblely odeo kaboodle
+						quora plaxo ideeli hulu weebly balihoo...
+					</div>
+					<div class="timeline-footer">
+						<a class="btn btn-primary btn-sm">Read more</a>
+						<a class="btn btn-danger btn-sm">Delete</a>
+					</div>
+				</div>
+			</div>
+			<!-- END timeline item -->
+			<!-- timeline item -->
+			<div>
+				<i class="fas fa-user bg-green"></i>
+				<div class="timeline-item">
+					<span class="time"><i class="fas fa-clock"></i> 5 mins ago</span>
+					<h3 class="timeline-header no-border"><a href="#">Sarah Young</a> accepted your friend request</h3>
+				</div>
+			</div>
+			<!-- END timeline item -->
+			<!-- timeline item -->
+			<div>
+				<i class="fas fa-comments bg-yellow"></i>
+				<div class="timeline-item">
+					<span class="time"><i class="fas fa-clock"></i> 27 mins ago</span>
+					<h3 class="timeline-header"><a href="#">Jay White</a> commented on your post</h3>
+					<div class="timeline-body">
+						Take me to your leader!
+						Switzerland is small and neutral!
+						We are more like Germany, ambitious and misunderstood!
+					</div>
+					<div class="timeline-footer">
+						<a class="btn btn-warning btn-sm">View comment</a>
+					</div>
+				</div>
+			</div>
+			<!-- END timeline item -->
+			<!-- timeline time label -->
+			<div class="time-label">
+				<span class="bg-green">3 Jan. 2014</span>
+			</div>
+			<!-- /.timeline-label -->
+			<!-- timeline item -->
+			<div>
+				<i class="fa fa-camera bg-purple"></i>
+				<div class="timeline-item">
+					<span class="time"><i class="fas fa-clock"></i> 2 days ago</span>
+					<h3 class="timeline-header"><a href="#">Mina Lee</a> uploaded new photos</h3>
+					<div class="timeline-body">
+						<img src="https://placehold.it/150x100" alt="...">
+						<img src="https://placehold.it/150x100" alt="...">
+						<img src="https://placehold.it/150x100" alt="...">
+						<img src="https://placehold.it/150x100" alt="...">
+						<img src="https://placehold.it/150x100" alt="...">
+					</div>
+				</div>
+			</div>
+			<!-- END timeline item -->
+			<!-- timeline item -->
+			<div>
+				<i class="fas fa-video bg-maroon"></i>
+
+				<div class="timeline-item">
+					<span class="time"><i class="fas fa-clock"></i> 5 days ago</span>
+
+					<h3 class="timeline-header"><a href="#">Mr. Doe</a> shared a video</h3>
+
+					<div class="timeline-body">
+						<div class="embed-responsive embed-responsive-16by9">
+							<iframe class="embed-responsive-item" src="https://www.youtube.com/embed/tMWkeBIohBs" allowfullscreen></iframe>
+						</div>
+					</div>
+					<div class="timeline-footer">
+						<a href="#" class="btn btn-sm bg-maroon">See comments</a>
+					</div>
+				</div>
+			</div>
+			<!-- END timeline item -->
+			<div>
+				<i class="fas fa-clock bg-gray"></i>
+			</div>
+		</div>
+	</div>
+	<!-- /.col -->
 </div>
