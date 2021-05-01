@@ -81,6 +81,8 @@ namespace MeePoint
 				// requires using Microsoft.AspNetCore.Http;
 				options.MinimumSameSitePolicy = SameSiteMode.None;
 			});
+
+			services.AddSession();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -104,6 +106,8 @@ namespace MeePoint
 
 			app.UseAuthentication();
 			app.UseAuthorization();
+
+			app.UseSession();
 
 			app.UseEndpoints(endpoints =>
 			{

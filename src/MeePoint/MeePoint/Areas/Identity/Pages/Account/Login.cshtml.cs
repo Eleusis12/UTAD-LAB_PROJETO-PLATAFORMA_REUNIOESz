@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using MeePoint.Filters;
+using Microsoft.AspNetCore.Http;
+using MeePoint.Data;
 
 namespace MeePoint.Areas.Identity.Pages.Account
 {
@@ -21,14 +23,17 @@ namespace MeePoint.Areas.Identity.Pages.Account
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly SignInManager<IdentityUser> _signInManager;
 		private readonly ILogger<LoginModel> _logger;
+		private readonly ApplicationDbContext _context;
 
 		public LoginModel(SignInManager<IdentityUser> signInManager,
 			ILogger<LoginModel> logger,
-			UserManager<IdentityUser> userManager)
+			UserManager<IdentityUser> userManager,
+			ApplicationDbContext dbContext)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
 			_logger = logger;
+			_context = dbContext;
 		}
 
 		[BindProperty]
@@ -87,6 +92,11 @@ namespace MeePoint.Areas.Identity.Pages.Account
 				if (result.Succeeded)
 				{
 					_logger.LogInformation("User logged in.");
+					var registeredUser = _context.RegisteredUsers.SingleOrDefault(m => m.Email == Input.Email);
+
+					HttpContext.Session.SetString("UserName", registeredUser.Name ?? "Nome");
+					HttpContext.Session.SetString("Photo", registeredUser.Photo ?? "Foto");
+
 					return LocalRedirect(returnUrl);
 				}
 				if (result.RequiresTwoFactor)
