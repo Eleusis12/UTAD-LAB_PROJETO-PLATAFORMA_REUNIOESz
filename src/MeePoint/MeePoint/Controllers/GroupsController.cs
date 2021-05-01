@@ -46,6 +46,7 @@ namespace MeePoint.Controllers
 		}
 
 		// GET: Groups/Details/5
+		[Authorize(Roles = "EntityManager,GroupManager,User")]
 		public async Task<IActionResult> Details(int? id)
 		{
 			if (id == null)
@@ -55,7 +56,30 @@ namespace MeePoint.Controllers
 
 			var @group = await _context.Groups
 				.Include(m => m.Entity)
+				.Include(m => m.Members)
+				.Include(m => m.Meetings)
+				.Include("Entity.User")
+				.Include("Members.User")
 				.FirstOrDefaultAsync(m => m.GroupID == id);
+
+			// Obtém o utilizador que está autenticado
+			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+			string email = applicationUser?.Email; // will give the user's Email
+			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+
+			// Agora temos que confirmar se o utilizador que pretende aceder a esta informação, pertence ao grupo
+			var member = group.Members.SingleOrDefault(m => m.User.RegisteredUserID == user.RegisteredUserID);
+
+			// Verificar se o utilizador é manager da entidade
+			var entityManager = group.Entity.User.RegisteredUserID == user.RegisteredUserID;
+
+			// Se o utilizador que estiver a efetuar este pedido não faz parte do grupo ou não é o manager
+			if (member == null && entityManager == false)
+			{
+				// NotFound, porque em teoria se o utilizador n pertence a este grupo, não tem direito de saber sequer da existência dele
+				return NotFound();
+			}
+
 			if (@group == null)
 			{
 				return NotFound();
@@ -224,6 +248,88 @@ namespace MeePoint.Controllers
 			_context.Groups.Remove(@group);
 			await _context.SaveChangesAsync();
 			return RedirectToAction(nameof(Index));
+		}
+
+		// Assegurar que apenas os membros podem ver esta informação
+		[Authorize(Roles = "EntityManager,GroupManager,User")]
+		// GET: Groups/Participants
+		public async Task<IActionResult> Participants(int? id)
+		{
+			// Obtém o utilizador que está autenticado
+			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+			string email = applicationUser?.Email; // will give the user's Email
+			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+
+			// Verifica se o int recebido é válido
+			if (id == null)
+			{
+				return NotFound();
+			}
+
+			// Incluir os membros do grupo
+			var group = _context.Groups.Include(m => m.Entity).Include("Entity.User").Include(m => m.Members).Include("Members.User").FirstOrDefault(m => m.GroupID == id);
+
+			// Não encontrou o grupo na base de dados
+			if (group == null)
+			{
+				return NotFound();
+			}
+
+			// Agora temos que confirmar se o utilizador que pretende aceder a esta informação, pertence ao grupo
+			var member = group.Members.SingleOrDefault(m => m.User.RegisteredUserID == user.RegisteredUserID);
+
+			// Verificar se o utilizador é manager da entidade
+			var entityManager = group.Entity.User.RegisteredUserID == user.RegisteredUserID;
+
+			// Se o utilizador que estiver a efetuar este pedido não faz parte do grupo ou não é o manager
+			if (member == null && entityManager == false)
+			{
+				// NotFound, porque em teoria se o utilizador n pertence a este grupo, não tem direito de saber sequer da existência dele
+				return NotFound();
+			}
+
+			return View(group);
+		}
+
+		// Assegurar que apenas os membros podem ver esta informação
+		[Authorize(Roles = "EntityManager,GroupManager,User")]
+		// GET: Groups/Participants
+		public async Task<IActionResult> History(int? id)
+		{
+			// Obtém o utilizador que está autenticado
+			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+			string email = applicationUser?.Email; // will give the user's Email
+			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+
+			// Verifica se o int recebido é válido
+			if (id == null)
+			{
+				return NotFound();
+			}
+
+			// Incluir os membros do grupo
+			var group = _context.Groups.Include(m => m.Meetings).Include(m => m.Entity).Include("Entity.User").Include(m => m.Members).Include("Members.User").FirstOrDefault(m => m.GroupID == id);
+
+			// Não encontrou o grupo na base de dados
+			if (group == null)
+			{
+				return NotFound();
+			}
+
+			// Agora temos que confirmar se o utilizador que pretende aceder a esta informação, pertence ao grupo
+			var member = group.Members.SingleOrDefault(m => m.User.RegisteredUserID == user.RegisteredUserID);
+
+			// Verificar se o utilizador é manager da entidade
+			var entityManager = group.Entity.User.RegisteredUserID == user.RegisteredUserID;
+
+			// Se o utilizador que estiver a efetuar este pedido não faz parte do grupo ou não é o manager
+			if (member == null && entityManager == false)
+			{
+				// NotFound, porque em teoria se o utilizador n pertence a este grupo, não tem direito de saber sequer da existência dele
+				return NotFound();
+			}
+
+			return View(group);
 		}
 
 		private bool GroupExists(int id)
