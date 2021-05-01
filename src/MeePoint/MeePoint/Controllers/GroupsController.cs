@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace MeePoint.Controllers
 {
+	[Route("[controller]/[action]")]
 	public class GroupsController : Controller
 	{
 		private readonly ApplicationDbContext _context;
@@ -248,6 +249,88 @@ namespace MeePoint.Controllers
 			_context.Groups.Remove(@group);
 			await _context.SaveChangesAsync();
 			return RedirectToAction(nameof(Index));
+		}
+
+		[HttpGet("{id}")]
+		public async Task<IActionResult> AddManagers(int? id)
+        {
+			if (id == null)
+			{
+				return NotFound();
+			}
+
+			var @group = await _context.Groups.FindAsync(id);
+			if (@group == null)
+			{
+				return NotFound();
+			}
+
+			var entity = await _context.Entities.FirstAsync(e => e.EntityID == @group.EntityID);
+
+			ViewBag.GroupMembers = _context.GroupMembers
+			   .Include(m => m.Group)
+			   .Include("Group.Entity")
+			   .Include(m => m.User)
+			   .Where(m => m.Group.EntityID == entity.EntityID)
+			   .Where(m => m.Group.Name.ToLower() == "main".ToLower())
+			   .Select(c => new SelectListItem()
+			   { Text = c.User.Email, Value = c.User.RegisteredUserID.ToString() })
+			   .ToList();
+
+			ViewData["EntityID"] = new SelectList(_context.Entities, "EntityID", "Name", @group.EntityID);
+			return View(@group);
+
+
+		}
+
+		[HttpPost("{id}"), ActionName("AddManagers")]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> AddManagers(int id, int[] managers, int[] coManagers)
+        {
+			
+			var group = await _context.Groups.Include(g => g.Members).FirstAsync(g => g.GroupID == id);
+
+			if(group == null)
+            {
+				return NotFound();
+            }
+
+			foreach (var manager in managers)
+			{
+				// Try to find if the appointed user already is part of the group. If it is, the role is changed. If not, an exception is thrown and, when handling it, the user is added 
+				// to the group with the intended role
+                try
+                {
+					var user = group.Members.First(m => m.UserID == manager);
+					user.Role = "Manager";
+				}
+				catch(InvalidOperationException e)
+                {
+					group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = manager, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == manager), Role = "Manager" });
+				}
+			}
+
+			foreach (var coManager in coManagers)
+			{
+
+				try
+				{
+					var user = group.Members.First(m => m.UserID == coManager);
+					user.Role = "CoManager";
+				}
+				catch (InvalidOperationException e)
+				{
+					group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = coManager, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == coManager), Role = "CoManager" });
+				}
+
+
+			}
+
+			await _context.SaveChangesAsync();
+
+			ViewData["EntityID"] = new SelectList(_context.Entities, "EntityID", "Name", @group.EntityID);
+			return RedirectToAction(nameof(AddManagers));
+
 		}
 
 		// Assegurar que apenas os membros podem ver esta informação
