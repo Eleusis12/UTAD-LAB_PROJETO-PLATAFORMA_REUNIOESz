@@ -31,7 +31,7 @@ namespace MeePoint
 		{
 			services.AddDbContext<ApplicationDbContext>(options =>
 				options.UseSqlServer(
-					Configuration.GetConnectionString("DefaultConnection")));
+					Configuration.GetConnectionString("LocalConnection")));
 			services.AddIdentity<IdentityUser, IdentityRole>(
 				options =>
 				{
@@ -81,7 +81,6 @@ namespace MeePoint
 				// requires using Microsoft.AspNetCore.Http;
 				options.MinimumSameSitePolicy = SameSiteMode.None;
 			});
-
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -105,7 +104,6 @@ namespace MeePoint
 
 			app.UseAuthentication();
 			app.UseAuthorization();
-
 
 			app.UseEndpoints(endpoints =>
 			{
