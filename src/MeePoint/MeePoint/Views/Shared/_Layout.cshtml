@@ -204,29 +204,29 @@
 						@if (User.IsInRole("Admin"))
 						{
 
-						<li class="nav-item">
-							<a class="nav-link">
-								<i class="nav-icon fas fa-copy"></i>
-								<p>
-									Entidades
-									<i class="fas fa-angle-left right"></i>
-								</p>
-							</a>
-							<ul class="nav nav-treeview">
-								<li class="nav-item">
-									<a asp-controller="Entities" asp-action="Index" class="nav-link">
-										<i class="far fa-circle nav-icon"></i>
-										<p>Lista</p>
-									</a>
-								</li>
-								<li class="nav-item">
-									<a asp-controller="Entities" asp-action="Create" class="nav-link">
-										<i class="far fa-circle nav-icon"></i>
-										<p>Nova Entidade</p>
-									</a>
-								</li>
-							</ul>
-						</li>
+							<li class="nav-item">
+								<a class="nav-link">
+									<i class="nav-icon fas fa-copy"></i>
+									<p>
+										Entidades
+										<i class="fas fa-angle-left right"></i>
+									</p>
+								</a>
+								<ul class="nav nav-treeview">
+									<li class="nav-item">
+										<a asp-controller="Entities" asp-action="Index" class="nav-link">
+											<i class="far fa-circle nav-icon"></i>
+											<p>Lista</p>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a asp-controller="Entities" asp-action="Create" class="nav-link">
+											<i class="far fa-circle nav-icon"></i>
+											<p>Nova Entidade</p>
+										</a>
+									</li>
+								</ul>
+							</li>
 						}
 						<li class="nav-item">
 							<a class="nav-link">
@@ -242,12 +242,12 @@
 
 								@if (User.IsInRole("EntityManager"))
 								{
-								<li class="nav-item">
-									<a asp-controller="Groups" asp-action="Create" class="nav-link">
-										<i class="far fa-circle nav-icon"></i>
-										<p>Adicionar Grupo</p>
-									</a>
-								</li>
+									<li class="nav-item">
+										<a asp-controller="Groups" asp-action="Create" class="nav-link">
+											<i class="far fa-circle nav-icon"></i>
+											<p>Adicionar Grupo</p>
+										</a>
+									</li>
 								}
 							</ul>
 						</li>
@@ -781,6 +781,8 @@
 			</div>
 		</footer>*@
 	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<!-- bs-custom-file-input -->
+	<script src="~/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
 	<script src="~/lib/Multiple Email Input/jquery.multi-emails.js"></script>
 	<script src="~/plugins/select2/js/select2.full.min.js"></script>
 	<script src="~/lib/jquery/dist/jquery.unobtrusive-ajax.min.js"></script>
