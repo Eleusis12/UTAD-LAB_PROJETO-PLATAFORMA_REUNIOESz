@@ -83,10 +83,6 @@ namespace MeePoint.Data
 
             //Group
             builder.Entity<Group>()
-            .HasIndex(g => g.Name)
-            .IsUnique();
-
-            builder.Entity<Group>()
             .Property(g => g.Name)
             .IsRequired();
 
