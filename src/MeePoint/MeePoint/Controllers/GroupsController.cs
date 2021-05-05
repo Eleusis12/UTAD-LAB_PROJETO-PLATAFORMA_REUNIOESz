@@ -222,6 +222,7 @@ namespace MeePoint.Controllers
 		}
 
 		// GET: Groups/Delete/5
+		[HttpGet("{id}")]
 		public async Task<IActionResult> Delete(int? id)
 		{
 			if (id == null)
@@ -241,7 +242,7 @@ namespace MeePoint.Controllers
 		}
 
 		// POST: Groups/Delete/5
-		[HttpPost, ActionName("Delete")]
+		[HttpPost("{id}"), ActionName("Delete")]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> DeleteConfirmed(int id)
 		{
