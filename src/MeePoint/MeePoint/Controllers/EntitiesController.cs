@@ -14,7 +14,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Authorization;
 using System.IO;
 
-
 namespace MeePoint.Controllers
 {
 	[Route("[controller]/[action]")]
@@ -25,7 +24,6 @@ namespace MeePoint.Controllers
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly SignInManager<IdentityUser> _signInManager;
 
-		
 		public EntitiesController(ApplicationDbContext context, IHostEnvironment host,
 			UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
 		{
@@ -159,7 +157,6 @@ namespace MeePoint.Controllers
 			Group group;
 			if (entity.Groups == null)
 			{
-
 				// TODO: Verificar se isto está correto
 				// Não existe o grupo main dentro da entidade
 				group = new Group();
@@ -202,7 +199,7 @@ namespace MeePoint.Controllers
 
 				// Adicionar credenciais à lista
 				credentials.Add(Tuple.Create(singleEmail, password));
-				
+
 				// TODO: Verificar se isto está correto
 				if (group.Members == null)
 				{
@@ -223,7 +220,7 @@ namespace MeePoint.Controllers
 			await _context.SaveChangesAsync();
 
 			// Agora temos que escrever no ficheiro as credenciais de autenticação
-			string destination = Path.Combine(_he.ContentRootPath, "wwwroot/Credenciais/", entity.Name, "Credenciais.txt");
+			string destination = Path.Combine(_he.ContentRootPath, "wwwroot/", entity.Name, "Credenciais/", "Credenciais.txt");
 			string directory = Path.GetDirectoryName(destination);
 			if (!Directory.Exists(directory))
 				Directory.CreateDirectory(directory);
@@ -233,11 +230,10 @@ namespace MeePoint.Controllers
 			{
 				foreach (var credential in credentials)
 				{
-					sw.Write("\n");
-					sw.Write("Email:");
-					sw.Write(credential.Item1);
-					sw.Write("Password:");
-					sw.Write(credential.Item2);
+					sw.Write("Email: ");
+					sw.WriteLine(credential.Item1);
+					sw.Write("Password: ");
+					sw.WriteLine(credential.Item2);
 					sw.Write("\n");
 				}
 			}
@@ -301,7 +297,6 @@ namespace MeePoint.Controllers
 		[Authorize(Roles = "Administrator,EntityManager")]
 		public async Task<IActionResult> Edit(int id, [Bind("EntityID,NIF,Name,Description,PhoneNumber,ManagerName,StatusEntity,SubscriptionDays,MaxUsers,PostalCode,Address,Manager,User")] Entity entity)
 		{
-
 			if (id != entity.EntityID)
 			{
 				return NotFound();
