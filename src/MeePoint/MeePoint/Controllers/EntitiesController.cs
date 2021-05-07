@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Authorization;
 using System.IO;
+using MeePoint.Interfaces;
 
 namespace MeePoint.Controllers
 {
@@ -23,14 +24,16 @@ namespace MeePoint.Controllers
 		private readonly IHostEnvironment _he;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly SignInManager<IdentityUser> _signInManager;
+		private readonly IEmailService _emailService;
 
 		public EntitiesController(ApplicationDbContext context, IHostEnvironment host,
-			UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+			UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IEmailService emailService)
 		{
 			_context = context;
 			_he = host;
 			_userManager = userManager;
 			_signInManager = signInManager;
+			_emailService = emailService;
 		}
 
 		// GET : Apresenta uma lista de Entidades
@@ -235,6 +238,12 @@ namespace MeePoint.Controllers
 					sw.Write("Password: ");
 					sw.WriteLine(credential.Item2);
 					sw.Write("\n");
+				}
+				// Proceder ao envio de emails
+				foreach (var credential in credentials)
+				{
+					// Enviar o email com os dados da conta para o utilizador em questão
+					_emailService.SendAccountCreated("oda.senger@ethereal.email", credential.Item1, entity.Name, credential.Item2);
 				}
 			}
 

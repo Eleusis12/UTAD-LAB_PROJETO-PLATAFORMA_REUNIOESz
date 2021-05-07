@@ -15,12 +15,10 @@ namespace MeePoint.Controllers
 	public class HomeController : Controller
 	{
 		private readonly ILogger<HomeController> _logger;
-		private readonly IEmailService _emailService;
 
-		public HomeController(ILogger<HomeController> logger, IEmailService emailService)
+		public HomeController(ILogger<HomeController> logger)
 		{
 			_logger = logger;
-			_emailService = emailService;
 		}
 
 		[Authorize]
