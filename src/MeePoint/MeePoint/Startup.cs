@@ -1,5 +1,8 @@
 using MeePoint.Data;
 using MeePoint.Filters;
+using MeePoint.Helpers;
+using MeePoint.Interfaces;
+using MeePoint.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -81,6 +84,10 @@ namespace MeePoint
 				// requires using Microsoft.AspNetCore.Http;
 				options.MinimumSameSitePolicy = SameSiteMode.None;
 			});
+
+			// configure strongly typed settings object
+			services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+			services.AddScoped<IEmailService, EmailService>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
