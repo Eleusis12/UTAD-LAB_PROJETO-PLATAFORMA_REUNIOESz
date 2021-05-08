@@ -7,16 +7,20 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MeePoint.Data;
 using MeePoint.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MeePoint.Controllers
 {
 	public class MeetingsController : Controller
 	{
 		private readonly ApplicationDbContext _context;
+		private readonly UserManager<IdentityUser> _userManager;
 
-		public MeetingsController(ApplicationDbContext context)
+		public MeetingsController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
 		{
 			_context = context;
+			_userManager = userManager;
 		}
 
 		// GET: Meetings
@@ -30,6 +34,40 @@ namespace MeePoint.Controllers
 		public async Task<IActionResult> Attendance(int? id)
 		{
 			return RedirectToAction(nameof(Index));
+		}
+
+		[HttpGet]
+		[Authorize]
+		public async Task<IActionResult> Schedule(int? id)
+		{
+			// Obtém o utilizador que está autenticado
+			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+			string email = applicationUser?.Email; // will give the user's Email
+			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+
+			// Vamos verificar se o utilizador que pretende agendar a reunião é responsável ou co-responsável pelo grupo
+			string roleUser = _context.GroupMembers.Where(m => m.GroupID == id).FirstOrDefault(m => m.User.Email == email).Role;
+
+			//if (roleUser.ToLower() != "manager" && roleUser.ToLower() != "comanager")
+			//{
+			//	return NotFound();
+			//}
+
+			List<int> expectedDuration = new List<int>() {
+				5,10,15,20,30,40,60,120,
+			};
+
+			ViewBag.GroupId = id;
+			ViewBag.ExpectedDuration = new SelectList(expectedDuration);
+
+			return View();
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public IActionResult Schedule(Meeting meeting)
+		{
+			return Content(meeting.ToString());
 		}
 
 		// GET: Meetings/Details/5

@@ -4,14 +4,16 @@ using MeePoint.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MeePoint.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210508131840_StartAndEndMeeting")]
+    partial class StartAndEndMeeting
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -169,9 +171,6 @@ namespace MeePoint.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<float>("ExpectedDuration")
-                        .HasColumnType("real");
-
                     b.Property<int>("GroupID")
                         .HasColumnType("int");
 
@@ -189,9 +188,6 @@ namespace MeePoint.Data.Migrations
 
                     b.Property<int>("Quorum")
                         .HasColumnType("int");
-
-                    b.Property<bool>("Recurring")
-                        .HasColumnType("bit");
 
                     b.HasKey("MeetingID");
 

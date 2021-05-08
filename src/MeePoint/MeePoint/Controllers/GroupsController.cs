@@ -254,7 +254,7 @@ namespace MeePoint.Controllers
 
 		[HttpGet("{id}")]
 		public async Task<IActionResult> AddManagers(int? id)
-        {
+		{
 			if (id == null)
 			{
 				return NotFound();
@@ -280,40 +280,36 @@ namespace MeePoint.Controllers
 
 			ViewData["EntityID"] = new SelectList(_context.Entities, "EntityID", "Name", @group.EntityID);
 			return View(@group);
-
-
 		}
 
 		[HttpPost("{id}"), ActionName("AddManagers")]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> AddManagers(int id, int[] managers, int[] coManagers)
-        {
-			
+		{
 			var group = await _context.Groups.Include(g => g.Members).FirstAsync(g => g.GroupID == id);
 
-			if(group == null)
-            {
+			if (group == null)
+			{
 				return NotFound();
-            }
+			}
 
 			foreach (var manager in managers)
 			{
-				// Try to find if the appointed user already is part of the group. If it is, the role is changed. If not, an exception is thrown and, when handling it, the user is added 
+				// Try to find if the appointed user already is part of the group. If it is, the role is changed. If not, an exception is thrown and, when handling it, the user is added
 				// to the group with the intended role
-                try
-                {
+				try
+				{
 					var user = group.Members.First(m => m.UserID == manager);
 					user.Role = "Manager";
 				}
-				catch(InvalidOperationException e)
-                {
+				catch (InvalidOperationException e)
+				{
 					group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = manager, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == manager), Role = "Manager" });
 				}
 			}
 
 			foreach (var coManager in coManagers)
 			{
-
 				try
 				{
 					var user = group.Members.First(m => m.UserID == coManager);
@@ -323,15 +319,12 @@ namespace MeePoint.Controllers
 				{
 					group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = coManager, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == coManager), Role = "CoManager" });
 				}
-
-
 			}
 
 			await _context.SaveChangesAsync();
 
 			ViewData["EntityID"] = new SelectList(_context.Entities, "EntityID", "Name", @group.EntityID);
 			return RedirectToAction(nameof(AddManagers));
-
 		}
 
 		// Assegurar que apenas os membros podem ver esta informação
