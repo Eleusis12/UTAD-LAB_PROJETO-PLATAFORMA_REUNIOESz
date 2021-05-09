@@ -282,10 +282,12 @@ namespace MeePoint.Controllers
 			return View(@group);
 		}
 
-		[HttpPost("{id}"), ActionName("AddManagers")]
+		[HttpPost("{id}"), ActionName("MakeManager")]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> AddManagers(int id, int[] managers, int[] coManagers)
-		{
+
+		public async Task<IActionResult> MakeManager(int id)
+        {
+			
 			var group = await _context.Groups.Include(g => g.Members).FirstAsync(g => g.GroupID == id);
 
 			if (group == null)
@@ -293,7 +295,9 @@ namespace MeePoint.Controllers
 				return NotFound();
 			}
 
-			foreach (var manager in managers)
+            
+
+			/*foreach (var manager in managers)
 			{
 				// Try to find if the appointed user already is part of the group. If it is, the role is changed. If not, an exception is thrown and, when handling it, the user is added
 				// to the group with the intended role
@@ -306,9 +310,9 @@ namespace MeePoint.Controllers
 				{
 					group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = manager, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == manager), Role = "Manager" });
 				}
-			}
+			}*/
 
-			foreach (var coManager in coManagers)
+			/*foreach (var coManager in coManagers)
 			{
 				try
 				{
@@ -319,7 +323,11 @@ namespace MeePoint.Controllers
 				{
 					group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = coManager, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == coManager), Role = "CoManager" });
 				}
-			}
+
+
+
+			}*/
+
 
 			await _context.SaveChangesAsync();
 

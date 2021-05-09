@@ -6,9 +6,6 @@ namespace MeePoint.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
-                name: "IX_Groups_Name",
-                table: "Groups");
 
             migrationBuilder.AlterColumn<string>(
                 name: "Name",
