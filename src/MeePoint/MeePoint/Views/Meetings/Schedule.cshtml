@@ -1,0 +1,117 @@
+﻿@model MeePoint.Models.Meeting
+
+@{
+	ViewData["Title"] = "Agendar Reunião";
+}
+@Html.Partial("_BreadCrumb", @ViewData["Title"])
+
+<div class="card card-warning">
+	<div class="card-header">
+		<h3 class="card-title">Agendamento</h3>
+	</div>
+	<!-- /.card-header -->
+	<form asp-action="Schedule" asp-controller="Meetings" method="post" enctype="multipart/form-data">
+		<input asp-for="GroupID" value="@ViewBag.GroupId" hidden />
+		<div class="card-body">
+			<div class="row">
+				<div class="col-sm-12">
+
+					<div class="form-group">
+						<label>Tópico da Reunião</label>
+						<textarea asp-for="Name" class="form-control" rows="3" placeholder="Tema da reunião"></textarea>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-6">
+					<!-- text input -->
+					<div class="form-group">
+						<label>Data de Início</label>
+						<input asp-for="MeetingDate" class="form-control" placeholder="Dia de Início">
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<!-- text input -->
+					<div class="form-group">
+						<label>Hora de começo</label>
+						<input asp-for="MeetingDate.Hour" type="time" class="form-control" placeholder="Hora de Início">
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-12">
+					<!-- text input -->
+					<div class="form-group">
+						<label>Duração da reunião (expectável)</label>
+						<select asp-for="ExpectedDuration" class="form-control" placeholder="Tempo da Reunião" asp-items="@ViewBag.ExpectedDuration">
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-12">
+					<!-- text input -->
+					<div class="form-check">
+						<input asp-for="Recurring" class="form-check-input" type="checkbox">
+						<label class="form-check-label">Reunião recorrente</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="card-footer">
+			<button type="submit" class="btn btn-primary start">Guardar</button>
+		</div>
+	</form>
+
+	<div id="dropzone">
+		<form asp-controller="Meetings" asp-action="UploadDocuments" asp-route-id="@ViewBag.GroupId" method="post" enctype="multipart/form-data"
+			  id="myAwesomeDropzone" class="dropzone needsclick dz-clickable dropzone-previews">
+			@Html.AntiForgeryToken()
+			<div></div>
+			<div class="dz-message needsclick">
+				<button type="button" class="dz-button">Drop files here or click to upload.</button><br />
+			</div>
+			<span class="note needsclick">
+			</span>
+		</form>
+	</div>
+
+	@section Scripts
+ {
+		<link rel="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/dropzone.css" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/dropzone.js"></script>
+		<script>
+			function myParamName() {
+				return "files";
+			}
+
+			Dropzone.options.myAwesomeDropzone = {
+				paramName: myParamName, // The name that will be used to transfer the file
+				maxFiles: 5,
+				maxFilesize: 100,
+				uploadMultiple: true,
+				accept: function (file, done) {
+					if (file.name === "justinbieber.jpg") {
+						done("Naha, you don't.");
+					}
+					else { done(); }
+				},
+				init: function () {
+					this.on("sending", function (file, response, formData) {
+						formData["__RequestAntiForgeryToken"] = document.getElementsByName("__RequestVerificationToken").value;
+					});
+					this.on("sendingmultiple", function (file, response, formData) {
+						formData["__RequestAntiForgeryToken"] = document.getElementsByName("__RequestVerificationToken").value;
+					});
+					this.on("success", function (file, response) {
+						file.serverID = response.id;
+					});
+					this.on("error", function (file, response) {
+						var r = response;
+						console.log("Drop Err:");
+						console.log(r);
+					});
+				}
+			};
+		</script>
+	}
