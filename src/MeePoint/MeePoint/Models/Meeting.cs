@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MeePoint.Models
 {
@@ -31,6 +32,7 @@ namespace MeePoint.Models
 
 		public float ExpectedDuration { get; set; }
 
+		[NotMapped]
 		public bool Recurring { get; set; }
 
 		public virtual ICollection<Convocation> Convocations { get; set; }
