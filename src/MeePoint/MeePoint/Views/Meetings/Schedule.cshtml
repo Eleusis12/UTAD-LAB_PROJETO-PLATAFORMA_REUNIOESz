@@ -28,14 +28,14 @@
 					<!-- text input -->
 					<div class="form-group">
 						<label>Data de Início</label>
-						<input asp-for="MeetingDate" class="form-control" placeholder="Dia de Início">
+						<input id="txtDate" asp-for="MeetingDate" class="form-control" placeholder="Dia de Início">
 					</div>
 				</div>
 				<div class="col-sm-6">
 					<!-- text input -->
 					<div class="form-group">
 						<label>Hora de começo</label>
-						<input asp-for="MeetingDate.Hour" type="time" class="form-control" placeholder="Hora de Início">
+						<input name="timeDay" type="time" class="form-control" placeholder="Hora de Início" value="17:00">
 					</div>
 				</div>
 			</div>
@@ -82,6 +82,22 @@
 		<link rel="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/dropzone.css" />
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/dropzone.js"></script>
 		<script>
+
+			$(function () {
+				var dtToday = new Date();
+
+				var month = dtToday.getMonth() + 1;
+				var day = dtToday.getDate();
+				var year = dtToday.getFullYear();
+				if (month < 10)
+					month = '0' + month.toString();
+				if (day < 10)
+					day = '0' + day.toString();
+
+				var maxDate = year + '-' + month + '-' + day;
+				$('#txtDate').attr('min', maxDate);
+			});
+
 			function myParamName() {
 				return "files";
 			}

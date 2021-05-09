@@ -73,8 +73,20 @@ namespace MeePoint.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Schedule(Meeting meeting, ICollection<IFormFile> files, string guid)
+		public async Task<IActionResult> Schedule(Meeting meeting, string guid, string timeDay)
 		{
+			// Se o utilizador não escolheu a hora de marcação, volta para página
+			if (timeDay == null)
+				return View(meeting);
+
+			// timeDay tem o seguinte formato "12:30"
+			// Vamos fazer o split de acordo com os dois pontos
+			string[] partsTime = timeDay.Split(':');
+			DateTime meetingDate = new DateTime(meeting.MeetingDate.Year, meeting.MeetingDate.Month, meeting.MeetingDate.Day, Int32.Parse(partsTime[0]), Int32.Parse(partsTime[1]), 0);
+
+			// Atribuir a data atualizada ao objeto meeting
+			meeting.MeetingDate = meetingDate;
+
 			// Assim como no get, temos que fazer a verificação se o utilizador é manager do grupo
 			// Obtém o utilizador que está autenticado
 			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
