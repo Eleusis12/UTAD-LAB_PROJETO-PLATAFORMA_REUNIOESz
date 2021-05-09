@@ -66,13 +66,14 @@ namespace MeePoint.Controllers
 
 			ViewBag.GroupId = id;
 			ViewBag.ExpectedDuration = new SelectList(expectedDuration);
+			ViewBag.GUID = Guid.NewGuid().ToString();
 
 			return View();
 		}
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Schedule(Meeting meeting, ICollection<IFormFile> files)
+		public async Task<IActionResult> Schedule(Meeting meeting, ICollection<IFormFile> files, string guid)
 		{
 			// Assim como no get, temos que fazer a verificação se o utilizador é manager do grupo
 			// Obtém o utilizador que está autenticado
@@ -106,7 +107,7 @@ namespace MeePoint.Controllers
 			// Depois vamos associar os ficheiros submetidos
 			List<Document> documents = new List<Document>();
 
-			string sourcePath = Path.Combine(_he.ContentRootPath, "wwwroot/", entityName, "Meetings/", "Temp/", email);
+			string sourcePath = Path.Combine(_he.ContentRootPath, "wwwroot/", entityName, "Meetings/", "Temp/", email, guid);
 			string targetPath = Path.Combine(_he.ContentRootPath, "wwwroot/", entityName, "Meetings/", meeting.MeetingID + "/");
 			string directory = Path.GetDirectoryName(targetPath);
 			if (!Directory.Exists(directory))
@@ -153,7 +154,7 @@ namespace MeePoint.Controllers
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		[Authorize]
-		public async Task<IActionResult> UploadDocuments(ICollection<IFormFile> files, int? id)
+		public async Task<IActionResult> UploadDocuments(ICollection<IFormFile> files, int? id, string guid)
 		{
 			// Obtém o utilizador que está autenticado
 			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
@@ -176,7 +177,7 @@ namespace MeePoint.Controllers
 			foreach (var file in files)
 			{
 				// Agora temos que escrever no ficheiro as credenciais de autenticação
-				string destination = Path.Combine(_he.ContentRootPath, "wwwroot/", entityName, "Meetings", "Temp", email, file.FileName);
+				string destination = Path.Combine(_he.ContentRootPath, "wwwroot/", entityName, "Meetings", "Temp", email, guid, file.FileName);
 				string directory = Path.GetDirectoryName(destination);
 				if (!Directory.Exists(directory))
 					Directory.CreateDirectory(directory);

@@ -12,6 +12,7 @@
 	<!-- /.card-header -->
 	<form asp-action="Schedule" asp-controller="Meetings" method="post" enctype="multipart/form-data">
 		<input asp-for="GroupID" value="@ViewBag.GroupId" hidden />
+		<input name="guid" value="@ViewBag.GUID" hidden />
 		<div class="card-body">
 			<div class="row">
 				<div class="col-sm-12">
@@ -64,7 +65,7 @@
 	</form>
 
 	<div id="dropzone">
-		<form asp-controller="Meetings" asp-action="UploadDocuments" asp-route-id="@ViewBag.GroupId" method="post" enctype="multipart/form-data"
+		<form asp-controller="Meetings" asp-action="UploadDocuments" asp-route-id="@ViewBag.GroupId" asp-route-guid="@ViewBag.GUID" method="post" enctype="multipart/form-data"
 			  id="myAwesomeDropzone" class="dropzone needsclick dz-clickable dropzone-previews">
 			@Html.AntiForgeryToken()
 			<div></div>
