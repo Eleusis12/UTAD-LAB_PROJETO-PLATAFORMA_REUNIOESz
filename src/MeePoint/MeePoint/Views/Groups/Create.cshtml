@@ -32,19 +32,18 @@
 
 				<div class="col-6 col-sm-3">
 					<div class="form-group">
-						<label>Responsáveis</label>
-						<div class="select2-purple">
-							<select name="managers" class="select2" multiple="multiple" data-placeholder="Seleciona os Responsáveis Pelo Grupo" data-dropdown-css-class="select2-purple" style="width: 100%;" asp-items="@ViewBag.GroupMembers">
-							</select>
-						</div>
+						<label>Responsável</label>
+						<select name="manager" data-placeholder="Seleciona o Responsável do Grupo" class="form-control select2bs4" style="width: 100%;" asp-items="@ViewBag.GroupMembers">
+							
+						</select>
 					</div>
-					<!-- /.form-group -->
+					
 				</div>
 				<div class="col-6 col-sm-3">
 					<div class="form-group">
 						<label>Co-responsáveis</label>
 						<div class="select2-purple">
-							<select name="coManagers" class="select2" multiple="multiple" data-placeholder="Selecions os Co-Responsáveis do Grupo" data-dropdown-css-class="select2-purple" style="width: 100%;" asp-items="@ViewBag.GroupMembers">
+							<select name="coManagers" class="select2" multiple="multiple" data-placeholder="Seleciona os Co-Responsáveis do Grupo" data-dropdown-css-class="select2-purple" style="width: 100%;" asp-items="@ViewBag.GroupMembers">
 							</select>
 						</div>
 					</div>
@@ -78,6 +77,13 @@
 		$(function () {
 
 			$('.select2').select2()
+
+			//Initialize Select2 Elements
+			$('.select2bs4').select2({
+				theme: 'bootstrap4'
+			})
 		});
+
+		
 	</script>
 }

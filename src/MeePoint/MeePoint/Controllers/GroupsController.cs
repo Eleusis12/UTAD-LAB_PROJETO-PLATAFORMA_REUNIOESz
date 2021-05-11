@@ -128,7 +128,7 @@ namespace MeePoint.Controllers
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		[Authorize(Roles = "EntityManager")]
-		public async Task<IActionResult> Create(string groupName, int[] managers, int[] coManagers, int[] participants)
+		public async Task<IActionResult> Create(string groupName, int manager, int[] coManagers, int[] participants)
 		{
 			// Obtém o utilizador que está autenticado
 			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
@@ -147,18 +147,26 @@ namespace MeePoint.Controllers
 				Members = new List<GroupMember>()
 			};
 
-			// Adicionar os managers ao membros do grupo
-			foreach (var manager in managers)
-			{
-				group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = manager, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == manager), Role = "Manager" });
-			}
+			// Primeiro temos que assegurar que não existem números em comum
+			// Se é um manager, então não pode ser co-manager ou participant, vamos remover o manager da lista de coManager e participants caso exista
+			coManagers = coManagers.Where(val => val != manager).ToArray();
+			participants = participants.Where(val => val != manager).ToArray();
+
+			// Agora vamos verificar os elementos comuns entre os coManagers e os participantes, No caso de interseção, esse elementos são retirados da lista participantes (O elemento mantém-se apenas como coManager)
+
+			var participantsList = participants.ToList().Except(coManagers);
+
+			// Agora que as incongruências foram resolvidas, basta apenas adicionar os membros ao grupo
+			// Adicionar o manager ao grupo
+			group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = manager, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == manager), Role = "Manager" });
+
 			// Adicionar os comanagers aos membros do grupo
 			foreach (var coManager in coManagers)
 			{
 				group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = coManager, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == coManager), Role = "CoManager" });
 			}
 			// Adicionar os participantes aos membros do grupo
-			foreach (var participant in participants)
+			foreach (var participant in participantsList)
 			{
 				group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = participant, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == participant), Role = "Participant" });
 			}
@@ -255,40 +263,37 @@ namespace MeePoint.Controllers
 			return RedirectToAction(nameof(Index));
 		}
 
-
 		[HttpPost, ActionName("MakeManager")]
 		[ValidateAntiForgeryToken]
 		[Authorize(Roles = "EntityManager")]
 		public async Task<IActionResult> MakeManager(int id, int groupID, int managerType)
-        {
-
+		{
 			var groupMember = await _context.GroupMembers.FirstAsync(gm => gm.UserID == id && gm.GroupID == groupID);
 
 			try
-            {
-                switch (managerType)
-                {
+			{
+				switch (managerType)
+				{
 					case 0:
 						var isCoMngr = groupMember.Role == "CoManager";
 						groupMember.Role = isCoMngr ? "Participant" : "CoManager";
 						break;
+
 					case 1:
 						var isMngr = groupMember.Role == "Manager";
 						groupMember.Role = isMngr ? "Participant" : "Manager";
 						break;
-                }
+				}
 
 				await _context.SaveChangesAsync();
 				_iFlashMessage.Confirmation("Role changed!");
 				return Json(new { url = this.Url.Action("Participants", new { id = groupMember.GroupID }) });
-
-            }
-            catch
-            {
+			}
+			catch
+			{
 				_iFlashMessage.Warning("ERRO!");
 				return Json(new { url = this.Url.Action("Participants", new { id = groupMember.GroupID }) });
-            }
-			
+			}
 		}
 
 		// Assegurar que apenas os membros podem ver esta informação
