@@ -1,18 +1,18 @@
 ﻿@model MeePoint.Models.Group
 
 @{
-	ViewData["Title"] = "Participantes";
+    ViewData["Title"] = "Participantes";
 }
 @Html.Partial("_BreadCrumb", @ViewData["Title"])
 
 <!-- Default box -->
 <div class="card card-solid">
-	<div class="card-body pb-0">
-		<div class="row">
+    <div class="card-body pb-0">
+        <div class="row">
 
-			@foreach (var member in Model.Members)
-			{
-				<div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch flex-column">
+            @foreach (var member in Model.Members)
+            {
+                <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch flex-column">
                     <div class="card bg-light d-flex flex-fill">
                         <div class="card-header text-muted border-bottom-0">
                         </div>
@@ -32,8 +32,39 @@
                         </div>
                         <div class="card-footer">
                             <div class="text-right">
-                                <a class="btn btn-sm btn-primary">
-                                    <i class="fas fa-user"></i> Tornar Responsável
+
+                                <a class="btn btn-sm btn-primary makeManager"
+                                   data-userid="@member.User.RegisteredUserID"
+                                   data-groupid="@member.Group.GroupID"
+                                   data-mngrtype="1">
+
+                                    @if (member.Role == "Manager")
+                                    {
+                                        <i class="fas fa-user"> Tornar Participante</i>
+                                    }
+
+
+                                    else
+                                    {
+                                        <i class="fas fa-user"> Tornar Responsável</i>
+                                    }
+
+                                </a>
+
+                                <a class="btn btn-sm btn-primary makeManager"
+                                   data-userid="@member.User.RegisteredUserID"
+                                   data-groupid="@member.Group.GroupID"
+                                   data-mngrtype="0">
+
+                                    @if (member.Role == "CoManager")
+                                    {
+                                        <i class="fas fa-user"> Tornar Participante</i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-user"> Tornar CoResponsável</i>
+                                    }
+
                                 </a>
                             </div>
                         </div>
@@ -46,18 +77,47 @@
                             </div>
                         </div>
                     </div>
-				</div>
-			}
-		</div>
-	</div>
+                </div>
+            }
+        </div>
+    </div>
 </div>
 
 @section Scripts
 
 {
 
-<script>
+    <script>
+        $('.makeManager').click(function () {
+            // Get the value fo the Anti Forgery Token
+            var token = '@Html.AntiForgeryToken()';
+            console.log($(this).data('mngrtype'));
 
-</script>
+            $.ajax({
+                url: '@Url.Action("MakeManager", "Groups")',
+                type: 'POST',
+                dataType: 'html',
+                data: {
+                    id: $(this).data('userid'),
+                    groupID: $(this).data('groupid'),
+                    managerType: $(this).data('mngrtype'),
+                    // Send the token as a parameter of the POST request in order for it to be accepted by the server
+                    __RequestVerificationToken: $(token).val()
+                },
+                success: function (response) {
+                    var url = JSON.parse(response).url;
+                    window.location.href = url;
+                },
+                error: function (response) {
+                    var url = JSON.parse(response).url;
+                    window.location.href = url;
+                }
+
+            });
+
+        });
+
+    </script>
+
 
 } 

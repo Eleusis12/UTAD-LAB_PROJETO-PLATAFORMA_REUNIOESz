@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Vereyon.Web;
 
 namespace MeePoint
 {
@@ -88,6 +89,7 @@ namespace MeePoint
 			// configure strongly typed settings object
 			services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
 			services.AddScoped<IEmailService, EmailService>();
+			services.AddFlashMessage();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -9,6 +9,7 @@ using MeePoint.Data;
 using MeePoint.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Vereyon.Web;
 
 namespace MeePoint.Controllers
 {
@@ -18,12 +19,14 @@ namespace MeePoint.Controllers
 		private readonly ApplicationDbContext _context;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly SignInManager<IdentityUser> _signInManager;
+		private readonly IFlashMessage _iFlashMessage;
 
-		public GroupsController(ApplicationDbContext context, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+		public GroupsController(ApplicationDbContext context, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IFlashMessage flashMessage)
 		{
 			_context = context;
 			_userManager = userManager;
 			_signInManager = signInManager;
+			_iFlashMessage = flashMessage;
 		}
 
 		// GET: Groups
@@ -252,87 +255,39 @@ namespace MeePoint.Controllers
 			return RedirectToAction(nameof(Index));
 		}
 
-		[HttpGet("{id}")]
-		public async Task<IActionResult> AddManagers(int? id)
-		{
-			if (id == null)
-			{
-				return NotFound();
-			}
 
-			var @group = await _context.Groups.FindAsync(id);
-			if (@group == null)
-			{
-				return NotFound();
-			}
-
-			var entity = await _context.Entities.FirstAsync(e => e.EntityID == @group.EntityID);
-
-			ViewBag.GroupMembers = _context.GroupMembers
-			   .Include(m => m.Group)
-			   .Include("Group.Entity")
-			   .Include(m => m.User)
-			   .Where(m => m.Group.EntityID == entity.EntityID)
-			   .Where(m => m.Group.Name.ToLower() == "main".ToLower())
-			   .Select(c => new SelectListItem()
-			   { Text = c.User.Email, Value = c.User.RegisteredUserID.ToString() })
-			   .ToList();
-
-			ViewData["EntityID"] = new SelectList(_context.Entities, "EntityID", "Name", @group.EntityID);
-			return View(@group);
-		}
-
-		[HttpPost("{id}"), ActionName("MakeManager")]
+		[HttpPost, ActionName("MakeManager")]
 		[ValidateAntiForgeryToken]
-
-		public async Task<IActionResult> MakeManager(int id)
+		public async Task<IActionResult> MakeManager(int id, int groupID, int managerType)
         {
+
+			var groupMember = await _context.GroupMembers.FirstAsync(gm => gm.UserID == id && gm.GroupID == groupID);
+
+			try
+            {
+                switch (managerType)
+                {
+					case 0:
+						var isCoMngr = groupMember.Role == "CoManager";
+						groupMember.Role = isCoMngr ? "Participant" : "CoManager";
+						break;
+					case 1:
+						var isMngr = groupMember.Role == "Manager";
+						groupMember.Role = isMngr ? "Participant" : "Manager";
+						break;
+                }
+
+				await _context.SaveChangesAsync();
+				_iFlashMessage.Confirmation("Role changed!");
+				return Json(new { url = this.Url.Action("Participants", new { id = groupMember.GroupID }) });
+
+            }
+            catch
+            {
+				_iFlashMessage.Warning("ERRO!");
+				return Json(new { url = this.Url.Action("Participants", new { id = groupMember.GroupID }) });
+            }
 			
-			var group = await _context.Groups.Include(g => g.Members).FirstAsync(g => g.GroupID == id);
-
-			if (group == null)
-			{
-				return NotFound();
-			}
-
-            
-
-			/*foreach (var manager in managers)
-			{
-				// Try to find if the appointed user already is part of the group. If it is, the role is changed. If not, an exception is thrown and, when handling it, the user is added
-				// to the group with the intended role
-				try
-				{
-					var user = group.Members.First(m => m.UserID == manager);
-					user.Role = "Manager";
-				}
-				catch (InvalidOperationException e)
-				{
-					group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = manager, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == manager), Role = "Manager" });
-				}
-			}*/
-
-			/*foreach (var coManager in coManagers)
-			{
-				try
-				{
-					var user = group.Members.First(m => m.UserID == coManager);
-					user.Role = "CoManager";
-				}
-				catch (InvalidOperationException e)
-				{
-					group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = coManager, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == coManager), Role = "CoManager" });
-				}
-
-
-
-			}*/
-
-
-			await _context.SaveChangesAsync();
-
-			ViewData["EntityID"] = new SelectList(_context.Entities, "EntityID", "Name", @group.EntityID);
-			return RedirectToAction(nameof(AddManagers));
 		}
 
 		// Assegurar que apenas os membros podem ver esta informação
