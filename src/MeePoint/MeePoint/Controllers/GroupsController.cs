@@ -258,6 +258,7 @@ namespace MeePoint.Controllers
 
 		[HttpPost, ActionName("MakeManager")]
 		[ValidateAntiForgeryToken]
+		[Authorize(Roles = "EntityManager")]
 		public async Task<IActionResult> MakeManager(int id, int groupID, int managerType)
         {
 

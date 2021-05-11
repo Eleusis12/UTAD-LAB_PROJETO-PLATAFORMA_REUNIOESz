@@ -30,44 +30,48 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card-footer">
-                            <div class="text-right">
+                        @if (ViewContext.HttpContext.User.IsInRole("EntityManager"))
+                        {
+                            <div class="card-footer">
+                                <div class="text-right">
 
-                                <a class="btn btn-sm btn-primary makeManager"
-                                   data-userid="@member.User.RegisteredUserID"
-                                   data-groupid="@member.Group.GroupID"
-                                   data-mngrtype="1">
+                                    <a class="btn btn-sm btn-primary makeManager"
+                                       data-userid="@member.User.RegisteredUserID"
+                                       data-groupid="@member.Group.GroupID"
+                                       data-mngrtype="1">
 
-                                    @if (member.Role == "Manager")
-                                    {
-                                        <i class="fas fa-user"> Tornar Participante</i>
-                                    }
+                                        @if (member.Role == "Manager")
+                                        {
+                                            <i class="fas fa-user"> Tornar Participante</i>
+                                        }
 
 
-                                    else
-                                    {
-                                        <i class="fas fa-user"> Tornar Responsável</i>
-                                    }
+                                        else
+                                        {
+                                            <i class="fas fa-user"> Tornar Responsável</i>
+                                        }
 
-                                </a>
+                                    </a>
 
-                                <a class="btn btn-sm btn-primary makeManager"
-                                   data-userid="@member.User.RegisteredUserID"
-                                   data-groupid="@member.Group.GroupID"
-                                   data-mngrtype="0">
+                                    <a class="btn btn-sm btn-primary makeManager"
+                                       data-userid="@member.User.RegisteredUserID"
+                                       data-groupid="@member.Group.GroupID"
+                                       data-mngrtype="0">
 
-                                    @if (member.Role == "CoManager")
-                                    {
-                                        <i class="fas fa-user"> Tornar Participante</i>
-                                    }
-                                    else
-                                    {
-                                        <i class="fas fa-user"> Tornar CoResponsável</i>
-                                    }
+                                        @if (member.Role == "CoManager")
+                                        {
+                                            <i class="fas fa-user"> Tornar Participante</i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-user"> Tornar CoResponsável</i>
+                                        }
 
-                                </a>
+                                    </a>
+                                </div>
                             </div>
-                        </div>
+                        }
+
                         <div class="card-footer">
                             <div class="text-right">
 
@@ -91,7 +95,6 @@
         $('.makeManager').click(function () {
             // Get the value fo the Anti Forgery Token
             var token = '@Html.AntiForgeryToken()';
-            console.log($(this).data('mngrtype'));
 
             $.ajax({
                 url: '@Url.Action("MakeManager", "Groups")',
