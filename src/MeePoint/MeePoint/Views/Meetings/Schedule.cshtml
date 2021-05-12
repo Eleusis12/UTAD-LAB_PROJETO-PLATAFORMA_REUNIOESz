@@ -9,11 +9,10 @@
 	<div class="card-header">
 		<h3 class="card-title">Agendamento</h3>
 	</div>
-	<!-- /.card-header -->
-	<form asp-action="Schedule" asp-controller="Meetings" method="post" enctype="multipart/form-data">
-		<input asp-for="GroupID" value="@ViewBag.GroupId" hidden />
-		<input name="guid" value="@ViewBag.GUID" hidden />
-		<div class="card-body">
+	<div class="card-body">
+		<form asp-action="Schedule" asp-controller="Meetings" method="post" enctype="multipart/form-data">
+			<input asp-for="GroupID" value="@ViewBag.GroupId" hidden />
+			<input name="guid" value="@ViewBag.GUID" hidden />
 			<div class="row">
 				<div class="col-sm-12">
 
@@ -58,77 +57,84 @@
 					</div>
 				</div>
 			</div>
-		</div>
-		<div class="card-footer">
-			<button type="submit" class="btn btn-primary start">Guardar</button>
-		</div>
-	</form>
-
-	<div id="dropzone">
-		<form asp-controller="Meetings" asp-action="UploadDocuments" asp-route-id="@ViewBag.GroupId" asp-route-guid="@ViewBag.GUID" method="post" enctype="multipart/form-data"
-			  id="myAwesomeDropzone" class="dropzone needsclick dz-clickable dropzone-previews">
-			@Html.AntiForgeryToken()
-			<div></div>
-			<div class="dz-message needsclick">
-				<button type="button" class="dz-button">Drop files here or click to upload.</button><br />
-			</div>
-			<span class="note needsclick">
-			</span>
 		</form>
 	</div>
+	<div class='containerdropzone'>
+		<div id="dropzone">
+			<form asp-controller="Meetings" asp-action="UploadDocuments" asp-route-id="@ViewBag.GroupId" asp-route-guid="@ViewBag.GUID" method="post" enctype="multipart/form-data"
+				  id="myAwesomeDropzone" class="dropzone needsclick dz-clickable dropzone-previews">
+				@Html.AntiForgeryToken()
+				<div></div>
+				<div class="dz-message needsclick">
+					<label for="files" class="dropzone-container">
+						<div class="file-icon">+</div>
+						<div class="dropzone-title">
+							Arraste ou <span class='browse'>Procure</span> pelos ficheiros
+						</div>
+					</label>
+				</div>
+				<span class="note needsclick">
+				</span>
+			</form>
+		</div>
+	</div>
+	<div class="card-footer">
+		<button type="submit" class="btn btn-primary start">Guardar</button>
+	</div>
+</div>
 
-	@section Scripts
+@section Scripts
  {
-		<link rel="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/dropzone.css" />
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/dropzone.js"></script>
-		<script>
+	<link rel="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/dropzone.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/dropzone.js"></script>
+	<script>
 
-			$(function () {
-				var dtToday = new Date();
+		$(function () {
+			var dtToday = new Date();
 
-				var month = dtToday.getMonth() + 1;
-				var day = dtToday.getDate();
-				var year = dtToday.getFullYear();
-				if (month < 10)
-					month = '0' + month.toString();
-				if (day < 10)
-					day = '0' + day.toString();
+			var month = dtToday.getMonth() + 1;
+			var day = dtToday.getDate();
+			var year = dtToday.getFullYear();
+			if (month < 10)
+				month = '0' + month.toString();
+			if (day < 10)
+				day = '0' + day.toString();
 
-				var maxDate = year + '-' + month + '-' + day;
-				$('#txtDate').attr('min', maxDate);
-			});
+			var maxDate = year + '-' + month + '-' + day;
+			$('#txtDate').attr('min', maxDate);
+		});
 
-			function myParamName() {
-				return "files";
-			}
+		function myParamName() {
+			return "files";
+		}
 
-			Dropzone.options.myAwesomeDropzone = {
-				paramName: myParamName, // The name that will be used to transfer the file
-				maxFiles: 5,
-				maxFilesize: 100,
-				uploadMultiple: true,
-				accept: function (file, done) {
-					if (file.name === "justinbieber.jpg") {
-						done("Naha, you don't.");
-					}
-					else { done(); }
-				},
-				init: function () {
-					this.on("sending", function (file, response, formData) {
-						formData["__RequestAntiForgeryToken"] = document.getElementsByName("__RequestVerificationToken").value;
-					});
-					this.on("sendingmultiple", function (file, response, formData) {
-						formData["__RequestAntiForgeryToken"] = document.getElementsByName("__RequestVerificationToken").value;
-					});
-					this.on("success", function (file, response) {
-						file.serverID = response.id;
-					});
-					this.on("error", function (file, response) {
-						var r = response;
-						console.log("Drop Err:");
-						console.log(r);
-					});
+		Dropzone.options.myAwesomeDropzone = {
+			paramName: myParamName, // The name that will be used to transfer the file
+			maxFiles: 5,
+			maxFilesize: 100,
+			uploadMultiple: true,
+			accept: function (file, done) {
+				if (file.name === "justinbieber.jpg") {
+					done("Naha, you don't.");
 				}
-			};
-		</script>
-	}
+				else { done(); }
+			},
+			init: function () {
+				this.on("sending", function (file, response, formData) {
+					formData["__RequestAntiForgeryToken"] = document.getElementsByName("__RequestVerificationToken").value;
+				});
+				this.on("sendingmultiple", function (file, response, formData) {
+					formData["__RequestAntiForgeryToken"] = document.getElementsByName("__RequestVerificationToken").value;
+				});
+				this.on("success", function (file, response) {
+					file.serverID = response.id;
+				});
+				this.on("error", function (file, response) {
+					var r = response;
+					console.log("Drop Err:");
+					console.log(r);
+				});
+			}
+		};
+	</script>
+}
