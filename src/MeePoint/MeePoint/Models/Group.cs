@@ -13,6 +13,13 @@ namespace MeePoint.Models
 
 		public Entity Entity { get; set; }
 
+		public enum GroupRoles
+        {
+			Manager,
+			CoManager,
+			Participant
+        }
+
 		public virtual ICollection<GroupMember> Members { get; set; }
 
 		public virtual ICollection<Meeting> Meetings { get; set; }

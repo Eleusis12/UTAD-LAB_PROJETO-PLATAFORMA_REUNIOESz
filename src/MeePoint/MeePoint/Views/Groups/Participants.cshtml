@@ -12,76 +12,46 @@
 
             @foreach (var member in Model.Members)
             {
-                <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch flex-column">
-                    <div class="card bg-light d-flex flex-fill">
-                        <div class="card-header text-muted border-bottom-0">
-                        </div>
-                        <div class="card-body pt-0">
-                            <div class="row">
-                                <div class="col-7">
-                                    <h2 class="lead"><b>@(member.User.Name??"Nome não definido")</b></h2>
-                                    <p class="text-muted text-sm"><b>Função: </b>   @member.Role </p>
-                                    <ul class="ml-4 mb-0 fa-ul text-muted">
-                                        <li class="small"><span class="fa-li"><i class="fas fa-lg fa-building"></i></span> Email: @member.User.Email</li>
-                                    </ul>
-                                </div>
-                                <div class="col-5 text-center">
-                                    <img src="" alt="Não tem Foto" class="img-circle img-fluid">
-                                </div>
+            <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch flex-column">
+                <div class="card bg-light d-flex flex-fill">
+                    <div class="card-header text-muted border-bottom-0">
+                    </div>
+                    <div class="card-body pt-0">
+                        <div class="row">
+                            <div class="col-7">
+                                <h2 class="lead"><b>@(member.User.Name??"Nome não definido")</b></h2>
+                                <p class="text-muted text-sm">
+                                    <b>Função: </b>  <i id="@member.UserID">@member.Role</i>
+                                    @if (ViewContext.HttpContext.User.IsInRole("EntityManager"))
+                                        {
+                                    <input type="button"
+                                           class="btn btn-sm btn-primary changeRole"
+                                           data-userid="@member.UserID"
+                                           data-groupid="@member.GroupID"
+                                           data-currentrole="@member.Role"
+                                           value="Alterar" />
+                                        }
+                                </p>
+
+                                <ul class="ml-4 mb-0 fa-ul text-muted">
+                                    <li class="small"><span class="fa-li"><i class="fas fa-lg fa-building"></i></span> Email: @member.User.Email</li>
+                                </ul>
                             </div>
-                        </div>
-                        @if (ViewContext.HttpContext.User.IsInRole("EntityManager"))
-                        {
-                            <div class="card-footer">
-                                <div class="text-right">
-
-                                    <a class="btn btn-sm btn-primary makeManager"
-                                       data-userid="@member.User.RegisteredUserID"
-                                       data-groupid="@member.Group.GroupID"
-                                       data-mngrtype="1">
-
-                                        @if (member.Role == "Manager")
-                                        {
-                                            <i class="fas fa-user"> Tornar Participante</i>
-                                        }
-
-
-                                        else
-                                        {
-                                            <i class="fas fa-user"> Tornar Responsável</i>
-                                        }
-
-                                    </a>
-
-                                    <a class="btn btn-sm btn-primary makeManager"
-                                       data-userid="@member.User.RegisteredUserID"
-                                       data-groupid="@member.Group.GroupID"
-                                       data-mngrtype="0">
-
-                                        @if (member.Role == "CoManager")
-                                        {
-                                            <i class="fas fa-user"> Tornar Participante</i>
-                                        }
-                                        else
-                                        {
-                                            <i class="fas fa-user"> Tornar CoResponsável</i>
-                                        }
-
-                                    </a>
-                                </div>
-                            </div>
-                        }
-
-                        <div class="card-footer">
-                            <div class="text-right">
-
-                                <a asp-controller="RegisteredUsers" asp-action="Details" asp-route-id="@member.User.RegisteredUserID" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-user"></i> Ver Perfil
-                                </a>
+                            <div class="col-5 text-center">
+                                <img src="" alt="Não tem Foto" class="img-circle img-fluid">
                             </div>
                         </div>
                     </div>
+                    <div class="card-footer">
+                        <div class="text-right">
+
+                            <a asp-controller="RegisteredUsers" asp-action="Details" asp-route-id="@member.User.RegisteredUserID" class="btn btn-sm btn-primary">
+                                <i class="fas fa-user"></i> Ver Perfil
+                            </a>
+                        </div>
+                    </div>
                 </div>
+            </div>
             }
         </div>
     </div>
@@ -92,18 +62,21 @@
 {
 
     <script>
-        $('.makeManager').click(function () {
+
+        function changeRole(button) {
             // Get the value fo the Anti Forgery Token
             var token = '@Html.AntiForgeryToken()';
 
+            var roleSelected = $('#roleSelector').find(":selected").val();
+
             $.ajax({
-                url: '@Url.Action("MakeManager", "Groups")',
+                url: '@Url.Action("ManageGroupRole", "Groups")',
                 type: 'POST',
                 dataType: 'html',
                 data: {
-                    id: $(this).data('userid'),
-                    groupID: $(this).data('groupid'),
-                    managerType: $(this).data('mngrtype'),
+                    id: button.data('userid'),
+                    groupID: button.data('groupid'),
+                    role: roleSelected,
                     // Send the token as a parameter of the POST request in order for it to be accepted by the server
                     __RequestVerificationToken: $(token).val()
                 },
@@ -117,9 +90,38 @@
                 }
 
             });
+        }
+
+    </script>
+    <script>
+
+        $('.changeRole').click(function () {
+
+            if ($(this).val() == "Confirmar") {
+                changeRole($(this));
+            } else {
+                var roles = [
+                    { role: "Manager", text: "Responsável" },
+                    { role: "CoManager", text: "CoResponsável" },
+                    { role: "Participant", text: "Participante" }]
+
+                var selector = $("<select>").attr("name", "roles").attr("id", "roleSelector");
+
+                var currentRole = $(this).data('currentrole');
+
+                $(roles).each(function () {
+                    if (this.role != currentRole) {
+                        selector.append($("<option>").attr("value", this.role).text(this.text));
+                    }
+
+                });
+
+                $('#' + $(this).data('userid')).replaceWith(selector);
+                $(this).attr("value", "Confirmar");
+            }
+
 
         });
-
     </script>
 
 

@@ -10,6 +10,7 @@ using MeePoint.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Vereyon.Web;
+using static MeePoint.Models.Group;
 
 namespace MeePoint.Controllers
 {
@@ -263,28 +264,32 @@ namespace MeePoint.Controllers
 			return RedirectToAction(nameof(Index));
 		}
 
-		[HttpPost, ActionName("MakeManager")]
+		[HttpPost, ActionName("ManageGroupRole")]
 		[ValidateAntiForgeryToken]
 		[Authorize(Roles = "EntityManager")]
-		public async Task<IActionResult> MakeManager(int id, int groupID, int managerType)
+		public async Task<IActionResult> ManageGroupRole(int id, int groupID, string role)
 		{
 			var groupMember = await _context.GroupMembers.FirstAsync(gm => gm.UserID == id && gm.GroupID == groupID);
 
 			try
 			{
-				switch (managerType)
-				{
-					case 0:
-						var isCoMngr = groupMember.Role == "CoManager";
-						groupMember.Role = isCoMngr ? "Participant" : "CoManager";
-						break;
+				if(role == GroupRoles.Manager.ToString())
+                {
+					var currentManager = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.GroupID == groupID && gm.Role == GroupRoles.Manager.ToString());
 
-					case 1:
-						var isMngr = groupMember.Role == "Manager";
-						groupMember.Role = isMngr ? "Participant" : "Manager";
-						break;
-				}
+					if(currentManager != null)
+                    {
+						currentManager.Role = GroupRoles.Participant.ToString();
+					}
 
+					groupMember.Role = GroupRoles.Manager.ToString();
+
+                }
+                else
+                {
+					groupMember.Role = ((GroupRoles)Enum.Parse(typeof(GroupRoles), role)).ToString();
+                }
+				
 				await _context.SaveChangesAsync();
 				_iFlashMessage.Confirmation("Role changed!");
 				return Json(new { url = this.Url.Action("Participants", new { id = groupMember.GroupID }) });
