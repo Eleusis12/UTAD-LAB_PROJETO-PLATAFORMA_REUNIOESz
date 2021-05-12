@@ -121,12 +121,41 @@ namespace MeePoint.Controllers
 
 		[HttpGet]
 		[Authorize(Roles = "EntityManager")]
-		public IActionResult AddLogins()
+		public async Task<IActionResult> AddLogins()
 		{
+			// Obtém o utilizador que está autenticado
+			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+			string email = applicationUser?.Email; // will give the user's Email
+			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+
+			// Obtém a entidade
+			var entity = _context.Entities.Include(m => m.Groups).Include("Groups.Members").First(m => m.User.Email == user.Email);
+
+			// Se a empresa não existe
+			if (entity == null)
+			{
+				return StatusCode(401);
+			}
+			string filename = Path.Combine(_he.ContentRootPath, "wwwroot/", entity.Name, "Credenciais/", "Credenciais.txt");
+
+			if (System.IO.File.Exists(filename))
+			{
+				// Devolve para a view o nome do ficheiro
+				ViewData["filename"] = Path.GetFileName(filename);
+				ViewData["filenameLength"] = new System.IO.FileInfo(filename).Length / (double)1024;
+			}
+			else
+			{
+				// Na inexistência de ficheiro
+				ViewData["filename"] = "";
+				ViewData["filenameLength"] = 0;
+			}
+
 			return View();
 		}
 
 		[HttpPost]
+		[Authorize(Roles = "EntityManager")]
 		public async Task<IActionResult> AddLogins(string emails)
 		{
 			// Se o utilizador submeteu sem ter preenchido o campo de emails
@@ -248,6 +277,33 @@ namespace MeePoint.Controllers
 			}
 
 			return View();
+		}
+
+		[HttpGet]
+		[Authorize(Roles = "EntityManager")]
+		public async Task<IActionResult> DownloadCredentialsFile()
+		{
+			// Obtém o utilizador que está autenticado
+			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+			string email = applicationUser?.Email; // will give the user's Email
+			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+
+			// Obtém a entidade
+			var entity = _context.Entities.Include(m => m.Groups).Include("Groups.Members").First(m => m.User.Email == user.Email);
+
+			string filename = Path.Combine(_he.ContentRootPath, "wwwroot/", entity.Name, "Credenciais/", "Credenciais.txt");
+
+			// Se o ficheiro existir, vamos devolver esse ficheiro, caso contrário, vamos simplesmente devolver error
+			if (System.IO.File.Exists(filename))
+			{
+				// Lê todos os bytes do ficheiro
+				byte[] fileBytes = System.IO.File.ReadAllBytes(filename);
+				return File(fileBytes, "application/x-msdownload", filename);
+			}
+			else
+			{
+				return NotFound();
+			}
 		}
 
 		[HttpPost]
