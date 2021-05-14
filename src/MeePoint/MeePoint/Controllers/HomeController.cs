@@ -30,34 +30,35 @@ namespace MeePoint.Controllers
 
 		public ActionResult GetCalendarData()
 		{
-			List<AvailibilityDto> data = new List<AvailibilityDto>();
+			List<CalendarEvent> events = new List<CalendarEvent>();
+			CalendarEvent calendarEvent = new CalendarEvent()
+			{
+				title = "Ola mundo",
+				description = "Reunião muito divertida",
+				id = 2,
+				backgroundColor = "000000",
+				borderColor = "ffffff",
+				allDay = "false",
+				end = DateTime.Now.AddDays(4).ToString("yyyy-MM-ddTHH:mm:ss"),
+				start = DateTime.Now.AddDays(4).ToString("yyyy-MM-ddTHH:mm:ss")
+			};
 
-			//Statically create list and add data
-			AvailibilityDto infoObj1 = new AvailibilityDto();
-			infoObj1.Id = 1;
-			infoObj1.Title = "I am available";
-			infoObj1.Desc = "Description 1";
-			infoObj1.Start_Date = "2020-08-16 22:37:22.467";
-			infoObj1.End_Date = "2020-08-16 23:30:22.467";
-			data.Add(infoObj1);
+			CalendarEvent calendarEvent2 = new CalendarEvent()
+			{
+				title = "asddsa",
+				description = "Reunião muito divertida",
+				id = 2,
+				backgroundColor = "000000",
+				borderColor = "ffffff",
+				allDay = "false",
+				end = DateTime.Now.AddDays(1).ToString("yyyy-MM-ddTHH:mm:ss"),
+				start = DateTime.Now.AddDays(1).ToString("yyyy-MM-ddTHH:mm:ss")
+			};
 
-			AvailibilityDto infoObj2 = new AvailibilityDto();
-			infoObj2.Id = 2;
-			infoObj2.Title = "Available";
-			infoObj2.Desc = "Description 1";
-			infoObj2.Start_Date = "2020-08-17 10:00:22.467";
-			infoObj2.End_Date = "2020-08-17 11:00:22.467";
-			data.Add(infoObj2);
+			events.Add(calendarEvent);
+			events.Add(calendarEvent2);
 
-			AvailibilityDto infoObj3 = new AvailibilityDto();
-			infoObj3.Id = 3;
-			infoObj3.Title = "Meeting";
-			infoObj3.Desc = "Description 1";
-			infoObj3.Start_Date = "2020-08-18 07:30:22.467";
-			infoObj3.End_Date = "2020-08-18 08:00:22.467";
-			data.Add(infoObj3);
-
-			return Json(data);
+			return Json(events);
 		}
 
 		public IActionResult MeePoint()
