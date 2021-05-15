@@ -31,8 +31,21 @@ namespace MeePoint.Controllers
 		}
 
 		[Authorize]
-		public IActionResult MainPage()
+		public ActionResult MainPage()
 		{
+			//// Obtém o utilizador que está autenticado
+			//IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+			//string email = applicationUser?.Email; // will give the user's Email
+			//var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+
+			//var entity = _context.Groups.FirstOrDefault(m => m.Name.ToLower() == "main")
+			//MainPageViewModel mainPageViewModel = new MainPageViewModel()
+			//{
+			//	AmountGroups = _context.GroupMembers.Where(m => m.UserID == user.RegisteredUserID).Count(),
+			//	//AmountMeetingsHeldLastMonth = _context.Meetings.Where(m=> m.GroupID).Where(m => m.MeetingDate >= DateTime.Now.AddDays(-30))
+			//	EntityName = _context.Entities.FirstOrDefault(m => m.EntityID == user.Groups)
+			//}
+
 			return View();
 		}
 
@@ -55,28 +68,34 @@ namespace MeePoint.Controllers
 			List<CalendarEvent> events = new List<CalendarEvent>();
 			var random = new Random();
 
-			foreach (KeyValuePair<int, ICollection<Meeting>> keyPair in meetings)
+			try
 			{
-				// Para cada grupo queremos enviar cores diferentes, de forma a poder distinguir as reuniões de acordo com o grupo
-				var color = String.Format("#{0:X6}", random.Next(0x1000000)); // = "#A197B9"
-
-				foreach (Meeting meeting in keyPair.Value)
+				foreach (KeyValuePair<int, ICollection<Meeting>> keyPair in meetings)
 				{
-					events.Add(new CalendarEvent()
+					// Para cada grupo queremos enviar cores diferentes, de forma a poder distinguir as reuniões de acordo com o grupo
+					var color = String.Format("#{0:X6}", random.Next(0x1000000)); // = "#A197B9"
+
+					foreach (Meeting meeting in keyPair.Value)
 					{
-						title = meeting.Group.Name,
-						description = meeting.Name,
-						id = meeting.MeetingID,
-						backgroundColor = color,
-						borderColor = color,
-						allDay = "false",
-						start = meeting.MeetingDate.ToString("yyyy-MM-ddTHH:mm:ss"),
-						end = (meeting.MeetingDate.AddMinutes(meeting.ExpectedDuration)).ToString("yyyy-MM-ddTHH:mm:ss")
-					});
+						events.Add(new CalendarEvent()
+						{
+							title = meeting.Group.Name,
+							description = meeting.Name,
+							id = meeting.MeetingID,
+							backgroundColor = color,
+							borderColor = color,
+							allDay = "false",
+							start = meeting.MeetingDate.ToString("yyyy-MM-ddTHH:mm:ss"),
+							end = (meeting.MeetingDate.AddMinutes(meeting.ExpectedDuration)).ToString("yyyy-MM-ddTHH:mm:ss")
+						});
+					}
 				}
 			}
+			catch (Exception ex)
+			{
+				return Json(new List<CalendarEvent>());
+			}
 
-			//return private Json(events);
 			return Json(events);
 		}
 
