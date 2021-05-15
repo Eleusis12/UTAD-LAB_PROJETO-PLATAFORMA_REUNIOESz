@@ -87,9 +87,8 @@
 				type: "GET",
 				dataType: "JSON",
 				success: function (result) {
-					GenerateCalender([])
+					GenerateCalender([]);
 					$.each(result, function (i, data) {
-						console.log("data:", data)
 						events.push(
 							{
 								title: data.title,

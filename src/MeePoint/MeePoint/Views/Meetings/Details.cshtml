@@ -1,36 +1,136 @@
 ﻿@model MeePoint.Models.Meeting
 
 @{
-    ViewData["Title"] = "Details";
+	ViewData["Title"] = "Detalhes da Reunião";
 }
 
-<h1>Details</h1>
+@Html.Partial("_BreadCrumb", @ViewData["Title"])
 
-<div>
-    <h4>Meeting</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Group)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Group.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Quorum)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Quorum)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MeetingDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MeetingDate)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.MeetingID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+<!-- Main content -->
+<section class="content">
+
+	<!-- Default box -->
+	<div class="card">
+		<div class="card-header">
+			<a asp-controller="Groups" asp-action="Details" asp-route-id="@Model.GroupID" class="card-title"><i class="fas fa-arrow-left"></i>  Voltar ao grupo</a>
+
+			<div class="card-tools">
+				<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+					<i class="fas fa-minus"></i>
+				</button>
+				<button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+					<i class="fas fa-times"></i>
+				</button>
+			</div>
+		</div>
+		<div class="card-body">
+			<div class="row">
+				<div class="col-12 col-md-12 col-lg-8 order-2 order-md-1">
+					<div class="row">
+						<div class="col-12 col-sm-4">
+							<div class="info-box bg-light">
+								<div class="info-box-content">
+									<span class="info-box-text text-center text-muted">Grupo</span>
+									<span class="info-box-number text-center text-muted mb-0">@Html.DisplayFor(m => m.Group.Name)</span>
+								</div>
+							</div>
+						</div>
+						<div class="col-12 col-sm-4">
+							<div class="info-box bg-light">
+								<div class="info-box-content">
+									<span class="info-box-text text-center text-muted">Reunião começa</span>
+									<span class="info-box-number text-center text-muted mb-0">às @Model.MeetingDate.ToString("HH:mm d MMM");</span>
+								</div>
+							</div>
+						</div>
+						<div class="col-12 col-sm-4">
+							<div class="info-box bg-light">
+								<div class="info-box-content">
+									<span class="info-box-text text-center text-muted">Tempo de duração</span>
+									<span class="info-box-number text-center text-muted mb-0">@Html.DisplayFor(m => m.ExpectedDuration) minutos</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12">
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th style="width: 10px">#</th>
+										<th>Nome do Convocado</th>
+										<th style="width: 40px">Label</th>
+										<th>Função</th>
+									</tr>
+								</thead>
+								<tbody>
+									@foreach (var member in Model.Group.Members)
+									{
+										<tr>
+											<td>1.</td>
+											<td>@(member.User.Name??"Nome não definido")</td>
+											<td><span class="badge bg-gradient-info">@member.User.Email</span></td>
+											<td>
+												@member.Role
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-md-12 col-lg-4 order-1 order-md-2">
+					<h3 class="text-primary"><i class="fab fa-meetup"></i> Reunião Agendada</h3>
+					<p class="text-muted">Tópico: @Html.DisplayFor(m => m.Name)</p>
+					<br>
+					<div class="text-muted">
+						<p class="text-sm">
+							Responsável
+							<b class="d-block">@{var manager = Model.Group.Members.FirstOrDefault(m => m.Role.ToLower() == "manager");}@manager.User.Name</b>
+						</p>
+						<p class="text-sm">
+							Co-Responsáveis
+							@{
+								var coManagers = Model.Group.Members.Where(m => m.Role.ToLower() == "comanager");
+								foreach (var coManager in coManagers)
+								{
+									<b class="d-block">@coManager.User.Name</b>
+
+								}
+
+							}
+						</p>
+					</div>
+
+					@{
+						var documents = Model.Documents;
+						if (documents.Count != 0)
+						{
+							<h5 class="mt-5 text-muted">Documentos associados à reunião</h5>
+							<ul class="list-unstyled">
+								@foreach (var document in documents)
+								{
+									<li>
+										<a href="" class="btn-link text-secondary"><i class="far fa-fw fa-file-pdf"></i> @System.IO.Path.GetFileName(document.DocumentPath)</a>
+									</li>
+								}
+							</ul>
+						}
+
+					}
+					@if ((bool)ViewData["Role"] == true)
+					{
+						<div class="text-center mt-5 mb-3">
+							<a href="#" class="btn btn-sm btn-warning">Adiar Reunião</a>
+							<a href="#" class="btn btn-sm btn-danger">Cancelar Reunião</a>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+		<!-- /.card-body -->
+	</div>
+	<!-- /.card -->
+</section>
+<!-- /.content -->

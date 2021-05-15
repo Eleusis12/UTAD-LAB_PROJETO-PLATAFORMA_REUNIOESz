@@ -221,12 +221,32 @@ namespace MeePoint.Controllers
 
 			var meeting = await _context.Meetings
 				.Include(m => m.Group)
+				.ThenInclude(m => m.Members)
+				.ThenInclude(m => m.User)
+				.Include(m => m.Documents)
+				.Include(m => m.Convocations)
 				.FirstOrDefaultAsync(m => m.MeetingID == id);
+
 			if (meeting == null)
 			{
 				return NotFound();
 			}
 
+			// Assim como no get, temos que fazer a verificação se o utilizador é manager do grupo
+			// Obtém o utilizador que está autenticado
+			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+			string email = applicationUser?.Email; // will give the user's Email
+			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+
+			// Vamos verificar se o utilizador que pretende agendar a reunião é responsável ou co-responsável pelo grupo
+			var groupMember = _context.GroupMembers.Include(m => m.Group).ThenInclude(m => m.Entity).Where(m => m.GroupID == meeting.GroupID).FirstOrDefault(m => m.User.Email == email);
+			string roleUser = groupMember?.Role;
+
+			// Aqui fazemos a verificação se é manager ou comanager do grupo
+			if ((roleUser.ToLower() == "manager" || roleUser.ToLower() != "comanager"))
+			{
+				ViewData["Role"] = true;
+			}
 			return View(meeting);
 		}
 
