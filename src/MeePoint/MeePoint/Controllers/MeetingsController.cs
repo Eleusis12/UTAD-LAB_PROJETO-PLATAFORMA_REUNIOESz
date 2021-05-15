@@ -327,6 +327,41 @@ namespace MeePoint.Controllers
 			return View(meeting);
 		}
 
+		[HttpPost]
+		[Authorize]
+		public async Task<IActionResult> PostPoneMeeting(int? id, DateTime dateTime, string timeDay)
+		{
+			if (id == null)
+			{
+				return NotFound();
+			}
+			// Se o utilizador não escolheu a hora de marcação, volta para página
+			if (timeDay == null)
+				return View();
+
+			var meeting = await _context.Meetings
+				.Include(m => m.Group)
+				.FirstOrDefaultAsync(m => m.MeetingID == id);
+			if (meeting == null)
+			{
+				return NotFound();
+			}
+
+			// timeDay tem o seguinte formato "12:30"
+			// Vamos fazer o split de acordo com os dois pontos
+			string[] partsTime = timeDay.Split(':');
+			DateTime meetingDate = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, Int32.Parse(partsTime[0]), Int32.Parse(partsTime[1]), 0);
+
+			// Atribuir a data atualizada ao objeto meeting
+			meeting.MeetingDate = meetingDate;
+
+			// Guardar na base de dados
+			_context.Meetings.Update(meeting);
+			await _context.SaveChangesAsync();
+
+			return RedirectToAction("Details", "Meetings", new { id = meeting.MeetingID });
+		}
+
 		// GET: Meetings/Delete/5
 		public async Task<IActionResult> Delete(int? id)
 		{

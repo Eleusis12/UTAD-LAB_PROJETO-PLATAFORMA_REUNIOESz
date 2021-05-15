@@ -122,8 +122,8 @@
 					@if ((bool)ViewData["Role"] == true)
 					{
 						<div class="text-center mt-5 mb-3">
-							<a href="#" class="btn btn-sm btn-warning">Adiar Reunião</a>
-							<a href="#" class="btn btn-sm btn-danger">Cancelar Reunião</a>
+							<a id="postpone-meeting" class="btn btn-sm btn-warning">Reagendar Reunião</a>
+							<a asp-controller="Meetings" asp-action="Delete" asp-route-id="@Model.MeetingID" class="btn btn-sm btn-danger">Cancelar Reunião</a>
 						</div>
 					}
 				</div>
@@ -134,3 +134,82 @@
 	<!-- /.card -->
 </section>
 <!-- /.content -->
+
+<div id="dialog-form" title="Reagendar Reunião">
+
+	<form id="myForm" asp-controller="Meetings" asp-action="PostPoneMeeting" asp-route-id="@Model.MeetingID" method="post">
+		<fieldset>
+
+			<label>Data de Início</label>
+			<input id="txtDate" type="date" name="dateTime" class="form-control" placeholder="Dia de Início">
+
+			<label>Hora de começo</label>
+			<input name="timeDay" type="time" class="form-control" placeholder="Hora de Início" value="17:00">
+
+			<!-- Allow form submission with keyboard without duplicating the dialog button -->
+			<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+		</fieldset>
+	</form>
+</div>
+
+@section Scripts
+{
+
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script>
+
+		$(function () {
+			var dtToday = new Date();
+
+			var month = dtToday.getMonth() + 1;
+			var day = dtToday.getDate();
+			var year = dtToday.getFullYear();
+			if (month < 10)
+				month = '0' + month.toString();
+			if (day < 10)
+				day = '0' + day.toString();
+
+			var maxDate = year + '-' + month + '-' + day;
+			$('#txtDate').attr('min', maxDate);
+		});
+
+		$(function () {
+			var dialog, form;
+
+			
+
+			dialog = $("#dialog-form").dialog({
+				autoOpen: false,
+				height: 400,
+				width: 350,
+				modal: true,
+				buttons: [
+					{
+						text: "Reagendar Reunião",
+						click: function () {
+							form.submit();
+							dialog.dialog("close");
+						}
+					},
+					{
+						text: "Cancelar",
+						click: function () {
+							dialog.dialog("close");
+						}
+					}
+				],
+				
+				close: function () {
+					form[0].reset();
+				}
+			});
+
+			form = dialog.find("form");
+
+			$("#postpone-meeting").button().on("click", function () {
+				dialog.dialog("open");
+			});
+		});
+	</script>
+}
