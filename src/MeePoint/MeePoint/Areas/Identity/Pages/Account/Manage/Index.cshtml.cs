@@ -63,7 +63,7 @@ namespace MeePoint.Areas.Identity.Pages.Account.Manage
 
 			registeredUser = await _context.RegisteredUsers.Include(m => m.Groups).Include("Groups.Group").Include("Groups.Group.Entity").FirstOrDefaultAsync(x => x.Email == userName);
 
-			ViewData["entityName"] = registeredUser.Groups.FirstOrDefault(x => x.Group.Name.ToLower() == "main".ToLower()).Group.Entity.Name;
+			ViewData["entityName"] = registeredUser.Groups.FirstOrDefault(x => x.Group.Name.ToLower() == "main".ToLower()).Group?.Entity?.Name;
 
 			Input = new InputModel
 			{
