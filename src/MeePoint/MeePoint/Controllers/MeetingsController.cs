@@ -142,7 +142,7 @@ namespace MeePoint.Controllers
 
 					documents.Add(new Document()
 					{
-						DocumentPath = destFile.Substring(destFile.IndexOf("Meetings") - 1),
+						DocumentPath = destFile.Substring(destFile.IndexOf(entityName) - 1),
 						MeetingID = meeting.MeetingID,
 						Meeting = meeting
 					});
@@ -159,6 +159,7 @@ namespace MeePoint.Controllers
 			await _context.Documents.AddRangeAsync(documents);
 			meeting.Documents = documents;
 			_context.Meetings.Update(meeting);
+			await _context.SaveChangesAsync();
 
 			return RedirectToAction("Details", "Groups", new { id = meeting.GroupID });
 		}
@@ -209,6 +210,48 @@ namespace MeePoint.Controllers
 			}
 
 			return Ok(Json("success"));
+		}
+
+		[HttpGet]
+		[Authorize]
+		public async Task<IActionResult> DownloadDocument(int? id)
+		{
+			// Obtém o utilizador que está autenticado
+			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+			string email = applicationUser?.Email; // will give the user's Email
+			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+
+			var document = _context.Documents.FirstOrDefault(m => m.DocumentID == id);
+
+			// Antes de devolver o ficheiro: primeiro temos que verificar se o user que está a pedir o ficheiro faz parte do grupo
+			var meeting = _context.Meetings.Include(m => m.Group)
+				.ThenInclude(m => m.Members)
+				.ThenInclude(m => m.User)
+				.FirstOrDefault(m => m.MeetingID == document.MeetingID);
+
+			if (!meeting.Group.Members.Any(m => m.User.RegisteredUserID == user.RegisteredUserID))
+			{
+				return NoContent();
+			}
+
+			// Se o documento por alguma razão não está na bd, retorna erro
+			if (document == null)
+			{
+				return NoContent();
+			}
+
+			var file = Path.Combine(_he.ContentRootPath, "wwwroot/", document.DocumentPath.TrimStart(new char[] { '/' }));
+			// Se o ficheiro existir, vamos devolver esse ficheiro, caso contrário, vamos simplesmente devolver error
+			if (System.IO.File.Exists(file))
+			{
+				// Lê todos os bytes do ficheiro
+				byte[] fileBytes = System.IO.File.ReadAllBytes(file);
+				return File(fileBytes, "application/x-msdownload", file);
+			}
+			else
+			{
+				return NoContent();
+			}
 		}
 
 		// GET: Meetings/Details/5

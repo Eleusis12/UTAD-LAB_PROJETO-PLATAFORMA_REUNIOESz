@@ -34,7 +34,7 @@
 				<h3>
 					@{
 						var firstDay = DateTime.Today.AddDays(-30);
-						var countMeetings = Model.Meetings.Where(x => x.MeetingDate >= firstDay).Count();
+						var countMeetings = Model.Meetings.Where(x => x.MeetingDate >= firstDay && x.MeetingDate <= DateTime.Now).Count();
 					}
 					@countMeetings
 				</h3>
@@ -69,7 +69,7 @@
 			<div class="inner">
 				<h3>
 					@{
-						var nextMeetingDate = Model.Meetings.OrderByDescending(x => x.MeetingDate).Where(x => x.MeetingDate >= DateTime.Now).FirstOrDefault();
+						var nextMeetingDate = Model.Meetings.OrderBy(x => x.MeetingDate).Where(x => x.MeetingDate >= DateTime.Now).FirstOrDefault();
 						string dateString;
 						if (nextMeetingDate != null)
 						{

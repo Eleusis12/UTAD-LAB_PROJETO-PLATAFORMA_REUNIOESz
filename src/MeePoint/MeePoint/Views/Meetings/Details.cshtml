@@ -112,7 +112,7 @@
 								@foreach (var document in documents)
 								{
 									<li>
-										<a href="" class="btn-link text-secondary"><i class="far fa-fw fa-file-pdf"></i> @System.IO.Path.GetFileName(document.DocumentPath)</a>
+										<a asp-controller="Meetings" asp-action="DownloadDocument" asp-route-id="@document.DocumentID" class="btn-link text-secondary"><i class="far fa-fw fa-file-pdf"></i> @System.IO.Path.GetFileName(document.DocumentPath)</a>
 									</li>
 								}
 							</ul>
@@ -177,8 +177,6 @@
 		$(function () {
 			var dialog, form;
 
-			
-
 			dialog = $("#dialog-form").dialog({
 				autoOpen: false,
 				height: 400,
@@ -199,7 +197,7 @@
 						}
 					}
 				],
-				
+
 				close: function () {
 					form[0].reset();
 				}
