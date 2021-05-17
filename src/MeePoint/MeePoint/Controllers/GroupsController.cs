@@ -181,6 +181,7 @@ namespace MeePoint.Controllers
         }
 
         // GET: Groups/Edit/5
+        [Authorize(Roles = "EntityManager")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -202,6 +203,7 @@ namespace MeePoint.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "EntityManager")]
         public async Task<IActionResult> Edit(int id, [Bind("GroupID,Name,EntityID")] Group @group)
         {
             if (id != @group.GroupID)
