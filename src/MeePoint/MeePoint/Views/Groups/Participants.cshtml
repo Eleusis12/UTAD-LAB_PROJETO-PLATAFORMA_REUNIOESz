@@ -66,7 +66,20 @@
             }
         </div>
     </div>
+
+    @if (ViewContext.HttpContext.User.IsInRole("EntityManager")) { 
+
+    <a class="btn btn-sm btn-primary addParticipant"
+       asp-controller="Groups"
+       asp-action="AddParticipants"
+       asp-route-groupID="@Model.GroupID">
+        <i class="fas fa-user"> Adicionar Participante</i>
+    </a>
+    }
+
+
 </div>
+
 
 @section Scripts
 
@@ -104,9 +117,9 @@
 
         function isManager() {
 
-            var managerEmail = @Html.Raw(Json.Serialize(ViewData["GroupManager"]));
+            var managers = @Html.Raw(Json.Serialize(ViewData["GroupManager"]));
 
-            if (managerEmail == null) {
+            if (managers == null) {
                 return;
             }
 
@@ -114,7 +127,7 @@
 
             var isEntityManager = @Html.Raw(Json.Serialize(ViewContext.HttpContext.User.IsInRole("EntityManager")));
 
-            if (loggedUserEmail == managerEmail) {
+            if (managers.includes(loggedUserEmail)) {
                 $('.removeParticipant').show();
                 $('.changeRole').show();
             }

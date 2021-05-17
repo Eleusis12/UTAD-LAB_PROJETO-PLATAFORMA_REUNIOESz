@@ -276,7 +276,7 @@ namespace MeePoint.Controllers
                 if (role == GroupRoles.Manager.ToString())
                 {
                     var currentManager = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.GroupID == groupID && gm.Role == GroupRoles.Manager.ToString());
-                    
+
                     //Demote current manager to participant
                     if (currentManager != null)
                     {
@@ -337,7 +337,7 @@ namespace MeePoint.Controllers
                 return NotFound();
             }
 
-            ViewData["GroupManager"] = group.Members.First(m => m.Role == "Manager").User.Email;
+            ViewData["GroupManager"] = group.Members.Where(m => m.Role == "Manager" || m.Role == "CoManager").Select(m => m.User.Email).ToList();
 
             return View(group);
         }
@@ -366,6 +366,102 @@ namespace MeePoint.Controllers
                 return Json(new { url = this.Url.Action("Participants", new { id = groupMember.GroupID }) });
 
             }
+
+        }
+
+        [HttpGet("{groupID}")]
+        [Authorize(Roles = "EntityManager, User")]
+        public async Task<IActionResult> AddParticipants(int? groupID)
+        {
+
+            if (groupID == null)
+            {
+                return NotFound();
+            }
+
+            var group = await _context.Groups.FindAsync(groupID);
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+
+            // Obtém o utilizador que está autenticado
+            IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+            string email = applicationUser?.Email; // will give the user's Email
+            var user = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.Email == email);
+            var member = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.UserID == user.RegisteredUserID);
+
+            // Verifica se o utilizador que quer aceder a esta página é de facto o entityManager desta entidade
+            var entity = await _context.Entities.FirstAsync(m => m.User.Email == user.Email && m.EntityID == group.EntityID);
+
+            // Se o user nao for manager desta entidade onde nao for manager do grupo
+            if (entity == null || member.Role == "Participant")
+            {
+                return StatusCode(403);
+            }
+
+            var currentParticipants = _context.GroupMembers
+                .Include(gm => gm.Group)
+                .Include("Group.Entity")
+                .Include(gm => gm.User)
+                .Where(gm => gm.GroupID == groupID)
+                .Select(gm => gm.UserID);
+
+            var entityParticipantsNotInGroup = _context.GroupMembers
+               .Include(m => m.Group)
+               .Include("Group.Entity")
+               .Include(m => m.User)
+               .Where(m => m.Group.EntityID == entity.EntityID)
+               .Where(m => m.Group.Name.ToLower() == "main".ToLower())
+               .Where(m => !currentParticipants.Contains(m.UserID));
+
+            ViewBag.GroupMembers = entityParticipantsNotInGroup
+               .Select(c => new SelectListItem()
+               { Text = c.User.Email, Value = c.User.RegisteredUserID.ToString() })
+               .ToList();
+
+
+            ViewData["EntityID"] = new SelectList(_context.Entities, "EntityID", "Name", group.EntityID);
+            return View(group);
+
+        }
+
+        [HttpPost("{groupID}"), ActionName("AddParticipants")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "EntityManager, User")]
+        public async Task<IActionResult> AddParticipants(int groupID, int[] newParticipants)
+        {
+
+            var group = await _context.Groups
+                .Include(g => g.Members)
+                .FirstAsync(g => g.GroupID == groupID);
+
+            // Obtém o utilizador que está autenticado
+            IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+            string email = applicationUser?.Email; // will give the user's Email
+            var user = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.Email == email);
+            var member = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.UserID == user.RegisteredUserID);
+
+            // Verifica se o utilizador que quer aceder a esta página é de facto o entityManager desta entidade
+            var entity = await _context.Entities.FirstAsync(m => m.User.Email == user.Email && m.EntityID == group.EntityID);
+
+            // Se o user nao for manager desta entidade onde nao for manager do grupo
+            if (entity == null || member.Role == "Participant")
+            {
+                return StatusCode(403);
+            }
+            foreach (var usr in newParticipants)
+            {
+                var newParticipant = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.RegisteredUserID == usr);
+
+                group.Members.Add(new GroupMember() { User = newParticipant, Group = group, Role = "Participant" });
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Participants", new { id = groupID });
 
         }
 
