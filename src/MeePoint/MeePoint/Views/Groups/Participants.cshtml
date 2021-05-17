@@ -1,7 +1,7 @@
 ﻿@model MeePoint.Models.Group
 
 @{
-    ViewData["Title"] = "Participantes";
+	ViewData["Title"] = "Participantes";
 }
 @Html.Partial("_BreadCrumb", @ViewData["Title"])
 
@@ -80,6 +80,7 @@
         </a>
     }
 
+
 </div>
 
 
@@ -147,7 +148,7 @@
 
     </script>
 
-    <script>
+	<script>
 
         function changeRole(button) {
             // Get the value fo the Anti Forgery Token
@@ -179,38 +180,35 @@
 
             });
         }
+	</script>
+	<script>
 
-    </script>
-    <script>
+		$('.changeRole').click(function () {
 
-        $('.changeRole').click(function () {
+			if ($(this).val() == "Confirmar") {
+				changeRole($(this));
+			} else {
+				var roles = [
+					{ role: "Manager", text: "Responsável" },
+					{ role: "CoManager", text: "CoResponsável" },
+					{ role: "Participant", text: "Participante" }]
 
-            if ($(this).val() == "Confirmar") {
-                changeRole($(this));
-            } else {
-                var roles = [
-                    { role: "Manager", text: "Responsável" },
-                    { role: "CoManager", text: "CoResponsável" },
-                    { role: "Participant", text: "Participante" }]
+				var selector = $("<select>").attr("name", "roles").attr("id", "roleSelector");
 
-                var selector = $("<select>").attr("name", "roles").attr("id", "roleSelector");
+				var currentRole = $(this).data('currentrole');
 
-                var currentRole = $(this).data('currentrole');
+				$(roles).each(function () {
+					if (this.role != currentRole) {
+						selector.append($("<option>").attr("value", this.role).text(this.text));
+					}
 
-                $(roles).each(function () {
-                    if (this.role != currentRole) {
-                        selector.append($("<option>").attr("value", this.role).text(this.text));
-                    }
+				});
 
-                });
+				$('#' + $(this).data('userid')).replaceWith(selector);
+				$(this).attr("value", "Confirmar");
+			}
 
-                $('#' + $(this).data('userid')).replaceWith(selector);
-                $(this).attr("value", "Confirmar");
-            }
-
-
-        });
-    </script>
-
+		});
+	</script>
 
 } 

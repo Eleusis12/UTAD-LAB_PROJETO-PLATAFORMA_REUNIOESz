@@ -142,7 +142,7 @@ namespace MeePoint.Controllers
 
 					documents.Add(new Document()
 					{
-						DocumentPath = destFile.Substring(destFile.IndexOf("Meetings") - 1),
+						DocumentPath = destFile.Substring(destFile.IndexOf(entityName) - 1),
 						MeetingID = meeting.MeetingID,
 						Meeting = meeting
 					});
@@ -159,6 +159,7 @@ namespace MeePoint.Controllers
 			await _context.Documents.AddRangeAsync(documents);
 			meeting.Documents = documents;
 			_context.Meetings.Update(meeting);
+			await _context.SaveChangesAsync();
 
 			return RedirectToAction("Details", "Groups", new { id = meeting.GroupID });
 		}
@@ -211,6 +212,48 @@ namespace MeePoint.Controllers
 			return Ok(Json("success"));
 		}
 
+		[HttpGet]
+		[Authorize]
+		public async Task<IActionResult> DownloadDocument(int? id)
+		{
+			// Obtém o utilizador que está autenticado
+			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+			string email = applicationUser?.Email; // will give the user's Email
+			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+
+			var document = _context.Documents.FirstOrDefault(m => m.DocumentID == id);
+
+			// Antes de devolver o ficheiro: primeiro temos que verificar se o user que está a pedir o ficheiro faz parte do grupo
+			var meeting = _context.Meetings.Include(m => m.Group)
+				.ThenInclude(m => m.Members)
+				.ThenInclude(m => m.User)
+				.FirstOrDefault(m => m.MeetingID == document.MeetingID);
+
+			if (!meeting.Group.Members.Any(m => m.User.RegisteredUserID == user.RegisteredUserID))
+			{
+				return NoContent();
+			}
+
+			// Se o documento por alguma razão não está na bd, retorna erro
+			if (document == null)
+			{
+				return NoContent();
+			}
+
+			var file = Path.Combine(_he.ContentRootPath, "wwwroot/", document.DocumentPath.TrimStart(new char[] { '/' }));
+			// Se o ficheiro existir, vamos devolver esse ficheiro, caso contrário, vamos simplesmente devolver error
+			if (System.IO.File.Exists(file))
+			{
+				// Lê todos os bytes do ficheiro
+				byte[] fileBytes = System.IO.File.ReadAllBytes(file);
+				return File(fileBytes, "application/x-msdownload", file);
+			}
+			else
+			{
+				return NoContent();
+			}
+		}
+
 		// GET: Meetings/Details/5
 		public async Task<IActionResult> Details(int? id)
 		{
@@ -221,12 +264,32 @@ namespace MeePoint.Controllers
 
 			var meeting = await _context.Meetings
 				.Include(m => m.Group)
+				.ThenInclude(m => m.Members)
+				.ThenInclude(m => m.User)
+				.Include(m => m.Documents)
+				.Include(m => m.Convocations)
 				.FirstOrDefaultAsync(m => m.MeetingID == id);
+
 			if (meeting == null)
 			{
 				return NotFound();
 			}
 
+			// Assim como no get, temos que fazer a verificação se o utilizador é manager do grupo
+			// Obtém o utilizador que está autenticado
+			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+			string email = applicationUser?.Email; // will give the user's Email
+			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+
+			// Vamos verificar se o utilizador que pretende agendar a reunião é responsável ou co-responsável pelo grupo
+			var groupMember = _context.GroupMembers.Include(m => m.Group).ThenInclude(m => m.Entity).Where(m => m.GroupID == meeting.GroupID).FirstOrDefault(m => m.User.Email == email);
+			string roleUser = groupMember?.Role;
+
+			// Aqui fazemos a verificação se é manager ou comanager do grupo
+			if ((roleUser.ToLower() == "manager" || roleUser.ToLower() != "comanager"))
+			{
+				ViewData["Role"] = true;
+			}
 			return View(meeting);
 		}
 
@@ -305,6 +368,41 @@ namespace MeePoint.Controllers
 			}
 			ViewData["GroupID"] = new SelectList(_context.Groups, "GroupID", "Name", meeting.GroupID);
 			return View(meeting);
+		}
+
+		[HttpPost]
+		[Authorize]
+		public async Task<IActionResult> PostPoneMeeting(int? id, DateTime dateTime, string timeDay)
+		{
+			if (id == null)
+			{
+				return NotFound();
+			}
+			// Se o utilizador não escolheu a hora de marcação, volta para página
+			if (timeDay == null)
+				return View();
+
+			var meeting = await _context.Meetings
+				.Include(m => m.Group)
+				.FirstOrDefaultAsync(m => m.MeetingID == id);
+			if (meeting == null)
+			{
+				return NotFound();
+			}
+
+			// timeDay tem o seguinte formato "12:30"
+			// Vamos fazer o split de acordo com os dois pontos
+			string[] partsTime = timeDay.Split(':');
+			DateTime meetingDate = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, Int32.Parse(partsTime[0]), Int32.Parse(partsTime[1]), 0);
+
+			// Atribuir a data atualizada ao objeto meeting
+			meeting.MeetingDate = meetingDate;
+
+			// Guardar na base de dados
+			_context.Meetings.Update(meeting);
+			await _context.SaveChangesAsync();
+
+			return RedirectToAction("Details", "Meetings", new { id = meeting.MeetingID });
 		}
 
 		// GET: Meetings/Delete/5

@@ -10,7 +10,7 @@
 		<h3 class="card-title">Agendamento</h3>
 	</div>
 	<div class="card-body">
-		<form asp-action="Schedule" asp-controller="Meetings" method="post" enctype="multipart/form-data">
+		<form asp-action="Schedule" asp-controller="Meetings" method="post" enctype="multipart/form-data" id="main-form">
 			<input asp-for="GroupID" value="@ViewBag.GroupId" hidden />
 			<input name="guid" value="@ViewBag.GUID" hidden />
 			<div class="row">
@@ -79,7 +79,7 @@
 		</div>
 	</div>
 	<div class="card-footer">
-		<button type="submit" class="btn btn-primary start">Guardar</button>
+		<button onclick='document.getElementById("main-form").submit();' class="btn btn-primary start">Guardar</button>
 	</div>
 </div>
 

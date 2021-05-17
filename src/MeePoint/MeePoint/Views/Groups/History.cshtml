@@ -4,7 +4,7 @@
 	ViewData["Title"] = "Histórico de Reuniões";
 }
 @Html.Partial("_BreadCrumb", @ViewData["Title"])
-
+<a asp-controller="Groups" asp-action="Details" asp-route-id="@Model.GroupID" class="card-title"><i class="fas fa-arrow-left"></i>  Voltar ao grupo</a>
 <table id="EntitiesTable" class="table table-striped projects">
 	<thead>
 		<tr>
@@ -29,7 +29,7 @@
 	</thead>
 	<tbody>
 		@{ int i = 1;}
-		@foreach (var meeting in Model.Meetings)
+		@foreach (var meeting in Model.Meetings.OrderBy(x=> x.MeetingDate))
 		{
 			<tr>
 				<td>
@@ -45,7 +45,6 @@
 				</td>
 				<td class="project-state">
 
-					<>
 
 					<a asp-controller="Meetings" asp-action="Attendance" asp-route-id="@meeting.MeetingID" class="badge badge-warning">
 						Presenças
