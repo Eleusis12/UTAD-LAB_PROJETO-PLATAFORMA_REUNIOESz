@@ -1,0 +1,46 @@
+﻿@model MeePoint.Models.Group
+
+@{
+    ViewData["Title"] = "AddParticipants";
+}
+@Html.Partial("_BreadCrumb", @ViewData["Title"])
+<h1>Add Participants</h1>
+
+<h4>Group</h4>
+<hr />
+<div class="card card-default">
+    <div class="card-body">
+        <form asp-action="AddParticipants">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="GroupID" />
+            <div class="col-6 col-sm-3">
+                <div class="form-group">
+                    <label>Participantes</label>
+                    <div class="select2-purple">
+                        <select name="newParticipants" class="select2" multiple="multiple" data-placeholder="Seleciona os participantes" data-dropdown-css-class="select2-purple" style="width: 100%;" asp-items="@ViewBag.GroupMembers">
+                        </select>
+                    </div>
+                </div>
+                <!-- /.form-group -->
+            </div>
+            <button type="submit" class="btn btn-success ">Adicionar</button>
+        </form>
+    </div>
+</div>
+
+
+
+<div>
+    <a asp-action="Participants"
+       asp-route-id="@Model.GroupID">Back to Participants</a>
+</div>
+
+@section Scripts
+
+{
+    <script>
+		$(function () {
+			$('.select2').select2()
+		});
+    </script>
+}

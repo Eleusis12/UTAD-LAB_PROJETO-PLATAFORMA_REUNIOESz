@@ -12,7 +12,7 @@ namespace MeePoint.Data
 
             var roleManager = svcProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            string[] roleNames = { "Administrator", "EntityManager", "GroupManager", "User" };
+            string[] roleNames = { "Administrator", "EntityManager", "User" };
 
             IdentityResult result;
 

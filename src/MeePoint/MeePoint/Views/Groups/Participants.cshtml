@@ -7,61 +7,146 @@
 
 <!-- Default box -->
 <div class="card card-solid">
-	<div class="card-header">
-		<a asp-controller="Groups" asp-action="Details" asp-route-id="@Model.GroupID" class="card-title"><i class="fas fa-arrow-left"></i>  Voltar ao grupo</a>
-	</div>
-	<div class="row">
+    <div class="card-header">
+        <a asp-controller="Groups" asp-action="Details" asp-route-id="@Model.GroupID" class="card-title"><i class="fas fa-arrow-left"></i>  Voltar ao grupo</a>
+    </div>
+    <div class="row">
 
-		@foreach (var member in Model.Members)
-		{
-			<div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch flex-column">
-				<div class="card bg-light d-flex flex-fill">
-					<div class="card-header text-muted border-bottom-0">
-					</div>
-					<div class="card-body pt-0">
-						<div class="row">
-							<div class="col-7">
-								<h2 class="lead"><b>@(member.User.Name??"Nome não definido")</b></h2>
-								<p class="text-muted text-sm">
-									<b>Função: </b>  <i id="@member.UserID">@member.Role</i>
-									@if (ViewContext.HttpContext.User.IsInRole("EntityManager"))
-									{
-										<input type="button"
-											   class="btn btn-sm btn-primary changeRole"
-											   data-userid="@member.UserID"
-											   data-groupid="@member.GroupID"
-											   data-currentrole="@member.Role"
-											   value="Alterar" />
-									}
-								</p>
+        @foreach (var member in Model.Members)
+        {
+            <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch flex-column">
+                <div class="card bg-light d-flex flex-fill">
+                    <div class="card-header text-muted border-bottom-0">
+                    </div>
+                    <div class="card-body pt-0">
+                        <div class="row">
+                            <div class="col-7">
+                                <h2 class="lead"><b>@(member.User.Name??"Nome não definido")</b></h2>
+                                <p class="text-muted text-sm">
+                                    <b>Função: </b>  <i id="@member.UserID">@member.Role</i>
+                                    <input type="button"
+                                           class="btn btn-sm btn-primary changeRole" .
+                                           style="display:none"
+                                           data-userid="@member.UserID"
+                                           data-groupid="@member.GroupID"
+                                           data-currentrole="@member.Role"
+                                           value="Alterar" />
 
-								<ul class="ml-4 mb-0 fa-ul text-muted">
-									<li class="small"><span class="fa-li"><i class="fas fa-lg fa-building"></i></span> Email: @member.User.Email</li>
-								</ul>
-							</div>
-							<div class="col-5 text-center">
-								<img src="" alt="Não tem Foto" class="img-circle img-fluid">
-							</div>
-						</div>
-					</div>
-					<div class="card-footer">
-						<div class="text-right">
+                                </p>
 
-							<a asp-controller="RegisteredUsers" asp-action="Details" asp-route-id="@member.User.RegisteredUserID" class="btn btn-sm btn-primary">
-								<i class="fas fa-user"></i> Ver Perfil
-							</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		}
-	</div>
+                                <ul class="ml-4 mb-0 fa-ul text-muted">
+                                    <li class="small"><span class="fa-li"><i class="fas fa-lg fa-building"></i></span> Email: @member.User.Email</li>
+                                </ul>
+                            </div>
+                            <div class="col-5 text-center">
+                                <img src="" alt="Não tem Foto" class="img-circle img-fluid">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="text-right">
+                            @if (ViewContext.HttpContext.User.Identity.Name != member.User.Email)
+                            {
+                                <a class="btn btn-sm btn-primary removeParticipant"
+                                   data-userid="@member.UserID"
+                                   data-useremail="@member.User.Email"
+                                   data-groupid="@member.GroupID"
+                                   style="display:none">
+                                    <i class="fas fa-user"></i> Remover
+                                </a>
+                            }
+
+
+                            <a asp-controller="RegisteredUsers" asp-action="Details" asp-route-id="@member.User.RegisteredUserID" class="btn btn-sm btn-primary">
+                                <i class="fas fa-user"></i> Ver Perfil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+
+    @if (ViewContext.HttpContext.User.IsInRole("EntityManager"))
+    {
+
+        <a class="btn btn-sm btn-primary addParticipant"
+           asp-controller="Groups"
+           asp-action="AddParticipants"
+           asp-route-groupID="@Model.GroupID">
+            <i class="fas fa-user"> Adicionar Participante</i>
+        </a>
+    }
+
+
 </div>
-</div>
+
 
 @section Scripts
 
 {
+    <script>
+        $('.removeParticipant').click(function () {
+
+            var token = '@Html.AntiForgeryToken()';
+
+            console.log($(this).data('userid'));
+
+            $.ajax({
+                url: '@Url.Action("RemoveParticipant", "Groups")',
+                type: 'POST',
+                dataType: 'html',
+                data: {
+                    userID: $(this).data('userid'),
+                    groupID: $(this).data('groupid'),
+                    __RequestVerificationToken: $(token).val()
+                },
+                success: function (response) {
+                    var url = JSON.parse(response).url;
+                    window.location.href = url;
+                },
+                error: function (response) {
+                    var url = JSON.parse(response).url;
+                    window.location.href = url;
+                }
+            });
+
+        });
+    </script>
+
+    <script>
+
+        function isManager() {
+
+            var managers = @Html.Raw(Json.Serialize(ViewData["GroupManager"]));
+
+            if (managers == null) {
+                return;
+            }
+
+            var loggedUserEmail = @Html.Raw(Json.Serialize(ViewContext.HttpContext.User.Identity.Name));
+
+            var isEntityManager = @Html.Raw(Json.Serialize(ViewContext.HttpContext.User.IsInRole("EntityManager")));
+
+            if (managers.includes(loggedUserEmail)) {
+                $('.removeParticipant').show();
+                $('.changeRole').show();
+            }
+
+            if (isEntityManager) {
+                $('.changeRole').show();
+            }
+
+        }
+
+    </script>
+    <script>
+
+        $('document').ready(isManager());
+
+    </script>
 
 	<script>
 
@@ -84,10 +169,12 @@
                 },
                 success: function (response) {
                     var url = JSON.parse(response).url;
+                    console.log(response);
                     window.location.href = url;
                 },
                 error: function (response) {
                     var url = JSON.parse(response).url;
+                    console.log(response);
                     window.location.href = url;
                 }
 
