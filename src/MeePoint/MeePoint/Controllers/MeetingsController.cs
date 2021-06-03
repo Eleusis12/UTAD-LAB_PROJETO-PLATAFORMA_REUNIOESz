@@ -106,6 +106,9 @@ namespace MeePoint.Controllers
 			// Obter a que entidade está associado o grupo
 			string entityName = groupMember.Group.Entity.Name;
 
+			meeting.GroupID = groupMember.Group.GroupID;
+			meeting.Group = groupMember.Group;
+
 			ModelState.Clear();
 
 			// Primeiro vamos adicionar à base de dados, para gerar o id da reunião

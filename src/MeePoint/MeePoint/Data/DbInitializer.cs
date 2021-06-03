@@ -11,9 +11,9 @@ namespace MeePoint.Data
 	{
 		public async static Task Initialize(ApplicationDbContext _context, UserManager<IdentityUser> _userManager)
 		{
-			string email = "admin@hotmail.com";
-			string password = "teste123";
-			string adminName = "Nelson Matos";
+			string email = "adminadmin@hotmail.com";
+			string password = "abc123";
+			string adminName = "Manuel Matos";
 
 			_context.Database.EnsureCreated();
 

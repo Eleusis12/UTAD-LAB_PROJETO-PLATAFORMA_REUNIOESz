@@ -63,8 +63,7 @@ namespace MeePoint.Areas.Identity.Pages.Account.Manage
 
 			registeredUser = await _context.RegisteredUsers.Include(m => m.Groups).Include("Groups.Group").Include("Groups.Group.Entity").FirstOrDefaultAsync(x => x.Email == userName);
 
-			ViewData["entityName"] = registeredUser.Groups.FirstOrDefault(x => x.Group.Name.ToLower() == "main".ToLower()).Group?.Entity?.Name;
-
+		
 			Input = new InputModel
 			{
 				PhoneNumber = phoneNumber,
@@ -74,6 +73,16 @@ namespace MeePoint.Areas.Identity.Pages.Account.Manage
 				RegisteredUserID = registeredUser.RegisteredUserID,
 				Username = registeredUser.Username,
 			};
+
+			try
+			{
+				ViewData["entityName"] = registeredUser.Groups.FirstOrDefault(x => x.Group.Name.ToLower() == "main".ToLower()).Group?.Entity?.Name;
+			}
+			catch (NullReferenceException)
+			{
+				ViewData["entityName"] = "Não tem entidade associada";
+			}
+
 		}
 
 		public async Task<IActionResult> OnGetAsync()

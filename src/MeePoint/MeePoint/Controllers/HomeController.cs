@@ -60,6 +60,7 @@ namespace MeePoint.Controllers
 			Dictionary<int, ICollection<Meeting>> meetings = _context.GroupMembers
 				.Include(m => m.Group)
 				.ThenInclude(m => m.Meetings)
+				.ThenInclude(m => m.Group)
 				.Where(m => m.UserID == user.RegisteredUserID)
 				.Select(x => new KeyValuePair<int, ICollection<Meeting>>(x.GroupID, x.Group.Meetings))
 				.ToDictionary(x => x.Key, x => x.Value);
