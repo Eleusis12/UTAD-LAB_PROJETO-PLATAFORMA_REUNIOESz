@@ -1,3 +1,4 @@
-﻿@model string
+﻿@model Tuple<string, string>
 
-<a asp-area="Identity" asp-page="/Account/Manage/Index" class="d-block">@Model</a>
+<a asp-area="Identity" asp-page="/Account/Manage/Index" class="d-block">@Model.Item1</a>
+<span class="d-block text-secondary">@Model.Item2</span>

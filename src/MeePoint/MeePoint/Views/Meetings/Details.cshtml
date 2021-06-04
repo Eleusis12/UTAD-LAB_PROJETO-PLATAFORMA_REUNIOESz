@@ -71,7 +71,24 @@
 											<td>@(member.User.Name??"Nome não definido")</td>
 											<td><span class="badge bg-gradient-info">@member.User.Email</span></td>
 											<td>
-												@member.Role
+												@{
+
+													var roleName = string.Empty;
+													// Temos que traduzir as roles para português
+													switch (member.Role.ToLower())
+													{
+														case "manager":
+															roleName = "Responsável";
+															break;
+														case "comanager":
+															roleName = "Co-Responsável"; break;
+														case "participant":
+															roleName = "Partipante"; break;
+
+														default: break;
+													}
+													@roleName
+												}
 											</td>
 										</tr>
 									}

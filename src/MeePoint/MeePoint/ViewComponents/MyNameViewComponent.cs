@@ -24,7 +24,16 @@ namespace MeePoint.ViewComponents
 			// Enviar o user para a view
 			var registeredUser = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.Email == email);
 			string userName = registeredUser.Name;
-			return View(model: userName);
+
+			// Temos que perguntar à base de dados se o utilizador autenticado é um administrador
+			var entity = _context.Entities.Include(m => m.User)
+				.FirstOrDefault(m => m.User.RegisteredUserID == registeredUser.RegisteredUserID);
+
+			// Se o entity resultante não é null, é porque o utilizador em causa é de facto administrador da entidade
+			string roleName = entity == null ? "" : "Administrador";
+			Tuple<string, string> model = new Tuple<string, string>(userName, roleName);
+
+			return View(model: model);
 		}
 	}
 }

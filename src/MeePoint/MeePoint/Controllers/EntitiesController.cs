@@ -148,7 +148,7 @@ namespace MeePoint.Controllers
 			{
 				// Na inexistência de ficheiro
 				ViewData["filename"] = "";
-				ViewData["filenameLength"] = 0;
+				ViewData["filenameLength"] = (double)0;
 			}
 
 			return View();
@@ -229,6 +229,12 @@ namespace MeePoint.Controllers
 				// Vamos registar as contas
 				string password = await CreateNewRegisteredUserAsync(singleEmail);
 
+				// Deu erro
+				if (password == null)
+				{
+					continue;
+				}
+
 				// Adicionar credenciais à lista
 				credentials.Add(Tuple.Create(singleEmail, password));
 
@@ -257,9 +263,11 @@ namespace MeePoint.Controllers
 			if (!Directory.Exists(directory))
 				Directory.CreateDirectory(directory);
 
-			using (FileStream fs = new FileStream(destination, FileMode.Append, FileAccess.Write))
+			// Apagar todos os dados que estavam previamente no ficheiro
+			using (FileStream fs = new FileStream(destination, FileMode.OpenOrCreate, FileAccess.Write))
 			using (StreamWriter sw = new StreamWriter(fs))
 			{
+				// Certificar que o ficheiro não tem nenhum conteúodo
 				foreach (var credential in credentials)
 				{
 					sw.Write("Email: ");
@@ -276,7 +284,7 @@ namespace MeePoint.Controllers
 				}
 			}
 
-			return View();
+			return RedirectToAction(nameof(AddLogins));
 		}
 
 		[HttpGet]
@@ -298,7 +306,17 @@ namespace MeePoint.Controllers
 			{
 				// Lê todos os bytes do ficheiro
 				byte[] fileBytes = System.IO.File.ReadAllBytes(filename);
-				return File(fileBytes, "application/x-msdownload", filename);
+
+				try
+				{
+					return File(fileBytes, "application/x-msdownload", filename);
+				}
+				finally
+				{
+					// Depois de retornar o ficheiro, queremos apagá-lo do nosso servidor
+					// Para assegurar a integridade das contas criadas
+					System.IO.File.Delete(filename);
+				}
 			}
 			else
 			{
