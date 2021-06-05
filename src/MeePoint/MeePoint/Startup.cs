@@ -64,7 +64,8 @@ namespace MeePoint
 					options.SignIn.RequireConfirmedAccount = false;
 					options.SignIn.RequireConfirmedPhoneNumber = false;
 				}).AddRoles<IdentityRole>()
-				.AddEntityFrameworkStores<ApplicationDbContext>();
+				.AddEntityFrameworkStores<ApplicationDbContext>()
+			.AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>(TokenOptions.DefaultProvider);
 			services.AddControllersWithViews();
 			services.AddRazorPages().AddRazorRuntimeCompilation();
 
