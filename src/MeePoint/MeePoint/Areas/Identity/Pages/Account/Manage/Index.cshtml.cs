@@ -41,9 +41,12 @@ namespace MeePoint.Areas.Identity.Pages.Account.Manage
 		public RegisteredUser registeredUser { get; set; }
 
 		[BindProperty]
-		public InputModel Input { get; set; }
+		public InputRegisteredUserModel InputRegisteredUser { get; set; }
 
-		public class InputModel : RegisteredUser
+		[BindProperty]
+		public InputPaswordModel InputPassword { get; set; }
+
+		public class InputRegisteredUserModel : RegisteredUser
 		{
 			[Phone]
 			[Display(Name = "Phone number")]
@@ -51,6 +54,25 @@ namespace MeePoint.Areas.Identity.Pages.Account.Manage
 
 			[Display(Name = "Imagem de Perfil")]
 			public IFormFile ProfilePic { get; set; }
+		}
+
+		public class InputPaswordModel
+		{
+			[Required]
+			[DataType(DataType.Password)]
+			[Display(Name = "Current password")]
+			public string OldPassword { get; set; }
+
+			[Required]
+			[StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+			[DataType(DataType.Password)]
+			[Display(Name = "New password")]
+			public string NewPassword { get; set; }
+
+			[DataType(DataType.Password)]
+			[Display(Name = "Confirm new password")]
+			[Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+			public string ConfirmPassword { get; set; }
 		}
 
 		private async Task LoadAsync(IdentityUser user)
@@ -63,8 +85,7 @@ namespace MeePoint.Areas.Identity.Pages.Account.Manage
 
 			registeredUser = await _context.RegisteredUsers.Include(m => m.Groups).Include("Groups.Group").Include("Groups.Group.Entity").FirstOrDefaultAsync(x => x.Email == userName);
 
-		
-			Input = new InputModel
+			InputRegisteredUser = new InputRegisteredUserModel
 			{
 				PhoneNumber = phoneNumber,
 				Email = registeredUser.Email,
@@ -82,7 +103,6 @@ namespace MeePoint.Areas.Identity.Pages.Account.Manage
 			{
 				ViewData["entityName"] = "Não tem entidade associada";
 			}
-
 		}
 
 		public async Task<IActionResult> OnGetAsync()
@@ -97,7 +117,7 @@ namespace MeePoint.Areas.Identity.Pages.Account.Manage
 			return Page();
 		}
 
-		public async Task<IActionResult> OnPostAsync()
+		public async Task<IActionResult> OnPostRegistedUserAsync()
 		{
 			var user = await _userManager.GetUserAsync(User);
 			if (user == null)
@@ -111,10 +131,10 @@ namespace MeePoint.Areas.Identity.Pages.Account.Manage
 			var entity = registeredUser.Groups.FirstOrDefault(x => x.Group.Name.ToLower() == "main".ToLower()).Group.Entity;
 
 			// Se o utilizador inseriu uma foto
-			if (Input.ProfilePic != null)
+			if (InputRegisteredUser.ProfilePic != null)
 			{
 				// Agora temos que escrever no ficheiro as credenciais de autenticação
-				string destination = Path.Combine(_he.ContentRootPath, "wwwroot/", entity.Name, "FotosDePerfil", Convert.ToString(Guid.NewGuid()) + Path.GetExtension(Input.ProfilePic.FileName));
+				string destination = Path.Combine(_he.ContentRootPath, "wwwroot/", entity.Name, "FotosDePerfil", Convert.ToString(Guid.NewGuid()) + Path.GetExtension(InputRegisteredUser.ProfilePic.FileName));
 				string directory = Path.GetDirectoryName(destination);
 				if (!Directory.Exists(directory))
 					Directory.CreateDirectory(directory);
@@ -124,7 +144,7 @@ namespace MeePoint.Areas.Identity.Pages.Account.Manage
 
 				try
 				{
-					Input.ProfilePic.CopyTo(fs);
+					InputRegisteredUser.ProfilePic.CopyTo(fs);
 					fs.Close();
 				}
 				catch (Exception ex)
@@ -140,7 +160,7 @@ namespace MeePoint.Areas.Identity.Pages.Account.Manage
 			// De momento não vamos permitir que o utilizador altere o seu email, isso só complicaria
 			//registeredUser.Email = Input.Email;
 			//registeredUser.Username = Input.Username;
-			registeredUser.Name = Input.Name;
+			registeredUser.Name = InputRegisteredUser.Name;
 
 			ModelState.Clear();
 
@@ -157,6 +177,40 @@ namespace MeePoint.Areas.Identity.Pages.Account.Manage
 
 			await _signInManager.RefreshSignInAsync(user);
 			StatusMessage = "Your profile has been updated";
+			return RedirectToPage();
+		}
+
+		public async Task<IActionResult> OnPostPasswordAsync()
+		{
+			if (!ModelState.IsValid)
+			{
+				return Page();
+			}
+
+			var user = await _userManager.GetUserAsync(User);
+			if (user == null)
+			{
+				return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+			}
+
+			var changePasswordResult = await _userManager.ChangePasswordAsync(user, InputPassword.OldPassword, InputPassword.NewPassword);
+
+			if (!changePasswordResult.Succeeded)
+			{
+				foreach (var error in changePasswordResult.Errors)
+				{
+					ModelState.AddModelError(string.Empty, error.Description);
+				}
+				return Page();
+			}
+
+			await _signInManager.RefreshSignInAsync(user);
+
+			registeredUser = await _context.RegisteredUsers.FirstOrDefaultAsync(x => x.Email == user.UserName);
+			registeredUser.PasswordHash = user.PasswordHash;
+
+			StatusMessage = "Your password has been changed.";
+
 			return RedirectToPage();
 		}
 	}
