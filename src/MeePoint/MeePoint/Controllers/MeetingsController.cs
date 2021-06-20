@@ -13,6 +13,13 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.Extensions.Hosting;
+using iText.Kernel.Font;
+using iText.Layout.Element;
+using iText.Layout.Properties;
+using iText.IO.Font.Constants;
+using iText.Kernel.Pdf.Canvas.Draw;
+using iText.Layout.Borders;
+using iText.Kernel.Pdf;
 
 namespace MeePoint.Controllers
 {
@@ -482,6 +489,135 @@ namespace MeePoint.Controllers
 		private bool MeetingExists(int id)
 		{
 			return _context.Meetings.Any(e => e.MeetingID == id);
+		}
+
+		protected void GenerateMinutePDF(Meeting meeting, string entityName)
+		{
+			if (meeting.MeetingID < 0)
+				return;
+
+			// Obter o caminho onde vai ser armazenado o ficheiro
+			string targetPath = Path.Combine(_he.ContentRootPath, "wwwroot/", entityName, "Meetings/", meeting.MeetingID + "/");
+			string destFile = System.IO.Path.Combine(targetPath, "ata.pdf");
+
+			// Criar Ficheiro
+			FileInfo file = new FileInfo(destFile);
+			if (!file.Directory.Exists) file.Directory.Create();
+
+			// Must have write permissions to the path folder
+			PdfWriter writer = new PdfWriter(destFile);
+			PdfDocument pdf = new PdfDocument(writer);
+			iText.Layout.Document document = new iText.Layout.Document(pdf);
+			Paragraph header = new Paragraph("Atas de Reunião")
+			   .SetTextAlignment(TextAlignment.CENTER)
+			   .SetFontSize(20);
+
+			document.Add(header);
+
+			Paragraph subheader = new Paragraph(entityName)
+			   .SetTextAlignment(TextAlignment.CENTER)
+			   .SetFontSize(15);
+
+			document.Add(subheader);
+
+			// Line separator
+			LineSeparator ls = new LineSeparator(new SolidLine());
+			document.Add(ls);
+
+			AddTitle(document, "Abertura");
+			AddText(document, $"A reunião ordinária da {entityName}, devidamente convocada e realizada em {DateTime.Now.ToString("d MMM")}, começando às {DateTime.Now.ToString("HH:mm")}. ");
+			AddTitle(document, "Estiveram Presentes");
+
+			foreach (var convocation in meeting.Convocations.Where(m => m.Answer == true))
+			{
+				AddParticipant(document, convocation.User.Name);
+			}
+
+			AddTitle(document, "Assuntos Discutidos");
+
+			AddText(document, meeting.Name);
+
+			// Obter o nome do Responsável
+			string manager = meeting.Group.Members.FirstOrDefault(m => m.Role.ToLower() == "manager").User.Name;
+
+			AddSignature(document, manager, "Co-Responsável");
+
+			meeting.AtaPath = destFile.Substring(destFile.IndexOf(entityName) - 1);
+
+			// Não queremos perturbar os outros dados relacionados com a reunião
+			// De forma a assegurar que apenas o campo da ata é alterada, temos que fazer assim
+			_context.Meetings.Attach(meeting).Property(x => x.AtaPath).IsModified = true;
+			_context.SaveChanges();
+
+			document.Close();
+		}
+
+		private static void AddTitle(iText.Layout.Document document, string titleName)
+		{
+			PdfFont font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+
+			Paragraph paragraph1 = new Paragraph(titleName)
+				.SetTextAlignment(TextAlignment.LEFT)
+				.SetFont(font)
+				.SetFontSize(14);
+			document.Add(paragraph1);
+		}
+
+		private static void AddText(iText.Layout.Document document, string text)
+		{
+			PdfFont font = PdfFontFactory.CreateFont(StandardFonts.TIMES_ROMAN);
+
+			Paragraph paragraph1 = new Paragraph(text)
+				.SetTextAlignment(TextAlignment.JUSTIFIED)
+				.SetFont(font)
+				.SetFontSize(12); ;
+
+			document.Add(paragraph1);
+		}
+
+		private static void AddParticipant(iText.Layout.Document document, string text)
+		{
+			PdfFont font = PdfFontFactory.CreateFont(StandardFonts.TIMES_ITALIC);
+
+			Paragraph paragraph1 = new Paragraph(text)
+				.SetTextAlignment(TextAlignment.LEFT)
+				.SetFont(font)
+				.SetFontSize(12); ;
+
+			document.Add(paragraph1);
+		}
+
+		private static void AddSignature(iText.Layout.Document document, string manager, string coManager)
+		{
+			PdfFont font = PdfFontFactory.CreateFont(StandardFonts.TIMES_ROMAN);
+
+			Table table = new Table(UnitValue.CreatePercentArray(2)).UseAllAvailableWidth().SetMarginTop(40);
+
+			// Adiciona o espaço para cada um dos responsáveis poder assinar depois de imprimir
+			Paragraph signatureManager = new Paragraph(manager).SetFont(font)
+				.SetFontSize(11);
+
+			Paragraph signatureCoManager = new Paragraph(coManager).SetFont(font)
+				.SetFontSize(11);
+
+			LineSeparator dottedline = new LineSeparator(new DottedLine()).SetMaxWidth(200).SetMarginTop(10);
+
+			AddCell(table, signatureManager);
+			AddCell(table, signatureCoManager);
+
+			AddCell(table, dottedline);
+			AddCell(table, dottedline);
+
+			document.Add(table);
+			document.Close();
+
+			static void AddCell(Table table, IBlockElement signature)
+			{
+				Cell cell = new Cell();
+				cell.Add(signature);
+				cell.SetBorder(Border.NO_BORDER);
+				table.AddCell(cell);
+			}
 		}
 	}
 }

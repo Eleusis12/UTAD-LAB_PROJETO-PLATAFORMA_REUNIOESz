@@ -16,18 +16,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.Extensions.Hosting;
-using iText.Kernel.Pdf;
-using iText.Layout;
-using iText.Layout.Element;
-using iText.Layout.Properties;
-using iText.Kernel.Pdf.Canvas.Draw;
-using Document = iText.Layout.Document;
-using iText.Kernel.Font;
-using iText.IO.Font;
-using iText.IO.Font.Constants;
-using iText.Kernel.Pdf.Annot;
-using iText.Kernel.Pdf.Xobject;
-using iText.Layout.Borders;
 
 namespace MeePoint.Controllers
 {
@@ -35,16 +23,14 @@ namespace MeePoint.Controllers
 	{
 		private readonly ILogger<HomeController> _logger;
 		private readonly UserManager<IdentityUser> _userManager;
-		private readonly IHostEnvironment _he;
 
 		private readonly ApplicationDbContext _context;
 
-		public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, UserManager<IdentityUser> userManager, IHostEnvironment host)
+		public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, UserManager<IdentityUser> userManager)
 		{
 			_logger = logger;
 			_context = context;
 			_userManager = userManager;
-			_he = host;
 		}
 
 		[Authorize]
@@ -119,140 +105,7 @@ namespace MeePoint.Controllers
 
 		public IActionResult MeePoint()
 		{
-			// Variáveis de Teste
-			string entityName = "Universidade Aveiro";
-			Meeting meeting = new Meeting();
-			meeting.MeetingID = 17;
-			///////
-
-			GeneratePDF(meeting, entityName);
-
 			return View();
-		}
-
-		protected void GeneratePDF(Meeting meeting, string entityName)
-		{
-			// Obter o caminho onde vai ser armazenado o ficheiro
-			string targetPath = Path.Combine(_he.ContentRootPath, "wwwroot/", entityName, "Meetings/", meeting.MeetingID + "/");
-			string destFile = System.IO.Path.Combine(targetPath, "ata.pdf");
-
-			// Criar Ficheiro
-			FileInfo file = new FileInfo(destFile);
-			if (!file.Directory.Exists) file.Directory.Create();
-
-			// Must have write permissions to the path folder
-			PdfWriter writer = new PdfWriter(destFile);
-			PdfDocument pdf = new PdfDocument(writer);
-			iText.Layout.Document document = new iText.Layout.Document(pdf);
-			Paragraph header = new Paragraph("Atas de Reunião")
-			   .SetTextAlignment(TextAlignment.CENTER)
-			   .SetFontSize(20);
-
-			document.Add(header);
-
-			Paragraph subheader = new Paragraph(entityName)
-			   .SetTextAlignment(TextAlignment.CENTER)
-			   .SetFontSize(15);
-
-			document.Add(subheader);
-
-			// Line separator
-			LineSeparator ls = new LineSeparator(new SolidLine());
-			document.Add(ls);
-
-			AddTitle(document, "Abertura");
-			AddText(document, $"A reunião ordinária da {entityName}, devidamente convocada e realizada em {DateTime.Now.ToString("d MMM")}, começando às {DateTime.Now.ToString("HH:mm")}. ");
-			AddTitle(document, "Estiveram Presentes");
-
-			string[] participants = new string[] { "Manuel", "João", "Maria" };
-
-			foreach (var participant in participants)
-			{
-				AddParticipant(document, participant);
-			}
-
-			AddTitle(document, "Assuntos Discutidos");
-
-			AddText(document, $"Descrição do Assunto da Reunião");
-
-			AddSignature(document, "Nome do Responsável 1", "Nome de um Co-Responsável");
-
-			meeting.AtaPath = destFile.Substring(destFile.IndexOf(entityName) - 1);
-
-			// Não queremos perturbar os outros dados relacionados com a reunião
-			// De forma a assegurar que apenas o campo da ata é alterada, temos que fazer assim
-			_context.Meetings.Attach(meeting).Property(x => x.AtaPath).IsModified = true;
-			_context.SaveChanges();
-
-			document.Close();
-		}
-
-		private static void AddTitle(iText.Layout.Document document, string titleName)
-		{
-			PdfFont font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
-
-			Paragraph paragraph1 = new Paragraph(titleName)
-				.SetTextAlignment(TextAlignment.LEFT)
-				.SetFont(font)
-				.SetFontSize(14);
-			document.Add(paragraph1);
-		}
-
-		private static void AddText(iText.Layout.Document document, string text)
-		{
-			PdfFont font = PdfFontFactory.CreateFont(StandardFonts.TIMES_ROMAN);
-
-			Paragraph paragraph1 = new Paragraph(text)
-				.SetTextAlignment(TextAlignment.JUSTIFIED)
-				.SetFont(font)
-				.SetFontSize(12); ;
-
-			document.Add(paragraph1);
-		}
-
-		private static void AddParticipant(iText.Layout.Document document, string text)
-		{
-			PdfFont font = PdfFontFactory.CreateFont(StandardFonts.TIMES_ITALIC);
-
-			Paragraph paragraph1 = new Paragraph(text)
-				.SetTextAlignment(TextAlignment.LEFT)
-				.SetFont(font)
-				.SetFontSize(12); ;
-
-			document.Add(paragraph1);
-		}
-
-		private static void AddSignature(iText.Layout.Document document, string manager, string coManager)
-		{
-			PdfFont font = PdfFontFactory.CreateFont(StandardFonts.TIMES_ROMAN);
-
-			Table table = new Table(UnitValue.CreatePercentArray(2)).UseAllAvailableWidth().SetMarginTop(40);
-
-			// Adiciona o espaço para cada um dos responsáveis poder assinar depois de imprimir
-			Paragraph signatureManager = new Paragraph(manager).SetFont(font)
-				.SetFontSize(11);
-
-			Paragraph signatureCoManager = new Paragraph(coManager).SetFont(font)
-				.SetFontSize(11);
-
-			LineSeparator dottedline = new LineSeparator(new DottedLine()).SetMaxWidth(200).SetMarginTop(10);
-
-			AddCell(table, signatureManager);
-			AddCell(table, signatureCoManager);
-
-			AddCell(table, dottedline);
-			AddCell(table, dottedline);
-
-			document.Add(table);
-			document.Close();
-
-			static void AddCell(Table table, IBlockElement signature)
-			{
-				Cell cell = new Cell();
-				cell.Add(signature);
-				cell.SetBorder(Border.NO_BORDER);
-				table.AddCell(cell);
-			}
 		}
 
 		public IActionResult Privacy()
