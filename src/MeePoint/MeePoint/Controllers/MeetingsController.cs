@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.Extensions.Hosting;
+using Vereyon.Web;
 
 namespace MeePoint.Controllers
 {
@@ -21,12 +22,14 @@ namespace MeePoint.Controllers
 		private readonly ApplicationDbContext _context;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IHostEnvironment _he;
+		private readonly IFlashMessage _iFlashMessage;
 
-		public MeetingsController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IHostEnvironment host)
+		public MeetingsController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IHostEnvironment host, IFlashMessage flashMessage)
 		{
 			_context = context;
 			_userManager = userManager;
 			_he = host;
+			_iFlashMessage = flashMessage;
 		}
 
 		// GET: Meetings
@@ -436,6 +439,31 @@ namespace MeePoint.Controllers
 			_context.Meetings.Remove(meeting);
 			await _context.SaveChangesAsync();
 			return RedirectToAction(nameof(Index));
+		}
+
+		[HttpPost, ActionName("StartMeeting")]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> StartMeeting(int meetingID)
+        {
+			var meeting = await _context.Meetings.FirstAsync(m => m.MeetingID == meetingID);
+
+			try
+			{
+				meeting.MeetingStarted = DateTime.Now;
+
+				await _context.SaveChangesAsync();
+
+				_iFlashMessage.Confirmation("Meeting Started!");
+				return Json(new { url = this.Url.Action("Details", new { id = meeting.MeetingID }) });
+
+			}
+			catch
+			{
+
+				_iFlashMessage.Warning("ERRO!");
+				return Json(new { url = this.Url.Action("Details", new { id = meeting.MeetingID }) });
+
+			}
 		}
 
 		private bool MeetingExists(int id)

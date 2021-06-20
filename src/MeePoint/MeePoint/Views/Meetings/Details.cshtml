@@ -1,230 +1,260 @@
 ﻿@model MeePoint.Models.Meeting
 
 @{
-	ViewData["Title"] = "Detalhes da Reunião";
+    ViewData["Title"] = "Detalhes da Reunião";
 }
 
 @Html.Partial("_BreadCrumb", @ViewData["Title"])
+@addTagHelper *, Vereyon.Web.FlashMessage
 
 <!-- Main content -->
 <section class="content">
 
-	<!-- Default box -->
-	<div class="card">
-		<div class="card-header">
-			<a asp-controller="Groups" asp-action="Details" asp-route-id="@Model.GroupID" class="card-title"><i class="fas fa-arrow-left"></i>  Voltar ao grupo</a>
+    <!-- Default box -->
+    <div class="card">
+        <div class="card-header">
+            <a asp-controller="Groups" asp-action="Details" asp-route-id="@Model.GroupID" class="card-title"><i class="fas fa-arrow-left"></i>  Voltar ao grupo</a>
 
-			<div class="card-tools">
-				<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-					<i class="fas fa-minus"></i>
-				</button>
-				<button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
-					<i class="fas fa-times"></i>
-				</button>
-			</div>
-		</div>
-		<div class="card-body">
-			<div class="row">
-				<div class="col-12 col-md-12 col-lg-8 order-2 order-md-1">
-					<div class="row">
-						<div class="col-12 col-sm-4">
-							<div class="info-box bg-light">
-								<div class="info-box-content">
-									<span class="info-box-text text-center text-muted">Grupo</span>
-									<span class="info-box-number text-center text-muted mb-0">@Html.DisplayFor(m => m.Group.Name)</span>
-								</div>
-							</div>
-						</div>
-						<div class="col-12 col-sm-4">
-							<div class="info-box bg-light">
-								<div class="info-box-content">
-									<span class="info-box-text text-center text-muted">Reunião começa</span>
-									<span class="info-box-number text-center text-muted mb-0">às @Model.MeetingDate.ToString("HH:mm d MMM");</span>
-								</div>
-							</div>
-						</div>
-						<div class="col-12 col-sm-4">
-							<div class="info-box bg-light">
-								<div class="info-box-content">
-									<span class="info-box-text text-center text-muted">Tempo de duração</span>
-									<span class="info-box-number text-center text-muted mb-0">@Html.DisplayFor(m => m.ExpectedDuration) minutos</span>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-12">
-							<table class="table table-bordered">
-								<thead>
-									<tr>
-										<th style="width: 10px">#</th>
-										<th>Nome do Convocado</th>
-										<th style="width: 40px">Label</th>
-										<th>Função</th>
-									</tr>
-								</thead>
-								<tbody>
-									@foreach (var member in Model.Group.Members)
-									{
-										<tr>
-											<td>1.</td>
-											<td>@(member.User.Name??"Nome não definido")</td>
-											<td><span class="badge bg-gradient-info">@member.User.Email</span></td>
-											<td>
-												@{
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12 col-md-12 col-lg-8 order-2 order-md-1">
+                    <div class="row">
+                        <div class="col-12 col-sm-4">
+                            <div class="info-box bg-light">
+                                <div class="info-box-content">
+                                    <span class="info-box-text text-center text-muted">Grupo</span>
+                                    <span class="info-box-number text-center text-muted mb-0">@Html.DisplayFor(m => m.Group.Name)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-4">
+                            <div class="info-box bg-light">
+                                <div class="info-box-content">
+                                    <span class="info-box-text text-center text-muted">Reunião começa</span>
+                                    <span class="info-box-number text-center text-muted mb-0">às @Model.MeetingDate.ToString("HH:mm d MMM");</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-4">
+                            <div class="info-box bg-light">
+                                <div class="info-box-content">
+                                    <span class="info-box-text text-center text-muted">Tempo de duração</span>
+                                    <span class="info-box-number text-center text-muted mb-0">@Html.DisplayFor(m => m.ExpectedDuration) minutos</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 10px">#</th>
+                                        <th>Nome do Convocado</th>
+                                        <th style="width: 40px">Label</th>
+                                        <th>Função</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var member in Model.Group.Members)
+                                    {
+                                        <tr>
+                                            <td>1.</td>
+                                            <td>@(member.User.Name??"Nome não definido")</td>
+                                            <td><span class="badge bg-gradient-info">@member.User.Email</span></td>
+                                            <td>
+                                                @{
 
-													var roleName = string.Empty;
-													// Temos que traduzir as roles para português
-													switch (member.Role.ToLower())
-													{
-														case "manager":
-															roleName = "Responsável";
-															break;
-														case "comanager":
-															roleName = "Co-Responsável"; break;
-														case "participant":
-															roleName = "Partipante"; break;
+                                                    var roleName = string.Empty;
+                                                    // Temos que traduzir as roles para português
+                                                    switch (member.Role.ToLower())
+                                                    {
+                                                        case "manager":
+                                                            roleName = "Responsável";
+                                                            break;
+                                                        case "comanager":
+                                                            roleName = "Co-Responsável"; break;
+                                                        case "participant":
+                                                            roleName = "Partipante"; break;
 
-														default: break;
-													}
-													@roleName
-												}
-											</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
-				<div class="col-12 col-md-12 col-lg-4 order-1 order-md-2">
-					<h3 class="text-primary"><i class="fab fa-meetup"></i> Reunião Agendada</h3>
-					<p class="text-muted">Tópico: @Html.DisplayFor(m => m.Name)</p>
-					<br>
-					<div class="text-muted">
-						<p class="text-sm">
-							Responsável
-							<b class="d-block">@{var manager = Model.Group.Members.FirstOrDefault(m => m.Role.ToLower() == "manager");}@manager.User.Name</b>
-						</p>
-						<p class="text-sm">
-							Co-Responsáveis
-							@{
-								var coManagers = Model.Group.Members.Where(m => m.Role.ToLower() == "comanager");
-								foreach (var coManager in coManagers)
-								{
-									<b class="d-block">@coManager.User.Name</b>
+                                                        default: break;
+                                                    }
+                                                    @roleName
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-12 col-lg-4 order-1 order-md-2">
+                    <h3 class="text-primary"><i class="fab fa-meetup"></i> Reunião Agendada</h3>
+                    <p class="text-muted">Tópico: @Html.DisplayFor(m => m.Name)</p>
+                    <br>
+                    <div class="text-muted">
+                        <p class="text-sm">
+                            Responsável
+                            <b class="d-block">@{var manager = Model.Group.Members.FirstOrDefault(m => m.Role.ToLower() == "manager");}@manager.User.Name</b>
+                        </p>
+                        <p class="text-sm">
+                            Co-Responsáveis
+                            @{
+                                var coManagers = Model.Group.Members.Where(m => m.Role.ToLower() == "comanager");
+                                foreach (var coManager in coManagers)
+                                {
+                                    <b class="d-block">@coManager.User.Name</b>
 
-								}
+                                }
 
-							}
-						</p>
-					</div>
+                            }
+                        </p>
+                    </div>
 
-					@{
-						var documents = Model.Documents;
-						if (documents.Count != 0)
-						{
-							<h5 class="mt-5 text-muted">Documentos associados à reunião</h5>
-							<ul class="list-unstyled">
-								@foreach (var document in documents)
-								{
-									<li>
-										<a asp-controller="Meetings" asp-action="DownloadDocument" asp-route-id="@document.DocumentID" class="btn-link text-secondary"><i class="far fa-fw fa-file-pdf"></i> @System.IO.Path.GetFileName(document.DocumentPath)</a>
-									</li>
-								}
-							</ul>
-						}
+                    @{
+                        var documents = Model.Documents;
+                        if (documents.Count != 0)
+                        {
+                            <h5 class="mt-5 text-muted">Documentos associados à reunião</h5>
+                            <ul class="list-unstyled">
+                                @foreach (var document in documents)
+                                {
+                                    <li>
+                                        <a asp-controller="Meetings" asp-action="DownloadDocument" asp-route-id="@document.DocumentID" class="btn-link text-secondary"><i class="far fa-fw fa-file-pdf"></i> @System.IO.Path.GetFileName(document.DocumentPath)</a>
+                                    </li>
+                                }
+                            </ul>
+                        }
 
-					}
-					@if ((bool)ViewData["Role"] == true)
-					{
-						<div class="text-center mt-5 mb-3">
-							<a id="postpone-meeting" class="btn btn-sm btn-warning">Reagendar Reunião</a>
-							<a asp-controller="Meetings" asp-action="Delete" asp-route-id="@Model.MeetingID" class="btn btn-sm btn-danger">Cancelar Reunião</a>
-						</div>
-					}
-				</div>
-			</div>
-		</div>
-		<!-- /.card-body -->
-	</div>
-	<!-- /.card -->
+                    }
+                    @if ((bool)ViewData["Role"] == true)
+                    {
+                        <div class="text-center mt-5 mb-3">
+                            <a id="postpone-meeting" class="btn btn-sm btn-warning">Reagendar Reunião</a>
+                            <a asp-controller="Meetings" asp-action="Delete" asp-route-id="@Model.MeetingID" class="btn btn-sm btn-danger">Cancelar Reunião</a>
+                            <a id="startMeeting" class="btn btn-sm btn-warning" data-meetingid="@Model.MeetingID">Começar Reunião</a>
+                        </div>
+                    }
+
+                    <flash dismissable="true" />
+                </div>
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+    <!-- /.card -->
 </section>
 <!-- /.content -->
 
 <div id="dialog-form" title="Reagendar Reunião">
 
-	<form id="myForm" asp-controller="Meetings" asp-action="PostPoneMeeting" asp-route-id="@Model.MeetingID" method="post">
-		<fieldset>
+    <form id="myForm" asp-controller="Meetings" asp-action="PostPoneMeeting" asp-route-id="@Model.MeetingID" method="post">
+        <fieldset>
 
-			<label>Data de Início</label>
-			<input id="txtDate" type="date" name="dateTime" class="form-control" placeholder="Dia de Início">
+            <label>Data de Início</label>
+            <input id="txtDate" type="date" name="dateTime" class="form-control" placeholder="Dia de Início">
 
-			<label>Hora de começo</label>
-			<input name="timeDay" type="time" class="form-control" placeholder="Hora de Início" value="17:00">
+            <label>Hora de começo</label>
+            <input name="timeDay" type="time" class="form-control" placeholder="Hora de Início" value="17:00">
 
-			<!-- Allow form submission with keyboard without duplicating the dialog button -->
-			<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
-		</fieldset>
-	</form>
+            <!-- Allow form submission with keyboard without duplicating the dialog button -->
+            <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+        </fieldset>
+    </form>
 </div>
 
 @section Scripts
 {
 
-	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-	<script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
 
-		$(function () {
-			var dtToday = new Date();
+        $(function () {
+            var dtToday = new Date();
 
-			var month = dtToday.getMonth() + 1;
-			var day = dtToday.getDate();
-			var year = dtToday.getFullYear();
-			if (month < 10)
-				month = '0' + month.toString();
-			if (day < 10)
-				day = '0' + day.toString();
+            var month = dtToday.getMonth() + 1;
+            var day = dtToday.getDate();
+            var year = dtToday.getFullYear();
+            if (month < 10)
+                month = '0' + month.toString();
+            if (day < 10)
+                day = '0' + day.toString();
 
-			var maxDate = year + '-' + month + '-' + day;
-			$('#txtDate').attr('min', maxDate);
-		});
+            var maxDate = year + '-' + month + '-' + day;
+            $('#txtDate').attr('min', maxDate);
+        });
 
-		$(function () {
-			var dialog, form;
+        $(function () {
+            var dialog, form;
 
-			dialog = $("#dialog-form").dialog({
-				autoOpen: false,
-				height: 400,
-				width: 350,
-				modal: true,
-				buttons: [
-					{
-						text: "Reagendar Reunião",
-						click: function () {
-							form.submit();
-							dialog.dialog("close");
-						}
-					},
-					{
-						text: "Cancelar",
-						click: function () {
-							dialog.dialog("close");
-						}
-					}
-				],
+            dialog = $("#dialog-form").dialog({
+                autoOpen: false,
+                height: 400,
+                width: 350,
+                modal: true,
+                buttons: [
+                    {
+                        text: "Reagendar Reunião",
+                        click: function () {
+                            form.submit();
+                            dialog.dialog("close");
+                        }
+                    },
+                    {
+                        text: "Cancelar",
+                        click: function () {
+                            dialog.dialog("close");
+                        }
+                    }
+                ],
 
-				close: function () {
-					form[0].reset();
-				}
-			});
+                close: function () {
+                    form[0].reset();
+                }
+            });
 
-			form = dialog.find("form");
+            form = dialog.find("form");
 
-			$("#postpone-meeting").button().on("click", function () {
-				dialog.dialog("open");
-			});
-		});
-	</script>
+            $("#postpone-meeting").button().on("click", function () {
+                dialog.dialog("open");
+            });
+        });
+    </script>
+
+    <script>
+		$('#startMeeting').click(function () {
+
+            var token = '@Html.AntiForgeryToken()';
+
+            $.ajax({
+                url: '@Url.Action("StartMeeting", "Meetings")',
+                type: 'POST',
+                dataType: 'html',
+                data: {
+                    meetingID: $(this).data('meetingid'),
+                    __RequestVerificationToken: $(token).val()
+                },
+                success: function (response) {
+                    var url = JSON.parse(response).url;
+                    window.location.href = url;
+                },
+                error: function (response) {
+                    var url = JSON.parse(response).url;
+                    window.location.href = url;
+                }
+            });
+
+        });
+    </script>
 }
