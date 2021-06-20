@@ -257,6 +257,47 @@ namespace MeePoint.Controllers
 			}
 		}
 
+		[HttpGet]
+		[Authorize]
+		public async Task<IActionResult> DownloadMinute(int? id)
+		{
+			// Obtém o utilizador que está autenticado
+			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+			string email = applicationUser?.Email; // will give the user's Email
+			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+
+			// Antes de devolver o ficheiro: primeiro temos que verificar se o user que está a pedir o ficheiro faz parte do grupo
+			var meeting = _context.Meetings.Include(m => m.Group)
+				.ThenInclude(m => m.Members)
+				.ThenInclude(m => m.User)
+				.FirstOrDefault(m => m.MeetingID == id);
+
+			if (!meeting.Group.Members.Any(m => m.User.RegisteredUserID == user.RegisteredUserID))
+			{
+				return NoContent();
+			}
+
+			// Se a ata por alguma razão não está na bd, retorna erro
+			if (meeting.AtaPath == string.Empty)
+			{
+				return NoContent();
+			}
+
+			var file = Path.Combine(_he.ContentRootPath, "wwwroot/", meeting.AtaPath.TrimStart(new char[] { '/' }));
+
+			// Se o ficheiro existir, vamos devolver esse ficheiro, caso contrário, vamos simplesmente devolver error
+			if (System.IO.File.Exists(file))
+			{
+				// Lê todos os bytes do ficheiro
+				byte[] fileBytes = System.IO.File.ReadAllBytes(file);
+				return File(fileBytes, "application/x-msdownload", file);
+			}
+			else
+			{
+				return NoContent();
+			}
+		}
+
 		// GET: Meetings/Details/5
 		public async Task<IActionResult> Details(int? id)
 		{

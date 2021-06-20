@@ -61,7 +61,7 @@
 				</td>
 
 				<td class="project-actions text-right">
-					<a asp-controller="Meetings" asp-action="DownloadMinute" class="btn-link text-secondary"><i class="far fa-fw fa-file-pdf"></i> Ver Ata </a>
+					<a asp-controller="Meetings" asp-action="DownloadMinute" asp-route-id="@meeting.MeetingID" class="btn-link text-secondary"><i class="far fa-fw fa-file-pdf"></i> Ver Ata </a>
 				</td>
 			</tr>
 		}
