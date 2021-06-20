@@ -13,6 +13,9 @@ using MeePoint.ViewModels;
 using MeePoint.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using Microsoft.Extensions.Hosting;
 
 namespace MeePoint.Controllers
 {
