@@ -160,7 +160,17 @@ namespace MeePoint.Controllers
 			AddTitle(document, "Abertura");
 			AddText(document, $"A reunião ordinária da {entityName}, devidamente convocada e realizada em {DateTime.Now.ToString("d MMM")}, começando às {DateTime.Now.ToString("HH:mm")}. ");
 			AddTitle(document, "Estiveram Presentes");
+
+			string[] participants = new string[] { "Manuel", "João", "Maria" };
+
+			foreach (var participant in participants)
+			{
+				AddParticipant(document, participant);
+			}
+
 			AddTitle(document, "Assuntos Discutidos");
+
+			AddText(document, $"Descrição do Assunto da Reunião");
 
 			AddSignature(document, "Nome do Responsável 1", "Nome de um Co-Responsável");
 		}
@@ -188,11 +198,23 @@ namespace MeePoint.Controllers
 			document.Add(paragraph1);
 		}
 
+		private static void AddParticipant(iText.Layout.Document document, string text)
+		{
+			PdfFont font = PdfFontFactory.CreateFont(StandardFonts.TIMES_ITALIC);
+
+			Paragraph paragraph1 = new Paragraph(text)
+				.SetTextAlignment(TextAlignment.LEFT)
+				.SetFont(font)
+				.SetFontSize(12); ;
+
+			document.Add(paragraph1);
+		}
+
 		private static void AddSignature(iText.Layout.Document document, string manager, string coManager)
 		{
 			PdfFont font = PdfFontFactory.CreateFont(StandardFonts.TIMES_ROMAN);
 
-			Table table = new Table(UnitValue.CreatePercentArray(2)).UseAllAvailableWidth();
+			Table table = new Table(UnitValue.CreatePercentArray(2)).UseAllAvailableWidth().SetMarginTop(40);
 
 			// Adiciona o espaço para cada um dos responsáveis poder assinar depois de imprimir
 			Paragraph signatureManager = new Paragraph(manager).SetFont(font)
