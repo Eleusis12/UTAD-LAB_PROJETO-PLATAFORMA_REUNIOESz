@@ -38,6 +38,8 @@ namespace MeePoint.Models
 		[NotMapped]
 		public bool Recurring { get; set; }
 
+		public string AtaPath { get; set; }
+
 		public virtual ICollection<Convocation> Convocations { get; set; }
 		public virtual ICollection<Document> Documents { get; set; }
 	}
