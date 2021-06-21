@@ -46,10 +46,13 @@
 					@Html.DisplayFor(modelItem => meeting.MeetingDate)
 				</td>
 				<td>
+					@if (meeting.MeetingEnded <= DateTime.Now)
+					{
+						<a asp-controller="Meetings" asp-action="Attendance" asp-route-id="@meeting.MeetingID" class="badge badge-warning">
+							Presenças
+						</a>
 
-					<a asp-controller="Meetings" asp-action="Attendance" asp-route-id="@meeting.MeetingID" class="badge badge-warning">
-						Presenças
-					</a>
+					}
 				</td>
 
 				<td class="project-actions text-right">

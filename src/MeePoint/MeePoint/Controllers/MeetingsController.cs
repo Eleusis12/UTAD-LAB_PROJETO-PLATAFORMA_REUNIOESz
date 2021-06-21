@@ -44,9 +44,29 @@ namespace MeePoint.Controllers
 		}
 
 		// GET: Attendance
+		[HttpGet]
+		[Authorize]
 		public async Task<IActionResult> Attendance(int? id)
 		{
-			return RedirectToAction(nameof(Index));
+			if (id == null)
+			{
+				return NotFound();
+			}
+
+			var meeting = await _context.Meetings
+				.Include(m => m.Group)
+				.ThenInclude(m => m.Members)
+				.ThenInclude(m => m.User)
+				.Include(m => m.Documents)
+				.Include(m => m.Convocations)
+				.FirstOrDefaultAsync(m => m.MeetingID == id);
+
+			if (meeting == null)
+			{
+				return NotFound();
+			}
+
+			return View(meeting);
 		}
 
 		[HttpGet]
@@ -342,6 +362,39 @@ namespace MeePoint.Controllers
 				ViewData["Role"] = true;
 			}
 			return View(meeting);
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Present(int? meetingID, int? userID, bool present, bool missed)
+		{
+			if (meetingID == null || userID == null)
+			{
+				return BadRequest();
+			}
+
+			var meeting = await _context.Meetings
+				.Include(m => m.Group)
+				.ThenInclude(m => m.Members)
+				.ThenInclude(m => m.User)
+				.Include(m => m.Documents)
+				.Include(m => m.Convocations)
+				.FirstOrDefaultAsync(m => m.MeetingID == meetingID);
+
+			try
+			{
+				// Atualizar a presença do utilizador
+				var convocation = meeting.Convocations.FirstOrDefault(m => m.UserID == userID);
+				convocation.Answer = present;
+				_context.Convocations.Update(convocation);
+				await _context.SaveChangesAsync();
+			}
+			catch (Exception)
+			{
+				return NoContent();
+			}
+
+			return View();
 		}
 
 		// GET: Meetings/Create

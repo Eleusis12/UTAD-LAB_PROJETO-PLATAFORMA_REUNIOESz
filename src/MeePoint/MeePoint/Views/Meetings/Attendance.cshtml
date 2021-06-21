@@ -6,4 +6,106 @@
 
 @Html.Partial("_BreadCrumb", @ViewData["Title"])
 
-<span>Aqui posso verificar as presenças</span>
+<!-- Main content -->
+<section class="content">
+
+	<!-- Default box -->
+	<div class="card">
+		<div class="card-header">
+			<a asp-controller="Groups" asp-action="Details" asp-route-id="@Model.GroupID" class="card-title"><i class="fas fa-arrow-left"></i>  Voltar ao grupo</a>
+
+			<div class="card-tools">
+				<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+					<i class="fas fa-minus"></i>
+				</button>
+				<button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+					<i class="fas fa-times"></i>
+				</button>
+			</div>
+		</div>
+		<div class="card-body">
+			<div class="row">
+				<div class="col-12 col-md-12 col-lg-8 order-2 order-md-1">
+
+					<div class="row">
+						<div class="col-12">
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th style="width: 10px">#</th>
+										<th>Nome do Convocado</th>
+										<th style="width: 40px">Email</th>
+										<th>Função</th>
+										<th>Presente</th>
+										<th>Falta</th>
+									</tr>
+								</thead>
+								<tbody>
+									@foreach (var member in Model.Group.Members)
+									{
+										<tr>
+											<td>1.</td>
+											<td>@(member.User.Name??"Nome não definido")</td>
+											<td><span class="badge bg-gradient-info">@member.User.Email</span></td>
+											<td>
+												@{
+
+													var roleName = string.Empty;
+													// Temos que traduzir as roles para português
+													switch (member.Role.ToLower())
+													{
+														case "manager":
+															roleName = "Responsável";
+															break;
+														case "comanager":
+															roleName = "Co-Responsável"; break;
+														case "participant":
+															roleName = "Partipante"; break;
+
+														default: break;
+													}
+													@roleName
+												}
+											</td>
+											@{
+
+												// Inicializar a Resposat como sendo falsa
+												bool answer = false;
+												int userID = member.UserID;
+
+												var convocation = Model.Convocations.FirstOrDefault(m => m.UserID == userID);
+
+												answer = convocation?.Answer ?? false;
+
+											}
+											<form asp-controller="Meetings" asp-action="Present" asp-route-meetingID="@Model.MeetingID" asp-route-userID="@userID" data-ajax="true" data-ajax-method="post"
+												  data-ajax-success="AjaxSucess" data-ajax-failure="AjaxError">
+												<div class="form-group">
+													<td>
+
+														<div class="form-check">
+															<input class="form-check-input" type="radio" name="present" id="present" value="true" @(answer == true ? "checked" : "") onchange="document.getElementById('Submit_@userID').click()">
+														</div>
+													</td>
+													<td>
+														<div class="form-check">
+															<input class="form-check-input" type="radio" name="present" id="present" value="false" @(answer == false ? "checked" : "" ) onchange="document.getElementById('Submit_@userID').click()">
+														</div>
+													</td>
+												</div>
+												<button type="submit" id='Submit_@userID' hidden></button>
+											</form>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /.card-body -->
+	</div>
+	<!-- /.card -->
+</section>
+<!-- /.content -->
