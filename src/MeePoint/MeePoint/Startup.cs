@@ -93,6 +93,7 @@ namespace MeePoint
 			services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
 			services.AddScoped<IEmailService, EmailService>();
 			services.AddFlashMessage();
+			services.AddSignalR();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -123,6 +124,7 @@ namespace MeePoint
 					name: "default",
 					pattern: "{controller=Home}/{action=MeePoint}");
 				endpoints.MapRazorPages();
+				endpoints.MapHub<ChatHub>("/chatHub");
 			});
 
 			SeedRoles.Seed(svcProvider).Wait();

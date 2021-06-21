@@ -92,8 +92,6 @@
 
             var token = '@Html.AntiForgeryToken()';
 
-            console.log($(this).data('userid'));
-
             $.ajax({
                 url: '@Url.Action("RemoveParticipant", "Groups")',
                 type: 'POST',
