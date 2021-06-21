@@ -12,19 +12,6 @@ namespace MeePoint.Models
 		[Display(Name = "NIF")]
 		public int NIF { get; set; }
 
-		[DataType(DataType.Date)]
-		[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
-		public DateTime SubscriptionDateStart { get; set; }
-
-		[DataType(DataType.Date)]
-		[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
-		public DateTime SubscriptionDateEnd { get; set; }
-
-		[NotMapped]
-		[Display(Name = "Dias de Subscrição")]
-		[Range(0, int.MaxValue, ErrorMessage = "Ó número de dias de subscrição tem que ser superior a 0")]
-		public int SubscriptionDays { get; set; }
-
 		[Display(Name = "Nome da entidade/empresa")]
 		public string Name { get; set; }
 
@@ -41,9 +28,6 @@ namespace MeePoint.Models
 
 		[Display(Name = "Estado da subscrição: Aprovado/Por Aprovar")]
 		public bool StatusEntity { get; set; }
-
-		[Display(Name = "Número máximo de utilizadores oferecidos no plano de subscrição")]
-		public int MaxUsers { get; set; }
 
 		[StringLength(8)]
 		[RegularExpression(@"^\d{4}(-\d{3})$", ErrorMessage = "Introduza um código Postal válido")]

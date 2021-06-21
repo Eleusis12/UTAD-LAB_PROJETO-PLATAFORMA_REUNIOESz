@@ -78,9 +78,6 @@ namespace MeePoint.Controllers
 		[Authorize(Roles = "Administrator")]
 		public async Task<IActionResult> Create([Bind("EntityID,NIF,Name,Description,PhoneNumber,ManagerName,StatusEntity,SubscriptionDays,MaxUsers,PostalCode,Address,Manager,User")] Entity entity)
 		{
-			entity.SubscriptionDateStart = DateTime.Now;
-			entity.SubscriptionDateEnd = entity.SubscriptionDateStart.AddDays(entity.SubscriptionDays);
-
 			// Limpar os erros
 			ModelState.Clear();
 

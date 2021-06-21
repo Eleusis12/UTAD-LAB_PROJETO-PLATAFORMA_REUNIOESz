@@ -104,9 +104,6 @@ namespace MeePoint.Areas.Identity.Pages.Account
 
 		public async Task<IActionResult> OnPostAsync(string returnUrl = null)
 		{
-			Input.Entity.SubscriptionDateStart = DateTime.Now;
-			Input.Entity.SubscriptionDateEnd = Input.Entity.SubscriptionDateStart.AddDays(Input.Entity.SubscriptionDays);
-
 			// Make sure the status is not set to true
 			Input.Entity.StatusEntity = false;
 

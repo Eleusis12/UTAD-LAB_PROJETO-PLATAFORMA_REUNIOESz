@@ -30,7 +30,7 @@
 							<div class="info-box bg-light">
 								<div class="info-box-content">
 									<span class="info-box-text text-center text-muted">Ínicio da Subscrição</span>
-									<span class="info-box-number text-center text-muted mb-0">@Html.DisplayFor(model => model.SubscriptionDateStart)</span>
+									<span class="info-box-number text-center text-muted mb-0">WIP</span>
 								</div>
 							</div>
 						</div>
@@ -38,7 +38,7 @@
 							<div class="info-box bg-light">
 								<div class="info-box-content">
 									<span class="info-box-text text-center text-muted">Fim de Subscrição</span>
-									<span class="info-box-number text-center text-muted mb-0">@Html.DisplayFor(model => model.SubscriptionDateStart)</span>
+									<span class="info-box-number text-center text-muted mb-0">WIP</span>
 								</div>
 							</div>
 						</div>
@@ -47,7 +47,7 @@
 								<div class="info-box-content">
 									<span class="info-box-text text-center text-muted">Número máximo de utilizadores</span>
 									<span class="info-box-number text-center text-muted mb-0">
-										@Html.DisplayFor(model => model.MaxUsers)
+										WIP
 									</span>
 								</div>
 							</div>
@@ -64,14 +64,10 @@
 							Responsável
 							<b class="d-block">@Html.DisplayFor(model => model.ManagerName)</b>
 						</p>
-						<p class="text-sm">
-							Dias Restantes de Subscrição
-							<b class="d-block">@Html.Raw(Math.Truncate((@Model.SubscriptionDateEnd - DateTime.Today).TotalDays))</b>
-						</p>
 					</div>
 
 					<div class="text-center mt-5 mb-3">
-						<a asp-controller="Entities" asp-action="Index"  class="btn btn-sm btn-secondary">Voltar atrás</a>
+						<a asp-controller="Entities" asp-action="Index" class="btn btn-sm btn-secondary">Voltar atrás</a>
 						<a asp-controller="Entities" asp-action="Edit" asp-route-id="@Model.EntityID" class="btn btn-sm btn-primary">Editar</a>
 					</div>
 				</div>
