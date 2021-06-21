@@ -1,6 +1,117 @@
-﻿
+﻿@model MeePoint.Models.Meeting
 
 @{
     ViewData["Title"] = "Reunião a decorrer";
 }
 @Html.Partial("_BreadCrumb", @ViewData["Title"])
+@addTagHelper *, Vereyon.Web.FlashMessage
+
+<flash dismissable="true" />
+
+<div class="functionBox"></div>
+
+<div class="chatBody">
+    @foreach (var message in Model.Messages)
+    {
+        <div class="message">
+            <header>@message.Sender:</header>
+            <p>@message.Text</p>
+            <footer>@message.Timestamp</footer>
+        </div>
+
+    }
+</div>
+<form class="chatInput" onsubmit="sendMessage(event)">
+    <input type="hidden" name="meetingID" value="@Model.MeetingID" />
+    <input type="text" name="msg" id="messageInput" />
+    <button type="submit">Send</button>
+</form>
+
+@section scripts {
+
+    <script src="~/js/signalr.min.js"></script>
+    <script src="~/js/axios.min.js"></script>
+
+    <script>
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .build();
+
+        connection.on("ReceiveMessage", function (data) {
+            var message = document.createElement("div");
+            message.classList.add("message");
+
+            var header = document.createElement("header");
+            header.appendChild(document.createTextNode(data.name));
+
+            var p = document.createElement("p");
+            p.appendChild(document.createTextNode(data.text));
+
+            var footer = document.createElement("footer");
+            footer.appendChild(document.createTextNode(data.timestamp));
+
+            message.appendChild(header);
+            message.appendChild(p);
+            message.appendChild(footer);
+
+            document.querySelector('.chatBody').append(message);
+        });
+
+        connection.start()
+            .then(function () {
+                connection.invoke("joinRoom", "@Model.MeetingID");
+            })
+            .catch(function (err) {
+                console.log(err);
+            });
+
+        window.addEventListener('onunload', function () {
+            connection.invoke('leaveRoom', "@Model.MeetingID");
+        });
+
+        var sendMessage = function (event) {
+            event.preventDefault();
+
+            var token = '@Html.AntiForgeryToken()';
+
+            var data = new FormData(event.target);
+
+            
+
+
+            axios.post('/Meetings/SendMessage', data)
+                .then(res => {
+                    console.log("Message Sent!")
+                })
+                .catch(err => {
+                    console.log(err.response)
+                })
+
+            @*$.ajax({
+                url: '@Url.Action("SendMessage", "Meetings")',
+                type: 'POST',
+                dataType: 'html',
+                data: {
+                    meetingID: @Model.MeetingID,
+                    msg: document.getElementById('messageInput').value,
+                    // Send the token as a parameter of the POST request in order for it to be accepted by the server
+                    __RequestVerificationToken: $(token).val()
+                },
+                success: function (response) {
+                    var url = JSON.parse(response).url;
+                    document.getElementById('messageInput').value = '';
+                    window.location.href = url;
+                },
+                error: function (response) {
+                    var url = JSON.parse(response).url;
+                    document.getElementById('messageInput').value = '';
+                    window.location.href = url;
+                }
+            });*@
+        }
+
+
+    </script>
+}
+
+

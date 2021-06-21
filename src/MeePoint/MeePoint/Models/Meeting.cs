@@ -38,6 +38,7 @@ namespace MeePoint.Models
 		[NotMapped]
 		public bool Recurring { get; set; }
 
+		public virtual ICollection<ChatMessage> Messages { get; set; }
 		public virtual ICollection<Convocation> Convocations { get; set; }
 		public virtual ICollection<Document> Documents { get; set; }
 	}

@@ -142,7 +142,7 @@
                         <div class="text-center mt-5 mb-3">
                             <a id="postpone-meeting" class="btn btn-sm btn-warning">Reagendar Reunião</a>
                             <a asp-controller="Meetings" asp-action="Delete" asp-route-id="@Model.MeetingID" class="btn btn-sm btn-danger">Cancelar Reunião</a>
-                            <a id="startMeeting" class="btn btn-sm btn-warning" data-meetingid="@Model.MeetingID">Começar Reunião</a>
+                            <a asp-controller="Meetings" asp-action="StartMeeting" asp-route-id="@Model.MeetingID" class="btn btn-sm btn-primary">Começar Reunião</a>
                         </div>
                     }
 
@@ -232,29 +232,5 @@
         });
     </script>
 
-    <script>
-		$('#startMeeting').click(function () {
-
-            var token = '@Html.AntiForgeryToken()';
-
-            $.ajax({
-                url: '@Url.Action("StartMeeting", "Meetings")',
-                type: 'POST',
-                dataType: 'html',
-                data: {
-                    meetingID: $(this).data('meetingid'),
-                    __RequestVerificationToken: $(token).val()
-                },
-                success: function (response) {
-                    var url = JSON.parse(response).url;
-                    window.location.href = url;
-                },
-                error: function (response) {
-                    var url = JSON.parse(response).url;
-                    window.location.href = url;
-                }
-            });
-
-        });
-    </script>
+    
 }

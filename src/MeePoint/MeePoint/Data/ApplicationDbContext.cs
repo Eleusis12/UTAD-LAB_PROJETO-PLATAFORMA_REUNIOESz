@@ -21,6 +21,7 @@ namespace MeePoint.Data
         public DbSet<Convocation> Convocations { get; set; }
         public DbSet<GroupMember> GroupMembers { get; set; }
         public DbSet<Document> Documents { get; set; }
+        public DbSet<ChatMessage> Messages { get; set; }
 
         //FluentAPI for table customization
         protected override void OnModelCreating(ModelBuilder builder)
@@ -120,6 +121,19 @@ namespace MeePoint.Data
             builder.Entity<Document>()
             .Property(d => d.DocumentPath)
             .IsRequired();
+
+            //Message
+            builder.Entity<ChatMessage>(cm =>
+            {
+                cm.Property(c => c.MeetingID).IsRequired();
+                cm.Property(c => c.Text).IsRequired();
+                cm.Property(c => c.Sender).IsRequired();
+                cm.Property(c => c.Timestamp).IsRequired();
+            });
+
+            builder.Entity<ChatMessage>()
+                .HasKey(c => c.MessageID);
+                
 
         }
 
