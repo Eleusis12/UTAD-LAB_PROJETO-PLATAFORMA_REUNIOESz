@@ -13,6 +13,9 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.Extensions.Hosting;
+using Vereyon.Web;
+using Microsoft.AspNetCore.SignalR;
+using MeePoint.Services;
 using iText.Kernel.Font;
 using iText.Layout.Element;
 using iText.Layout.Properties;
@@ -538,6 +541,71 @@ namespace MeePoint.Controllers
 			await _context.SaveChangesAsync();
 			return RedirectToAction(nameof(Index));
 		}
+    
+    public async Task<IActionResult> StartMeeting(int? id)
+        {
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var meeting = await _context.Meetings
+                .Include(m => m.Group)
+                .Include(m => m.Messages)
+                .FirstOrDefaultAsync(m => m.MeetingID == id);
+
+            meeting.MeetingStarted = DateTime.Now;
+
+            if (meeting == null)
+            {
+                return NotFound();
+            }
+
+            await _context.SaveChangesAsync();
+            return View(meeting);
+        }
+
+        [HttpPost, ActionName("SendMessage")]
+        public async Task<IActionResult> SendMessage(int meetingID, string msg, 
+            [FromServices] IHubContext<ChatHub> chatHub)
+        {
+
+            var sender = await _context.RegisteredUsers.FirstAsync(u => u.Email == User.Identity.Name);
+
+            var message = new ChatMessage
+            {
+                Sender = sender.Name,
+                MeetingID = meetingID,
+                Text = msg,
+                Timestamp = DateTime.Now
+
+            };
+
+            try
+            {
+                _context.Messages.Add(message);
+                await _context.SaveChangesAsync();
+
+                await chatHub.Clients.Group(meetingID.ToString())
+                    .SendAsync("ReceiveMessage", new
+                    {
+                        Text = message.Text,
+                        Name = message.Sender,
+                        Timestamp = message.Timestamp
+                    });
+
+                _iFlashMessage.Confirmation("Message Sent!");
+                return Json(new { url = this.Url.Action("StartMeeting", new { id = meetingID }) });
+            }
+            catch
+            {
+                _iFlashMessage.Warning("ERRO!");
+                return Json(new { url = this.Url.Action("StartMeeting", new { id = meetingID }) });
+            }
+
+            
+        }
 
 		private bool MeetingExists(int id)
 		{

@@ -11,7 +11,7 @@ namespace MeePoint.Models
 
 		public int GroupID { get; set; }
 
-		[Display(Name = "Nome da Reuni„o")]
+		[Display(Name = "Nome da Reuni√£o")]
 		[Required]
 		public string Name { get; set; }
 
@@ -37,9 +37,10 @@ namespace MeePoint.Models
 
 		[NotMapped]
 		public bool Recurring { get; set; }
-
-		public string AtaPath { get; set; }
-
+    
+    public string AtaPath { get; set; }
+    
+		public virtual ICollection<ChatMessage> Messages { get; set; }
 		public virtual ICollection<Convocation> Convocations { get; set; }
 		public virtual ICollection<Document> Documents { get; set; }
 	}
