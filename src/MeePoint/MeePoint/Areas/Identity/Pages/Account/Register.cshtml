@@ -2,7 +2,7 @@
 @model RegisterModel
 
 @{
-    Layout = "_CleanLayout";
+	Layout = "_CleanLayout";
 }
 
 @{
@@ -46,21 +46,6 @@
 								<label asp-for="Input.Entity.Description"></label>
 								<textarea asp-for="Input.Entity.Description" class="form-control" rows="4"> </textarea>
 								<span asp-validation-for="Input.Entity.Description" class="text-danger"></span>
-							</div>
-							<div class="form-group">
-
-								<label class=" control-label">Tipo de Subscrição</label>
-								<select asp-for="Input.Entity.MaxUsers" class="custom-select rounded-0" asp-items='ViewBag.Plans'>
-									<option selected=""> --  Seleciona o tipo de subscrição </option>
-								</select>
-								<span asp-validation-for="Input.Entity.SubscriptionDays" class="text-danger"></span>
-							</div>
-
-							<div class="form-group">
-
-								<label asp-for="Input.Entity.SubscriptionDays"></label>
-								<input asp-for="Input.Entity.SubscriptionDays" class="form-control" />
-								<span asp-validation-for="Input.Entity.SubscriptionDays" class="text-danger"></span>
 							</div>
 
 							<div class="form-group">

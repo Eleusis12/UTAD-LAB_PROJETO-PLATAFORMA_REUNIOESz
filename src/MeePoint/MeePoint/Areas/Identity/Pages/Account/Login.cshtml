@@ -2,7 +2,7 @@
 @model LoginModel
 
 @{
-    Layout = "_CleanLayout";
+	Layout = "_CleanLayout";
 }
 
 @{
@@ -23,21 +23,21 @@
 				<form id="account" method="post">
 					<div class="input-group mb-3">
 						<input asp-for="Input.Email" class="form-control" placeholder="Email" />
-						<span asp-validation-for="Input.Email" class="text-danger"></span>
 						<div class="input-group-append">
 							<div class="input-group-text">
 								<span class="fas fa-envelope"></span>
 							</div>
 						</div>
+						<span asp-validation-for="Input.Email" class="text-danger"></span>
 					</div>
 					<div class="input-group mb-3">
 						<input asp-for="Input.Password" class="form-control" placeholder="Password" />
-						<span asp-validation-for="Input.Password" class="text-danger"></span>
 						<div class="input-group-append">
 							<div class="input-group-text">
 								<span class="fas fa-lock"></span>
 							</div>
 						</div>
+						<span asp-validation-for="Input.Password" class="text-danger"></span>
 					</div>
 					<div class="row">
 						<div class="col-8">

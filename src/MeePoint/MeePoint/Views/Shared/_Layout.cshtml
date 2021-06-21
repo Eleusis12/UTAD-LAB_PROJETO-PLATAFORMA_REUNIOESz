@@ -65,7 +65,6 @@
 					</div>
 				</li>
 
-
 				<li class="nav-item">
 					<a class="nav-link" data-widget="fullscreen" href="#" role="button">
 						<i class="fas fa-expand-arrows-alt"></i>
@@ -76,8 +75,6 @@
 						<button type="submit" class="btn btn-dark">Logout</button>
 					</form>
 				</li>
-
-
 			</ul>
 		</nav>
 		<!-- /.navbar -->
@@ -118,7 +115,7 @@
 				<nav class="mt-2">
 					<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 						<!-- Add icons to the links using the .nav-icon class
-	with font-awesome or any other icon font library -->
+						with font-awesome or any other icon font library -->
 
 						@if (User.IsInRole("Administrator"))
 						{
@@ -166,6 +163,9 @@
 								</a>
 							</li>
 						}
+
+						@if (!User.IsInRole("Administrator"))
+						{
 							<li class="nav-item">
 								<a class="nav-link">
 									<i class="nav-icon fas fa-object-group"></i>
@@ -189,7 +189,8 @@
 									}
 								</ul>
 							</li>
-						</ul>
+						}
+					</ul>
 				</nav>
 				<!-- /.sidebar-menu -->
 			</div>

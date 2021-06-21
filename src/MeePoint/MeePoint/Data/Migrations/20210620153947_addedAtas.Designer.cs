@@ -4,48 +4,22 @@ using MeePoint.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MeePoint.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210620153947_addedAtas")]
+    partial class addedAtas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("MeePoint.Models.ChatMessage", b =>
-                {
-                    b.Property<int>("MessageID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("MeetingID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Sender")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("MessageID");
-
-                    b.HasIndex("MeetingID");
-
-                    b.ToTable("Messages");
-                });
 
             modelBuilder.Entity("MeePoint.Models.Convocation", b =>
                 {
@@ -110,6 +84,9 @@ namespace MeePoint.Data.Migrations
                     b.Property<string>("ManagerName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("MaxUsers")
+                        .HasColumnType("int");
+
                     b.Property<int>("NIF")
                         .HasColumnType("int");
 
@@ -127,6 +104,12 @@ namespace MeePoint.Data.Migrations
 
                     b.Property<bool>("StatusEntity")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime>("SubscriptionDateEnd")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("SubscriptionDateStart")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("EntityID");
 
@@ -454,15 +437,6 @@ namespace MeePoint.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
-                });
-
-            modelBuilder.Entity("MeePoint.Models.ChatMessage", b =>
-                {
-                    b.HasOne("MeePoint.Models.Meeting", "Meeting")
-                        .WithMany("Messages")
-                        .HasForeignKey("MeetingID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("MeePoint.Models.Convocation", b =>

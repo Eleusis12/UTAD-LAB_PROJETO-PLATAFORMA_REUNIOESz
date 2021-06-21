@@ -1,5 +1,4 @@
 $(function () {
-
     "use strict";
 
     //===== Prealoder
@@ -8,40 +7,18 @@ $(function () {
         $('.preloader').delay(500).fadeOut(500);
     });
 
-
     //===== Sticky
 
     $(window).on('scroll', function (event) {
         var scroll = $(window).scrollTop();
         if (scroll < 20) {
             $(".navbar-area").removeClass("sticky");
-            $(".navbar .navbar-brand img").attr("src", "assets/images/logo.svg");
+            $(".navbar .navbar-brand img").attr("src", "/assets/images/MeePointLogo.png");
         } else {
             $(".navbar-area").addClass("sticky");
-            $(".navbar .navbar-brand img").attr("src", "assets/images/logo-2.svg");
+            $(".navbar .navbar-brand img").attr("src", "/assets/images/MeePointLogo.png");
         }
     });
-
-
-
-    //===== Section Menu Active
-
-    var scrollLink = $('.page-scroll');
-    // Active link switching
-    $(window).scroll(function () {
-        var scrollbarLocation = $(this).scrollTop();
-
-        scrollLink.each(function () {
-
-            var sectionOffset = $(this.hash).offset().top - 73;
-
-            if (sectionOffset <= scrollbarLocation) {
-                $(this).parent().addClass('active');
-                $(this).parent().siblings().removeClass('active');
-            }
-        });
-    });
-
 
     //===== close navbar-collapse when a  clicked
 
@@ -55,8 +32,7 @@ $(function () {
 
     $(".navbar-nav a").on('click', function () {
         $(".navbar-toggler").removeClass('active');
-    });    
-    
+    });
 
     //====== Magnific Popup
 
@@ -64,7 +40,6 @@ $(function () {
         type: 'iframe'
         // other options
     });
-
 
     //===== Magnific Popup
 
@@ -75,14 +50,12 @@ $(function () {
         }
     });
 
-
     //===== Counter Up
 
     $('.counter').counterUp({
         delay: 10,
         time: 3000
     });
-
 
     //===== testimonial active
 
@@ -123,7 +96,6 @@ $(function () {
         ]
     });
 
-
     //===== Back to top
 
     // Show or hide the sticky footer button
@@ -135,7 +107,6 @@ $(function () {
         }
     });
 
-
     //Animate the scroll to yop
     $('.back-to-top').on('click', function (event) {
         event.preventDefault();
@@ -145,14 +116,11 @@ $(function () {
         }, 1500);
     });
 
-
     //=====  WOW active
 
     new WOW().init();
 
-
     //=====  particles
-
 
     if (document.getElementById("particles-1")) particlesJS("particles-1", {
         "particles": {
@@ -375,10 +343,4 @@ $(function () {
         },
         "retina_detect": !0
     });
-
-
-
-
-
-
 });
