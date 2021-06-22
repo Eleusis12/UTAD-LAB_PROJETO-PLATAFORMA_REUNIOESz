@@ -558,69 +558,66 @@ namespace MeePoint.Controllers
 			await _context.SaveChangesAsync();
 			return RedirectToAction(nameof(Index));
 		}
-    
-    public async Task<IActionResult> StartMeeting(int? id)
-        {
 
-            if (id == null)
-            {
-                return NotFound();
-            }
+		public async Task<IActionResult> StartMeeting(int? id)
+		{
+			if (id == null)
+			{
+				return NotFound();
+			}
 
-            var meeting = await _context.Meetings
-                .Include(m => m.Group)
-                .Include(m => m.Messages)
-                .FirstOrDefaultAsync(m => m.MeetingID == id);
+			var meeting = await _context.Meetings
+				.Include(m => m.Group)
+				.Include(m => m.Messages)
+				.FirstOrDefaultAsync(m => m.MeetingID == id);
 
-            meeting.MeetingStarted = DateTime.Now;
+			meeting.MeetingStarted = DateTime.Now;
+			meeting.MeetingStartedBool = true;
 
-            if (meeting == null)
-            {
-                return NotFound();
-            }
+			if (meeting == null)
+			{
+				return NotFound();
+			}
 
-            await _context.SaveChangesAsync();
-            return View(meeting);
-        }
+			await _context.SaveChangesAsync();
+			return View(meeting);
+		}
 
-        [HttpPost, ActionName("SendMessage")]
-        public async Task<IActionResult> SendMessage(int meetingID, string msg, 
-            [FromServices] IHubContext<ChatHub> chatHub)
-        {
+		[HttpPost, ActionName("SendMessage")]
+		public async Task<IActionResult> SendMessage(int meetingID, string msg,
+			[FromServices] IHubContext<ChatHub> chatHub)
+		{
+			var sender = await _context.RegisteredUsers.FirstAsync(u => u.Email == User.Identity.Name);
 
-            var sender = await _context.RegisteredUsers.FirstAsync(u => u.Email == User.Identity.Name);
+			var message = new ChatMessage
+			{
+				Sender = sender.Name,
+				MeetingID = meetingID,
+				Text = msg,
+				Timestamp = DateTime.Now
+			};
 
-            var message = new ChatMessage
-            {
-                Sender = sender.Name,
-                MeetingID = meetingID,
-                Text = msg,
-                Timestamp = DateTime.Now
+			try
+			{
+				_context.Messages.Add(message);
+				await _context.SaveChangesAsync();
 
-            };
-
-            try
-            {
-                _context.Messages.Add(message);
-                await _context.SaveChangesAsync();
-
-                await chatHub.Clients.Group(meetingID.ToString())
-                    .SendAsync("ReceiveMessage", new
-                    {
-                        Text = message.Text,
-                        Name = message.Sender,
-                        Timestamp = message.Timestamp.ToString("dd/MM/yyyy HH:mm:ss"),
+				await chatHub.Clients.Group(meetingID.ToString())
+					.SendAsync("ReceiveMessage", new
+					{
+						Text = message.Text,
+						Name = message.Sender,
+						Timestamp = message.Timestamp.ToString("dd/MM/yyyy HH:mm:ss"),
 					});
 
-                return Json(new { url = this.Url.Action("StartMeeting", new { id = meetingID }) });
-            }
-            catch
-            {
-                return Json(new { url = this.Url.Action("StartMeeting", new { id = meetingID }) });
-            }
+				return Json(new { url = this.Url.Action("StartMeeting", new { id = meetingID }) });
+			}
+			catch
+			{
+				return Json(new { url = this.Url.Action("StartMeeting", new { id = meetingID }) });
+			}
+		}
 
-            
-        }
 		private bool MeetingExists(int id)
 		{
 			return _context.Meetings.Any(e => e.MeetingID == id);
