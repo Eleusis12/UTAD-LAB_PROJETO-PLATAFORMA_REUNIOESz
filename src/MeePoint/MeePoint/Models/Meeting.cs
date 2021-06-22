@@ -17,6 +17,7 @@ namespace MeePoint.Models
 
 		[Required]
 		public Group Group { get; set; }
+
 		public int Quorum { get; set; }
 
 		[DataType(DataType.Date)]
@@ -32,14 +33,18 @@ namespace MeePoint.Models
 		[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
 		public DateTime MeetingEnded { get; set; }
 
+		public bool MeetingStartedBool { get; set; }
+
+		public bool MeetingEndedBool { get; set; }
+
 		[Required]
 		public float ExpectedDuration { get; set; }
 
 		[NotMapped]
 		public bool Recurring { get; set; }
-    
-    public string AtaPath { get; set; }
-    
+
+		public string AtaPath { get; set; }
+
 		public virtual ICollection<ChatMessage> Messages { get; set; }
 		public virtual ICollection<Convocation> Convocations { get; set; }
 		public virtual ICollection<Document> Documents { get; set; }
