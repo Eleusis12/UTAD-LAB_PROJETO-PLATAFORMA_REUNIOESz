@@ -8,24 +8,37 @@
 
 <flash dismissable="true" />
 
-<div class="functionBox"></div>
 
-<div class="chatBody">
-    @foreach (var message in Model.Messages)
-    {
-        <div class="message">
-            <header>@message.Sender:</header>
-            <p>@message.Text</p>
-            <footer>@message.Timestamp</footer>
+<div class="chatContainer">
+    <div class="chatWindow">
+        <div class="chatBody">
+            @foreach (var message in Model.Messages)
+            {
+                <div class="message">
+                    <header>@message.Sender:</header>
+                    <p>@message.Text</p>
+                    <footer>@message.Timestamp</footer>
+                </div>
+
+            }
         </div>
+        <form class="chatInput" onsubmit="sendMessage(event)">
+            <input type="hidden" name="meetingID" value="@Model.MeetingID" />
+            <input type="text" name="msg" id="messageInput" />
+            <button type="submit">Send</button>
+        </form>
+    </div>
 
-    }
+    <div class="sideBox">
+        <div class="participants">
+            <div class="online">
+                <p>Online: </p> <p id="onlineCount"></p>
+            </div>
+        </div>
+        <div class="actions"></div>
+    </div>
+
 </div>
-<form class="chatInput" onsubmit="sendMessage(event)">
-    <input type="hidden" name="meetingID" value="@Model.MeetingID" />
-    <input type="text" name="msg" id="messageInput" />
-    <button type="submit">Send</button>
-</form>
 
 @section scripts {
 
@@ -37,6 +50,9 @@
             .withUrl("/chatHub")
             .build();
 
+
+        // Connection.on permite chamar uma função JS do Client(este ficheiro) a partir do chatHub
+        // recorrendo ao método SendAsync
         connection.on("ReceiveMessage", function (data) {
             var message = document.createElement("div");
             message.classList.add("message");
@@ -57,16 +73,23 @@
             document.querySelector('.chatBody').append(message);
         });
 
+        connection.on("UpdateOnline", function (conns) {
+            document.getElementById("onlineCount").innerHTML = conns.length;
+        })
+
         connection.start()
             .then(function () {
                 connection.invoke("joinRoom", "@Model.MeetingID");
+
             })
             .catch(function (err) {
                 console.log(err);
             });
 
         window.addEventListener('onunload', function () {
+            console.log("Saiu da sala");
             connection.invoke('leaveRoom', "@Model.MeetingID");
+            //connection.Stop();
         });
 
         var sendMessage = function (event) {
@@ -75,8 +98,6 @@
             var token = '@Html.AntiForgeryToken()';
 
             var data = new FormData(event.target);
-
-            
 
 
             axios.post('/Meetings/SendMessage', data)
@@ -109,7 +130,6 @@
                 }
             });*@
         }
-
 
     </script>
 }

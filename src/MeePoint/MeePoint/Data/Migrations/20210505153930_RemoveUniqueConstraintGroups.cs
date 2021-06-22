@@ -7,6 +7,10 @@ namespace MeePoint.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
 
+            migrationBuilder.DropIndex(
+                name: "IX_Groups_Name",
+                table: "Groups");
+
             migrationBuilder.AlterColumn<string>(
                 name: "Name",
                 table: "Groups",
@@ -14,6 +18,8 @@ namespace MeePoint.Data.Migrations
                 oldClrType: typeof(string),
                 oldType: "nvarchar(450)");
         }
+
+
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {

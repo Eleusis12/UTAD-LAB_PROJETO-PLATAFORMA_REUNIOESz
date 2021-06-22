@@ -539,15 +539,13 @@ namespace MeePoint.Controllers
                     {
                         Text = message.Text,
                         Name = message.Sender,
-                        Timestamp = message.Timestamp
-                    });
+                        Timestamp = message.Timestamp.ToString("dd/MM/yyyy HH:mm:ss"),
+					});
 
-                _iFlashMessage.Confirmation("Message Sent!");
                 return Json(new { url = this.Url.Action("StartMeeting", new { id = meetingID }) });
             }
             catch
             {
-                _iFlashMessage.Warning("ERRO!");
                 return Json(new { url = this.Url.Action("StartMeeting", new { id = meetingID }) });
             }
 
