@@ -128,6 +128,10 @@ namespace MeePoint.Controllers
 			// Atribuir a data atualizada ao objeto meeting
 			meeting.MeetingDate = meetingDate;
 
+			// Definir que a reunião não começou assim como não terminou
+			meeting.MeetingStartedBool = false;
+			meeting.MeetingEndedBool = false;
+
 			// Assim como no get, temos que fazer a verificação se o utilizador é manager do grupo
 			// Obtém o utilizador que está autenticado
 			IdentityUser applicationUser = await _userManager.GetUserAsync(User);

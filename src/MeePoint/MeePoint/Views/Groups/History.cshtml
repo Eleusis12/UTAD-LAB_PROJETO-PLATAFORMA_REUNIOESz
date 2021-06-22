@@ -46,8 +46,10 @@
 					@Html.DisplayFor(modelItem => meeting.MeetingDate)
 				</td>
 				<td>
-					@if (meeting.MeetingEnded <= DateTime.Now)
+
+					@if (meeting.MeetingEndedBool == true)
 					{
+						// Se a reunião ocorreu, então o manager pode verificar as presenças
 						<a asp-controller="Meetings" asp-action="Attendance" asp-route-id="@meeting.MeetingID" class="badge badge-warning">
 							Presenças
 						</a>
