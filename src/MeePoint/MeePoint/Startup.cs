@@ -37,7 +37,7 @@ namespace MeePoint
 		{
 			services.AddDbContext<ApplicationDbContext>(options =>
 				options.UseSqlServer(
-					Configuration.GetConnectionString("LocalConnection")));
+					Configuration.GetConnectionString("DefaultConnection")));
 			services.AddIdentity<IdentityUser, IdentityRole>(
 				options =>
 				{
