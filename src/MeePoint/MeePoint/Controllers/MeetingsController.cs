@@ -13,9 +13,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.Extensions.Hosting;
-using Vereyon.Web;
-using Microsoft.AspNetCore.SignalR;
-using MeePoint.Services;
 using iText.Kernel.Font;
 using iText.Layout.Element;
 using iText.Layout.Properties;
@@ -23,6 +20,8 @@ using iText.IO.Font.Constants;
 using iText.Kernel.Pdf.Canvas.Draw;
 using iText.Layout.Borders;
 using iText.Kernel.Pdf;
+using Microsoft.AspNetCore.SignalR;
+using MeePoint.Services;
 
 namespace MeePoint.Controllers
 {
@@ -47,9 +46,43 @@ namespace MeePoint.Controllers
 		}
 
 		// GET: Attendance
+		[HttpGet]
+		[Authorize]
 		public async Task<IActionResult> Attendance(int? id)
 		{
-			return RedirectToAction(nameof(Index));
+			if (id == null)
+			{
+				return NotFound();
+			}
+
+			var meeting = await _context.Meetings
+				.Include(m => m.Group)
+				.ThenInclude(m => m.Members)
+				.ThenInclude(m => m.User)
+				.Include(m => m.Documents)
+				.Include(m => m.Convocations)
+				.FirstOrDefaultAsync(m => m.MeetingID == id);
+
+			if (meeting == null)
+			{
+				return NotFound();
+			}
+
+			// Obtém o utilizador que está autenticado
+			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+			string email = applicationUser?.Email; // will give the user's Email
+			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+
+			// Vamos verificar se o utilizador que pretende agendar a reunião é responsável ou co-responsável pelo grupo
+			string roleUser = _context.GroupMembers.Where(m => m.GroupID == meeting.GroupID).FirstOrDefault(m => m.User.Email == email)?.Role;
+
+			// Aqui fazemos a verificação se é manager ou comanager do grupo
+			if ((roleUser.ToLower() != "manager" && roleUser.ToLower() != "comanager") || roleUser == null)
+			{
+				return NotFound();
+			}
+
+			return View(meeting);
 		}
 
 		[HttpGet]
@@ -347,6 +380,39 @@ namespace MeePoint.Controllers
 			return View(meeting);
 		}
 
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Present(int? meetingID, int? userID, bool present, bool missed)
+		{
+			if (meetingID == null || userID == null)
+			{
+				return BadRequest();
+			}
+
+			var meeting = await _context.Meetings
+				.Include(m => m.Group)
+				.ThenInclude(m => m.Members)
+				.ThenInclude(m => m.User)
+				.Include(m => m.Documents)
+				.Include(m => m.Convocations)
+				.FirstOrDefaultAsync(m => m.MeetingID == meetingID);
+
+			try
+			{
+				// Atualizar a presença do utilizador
+				var convocation = meeting.Convocations.FirstOrDefault(m => m.UserID == userID);
+				convocation.Answer = present;
+				_context.Convocations.Update(convocation);
+				await _context.SaveChangesAsync();
+			}
+			catch (Exception)
+			{
+				return NoContent();
+			}
+
+			return View();
+		}
+
 		// GET: Meetings/Create
 		public IActionResult Create()
 		{
@@ -551,7 +617,6 @@ namespace MeePoint.Controllers
 
             
         }
-
 		private bool MeetingExists(int id)
 		{
 			return _context.Meetings.Any(e => e.MeetingID == id);

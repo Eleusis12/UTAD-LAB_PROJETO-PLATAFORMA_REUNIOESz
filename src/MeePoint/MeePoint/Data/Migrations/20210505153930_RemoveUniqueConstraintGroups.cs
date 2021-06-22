@@ -2,11 +2,10 @@
 
 namespace MeePoint.Data.Migrations
 {
-    public partial class RemoveUniqueConstraintGroups : Migration
-    {
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-
+	public partial class RemoveUniqueConstraintGroups : Migration
+	{
+		protected override void Up(MigrationBuilder migrationBuilder)
+		{
             migrationBuilder.DropIndex(
                 name: "IX_Groups_Name",
                 table: "Groups");
@@ -30,11 +29,11 @@ namespace MeePoint.Data.Migrations
                 nullable: false,
                 oldClrType: typeof(string));
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Groups_Name",
-                table: "Groups",
-                column: "Name",
-                unique: true);
-        }
-    }
+			migrationBuilder.CreateIndex(
+				name: "IX_Groups_Name",
+				table: "Groups",
+				column: "Name",
+				unique: true);
+		}
+	}
 }

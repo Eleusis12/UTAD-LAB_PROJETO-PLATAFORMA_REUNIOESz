@@ -1,42 +1,77 @@
 ﻿@model MeePoint.Models.RegisteredUser
 
 @{
-    ViewData["Title"] = "Details";
+	ViewData["Title"] = "Details";
 }
+
+
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-3">
+
+			<!-- Profile Image -->
+			<div class="card card-primary card-outline">
+				<div class="card-body box-profile">
+					<div class="text-center">
+						<img class="profile-user-img img-fluid img-circle"
+							 src="@(String.IsNullOrEmpty(Model.Photo) ? "/assets/images/profile.png" : Model.Photo)"
+							 alt="">
+					</div>
+
+					<h3 class="profile-username text-center">@Html.DisplayFor(m => m.Name)</h3>
+
+					<p class="text-muted text-center">@ViewData["entityName"]</p>
+
+					<ul class="list-group list-group-unbordered mb-3">
+						<li class="list-group-item">
+						</li>
+					</ul>
+
+					<a asp-controller="Home" asp-action="MainPage" class="btn btn-primary btn-block"><b>Página Inicial</b></a>
+				</div>
+				<!-- /.card-body -->
+			</div>
+			<!-- /.card -->
+		</div>
+		
+	</div>
+	<!-- /.row -->
+</div><!-- /.container-fluid -->
 
 <h1>Details</h1>
 
 <div>
-    <h4>RegisteredUser</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PasswordHash)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PasswordHash)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Username)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Username)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-    </dl>
+	<h4>RegisteredUser</h4>
+	<hr />
+	<dl class="row">
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.Email)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.Email)
+		</dd>
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.PasswordHash)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.PasswordHash)
+		</dd>
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.Username)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.Username)
+		</dd>
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.Name)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.Name)
+		</dd>
+	</dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.RegisteredUserID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+	<a asp-action="Edit" asp-route-id="@Model.RegisteredUserID">Edit</a> |
+	<a asp-action="Index">Back to List</a>
 </div>
