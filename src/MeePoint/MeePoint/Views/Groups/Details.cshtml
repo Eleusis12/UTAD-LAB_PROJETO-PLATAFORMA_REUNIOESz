@@ -10,7 +10,9 @@
 
 	@if (User.IsInRole("EntityManager"))
 	{
-		<a asp-controller="Meetings" asp-action="Delete" asp-route-id="@Model.GroupID" class="btn btn-app bg-danger">
+
+
+		<a asp-controller="Groups" asp-action="Delete" asp-route-id="@Model.GroupID" class="btn btn-app bg-danger">
 			<i class="fas fa-inbox"></i> Eliminar Grupo
 		</a>
 

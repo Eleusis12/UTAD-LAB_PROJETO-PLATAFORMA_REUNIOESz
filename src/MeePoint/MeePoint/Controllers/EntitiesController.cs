@@ -436,23 +436,49 @@ namespace MeePoint.Controllers
 			string s = Request.QueryString.ToString();
 
 			// Obter a Entidade
-			var entity = _context.Entities.Include(m => m.User).FirstOrDefault(m => m.EntityID == id);
+			var entity = _context.Entities.Include(m => m.User)
+				.Include(m => m.Groups)
+				.ThenInclude(m => m.Members)
+				.ThenInclude(m => m.User)
+				.FirstOrDefault(m => m.EntityID == id);
 
 			// Guardar temporariamente o valor do username para que possamos apagar os respetivos dados tb nas outras tableas não apenas na tabela entidade
-			string username = entity.User.Username;
-			IdentityUser user = await _userManager.FindByNameAsync(username);
+			string email = entity.User.Email;
+			IdentityUser user = await _userManager.FindByEmailAsync(email);
 
 			if (user != null)
 			{
-				// Apagar Entidade (Cascade on Delete deve estar ativado)
+				// Primeiro Vamos ter que eliminar todas as contas que façam parte desta entidade
+				var registeredUsers = entity.Groups.FirstOrDefault(m => m.Name.ToLower() == "main").Members.Select(m => m.User);
+				var emails = registeredUsers.Select(m => m.Email);
+
+				// Apagar todas as contas nas tabelas asp net Users
+				foreach (var registeredUserEmail in emails)
+				{
+					IdentityUser aspNetUser = await _userManager.FindByEmailAsync(registeredUserEmail);
+
+					if (aspNetUser == null)
+					{
+						continue;
+					}
+
+					// Apaga as contas
+					_context.UserLogins.RemoveRange(_context.UserLogins.Where(ul => ul.UserId == aspNetUser.Id));
+
+					_context.UserRoles.RemoveRange(_context.UserRoles.Where(ur => ur.UserId == aspNetUser.Id));
+
+					_context.Users.Remove(_context.Users.Where(usr => usr.Id == aspNetUser.Id).Single());
+				}
+
+				// Apagar todas as contas no Registered USer, o admin já está nesta lista
+				_context.RegisteredUsers.RemoveRange(registeredUsers);
+
+				//// Em Seguida Vamos apagar a conta do administrador associado à entidade
+				//_context.RegisteredUsers.Remove(entity.User);
+
+				// Apagar Entidade implica apagar todas as informações relacionadas com esta
+				// Com o Cascade on Delete ativado, esta única operação deve apagar todos dados relacionados
 				_context.Entities.Remove(entity);
-
-				// Apaga as contas
-				_context.UserLogins.RemoveRange(_context.UserLogins.Where(ul => ul.UserId == user.Id));
-
-				_context.UserRoles.RemoveRange(_context.UserRoles.Where(ur => ur.UserId == user.Id));
-
-				_context.Users.Remove(_context.Users.Where(usr => usr.Id == user.Id).Single());
 
 				_context.SaveChanges();
 			}
