@@ -5,11 +5,20 @@
 }
 @Html.Partial("_BreadCrumb", @ViewData["Title"])
 
-<div class="row mb-2">
-	<div class="col-lg-3 col-6">
-		<a asp-controller="Meetings" asp-action="Schedule" asp-route-id="@Model.GroupID" class="btn btn-group-lg btn-danger">Convocar Reunião</a>
-	</div>
+<div class="d-flex justify-content-lg-between align-items-center">
+	<a asp-controller="Meetings" asp-action="Schedule" asp-route-id="@Model.GroupID" class="btn btn-group-lg btn-danger">Convocar Reunião</a>
+
+	@if (User.IsInRole("EntityManager"))
+	{
+
+
+		<a asp-controller="Groups" asp-action="Delete" asp-route-id="@Model.GroupID" class="btn btn-app bg-danger">
+			<i class="fas fa-inbox"></i> Eliminar Grupo
+		</a>
+
+	}
 </div>
+
 <!-- Small boxes (Stat box) -->
 <div class="row">
 	<div class="col-lg-3 col-6">
@@ -110,7 +119,6 @@
 		<!-- The time line -->
 		<div class="timeline">
 
-
 			@{bool timelineExists = false; }
 			@foreach (var meeting in Model.Meetings.Where(m => m.MeetingEndedBool == true).OrderByDescending(m => m.MeetingEnded))
 			{
@@ -137,8 +145,6 @@
 
 				timelineExists = true;
 
-
-
 			}
 			@if (timelineExists)
 			{
@@ -146,8 +152,6 @@
 					<i class="fas fa-clock bg-gray"></i>
 				</div>
 			}
-
-
 		</div>
 	</div>
 	<!-- /.col -->
