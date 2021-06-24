@@ -435,9 +435,28 @@ namespace MeePoint.Controllers
 		{
 			string s = Request.QueryString.ToString();
 
-			var entity = await _context.Entities.FindAsync(id);
-			_context.Entities.Remove(entity);
-			await _context.SaveChangesAsync();
+			// Obter a Entidade
+			var entity = _context.Entities.Include(m => m.User).FirstOrDefault(m => m.EntityID == id);
+
+			// Guardar temporariamente o valor do username para que possamos apagar os respetivos dados tb nas outras tableas não apenas na tabela entidade
+			string username = entity.User.Username;
+			IdentityUser user = await _userManager.FindByNameAsync(username);
+
+			if (user != null)
+			{
+				// Apagar Entidade (Cascade on Delete deve estar ativado)
+				_context.Entities.Remove(entity);
+
+				// Apaga as contas
+				_context.UserLogins.RemoveRange(_context.UserLogins.Where(ul => ul.UserId == user.Id));
+
+				_context.UserRoles.RemoveRange(_context.UserRoles.Where(ur => ur.UserId == user.Id));
+
+				_context.Users.Remove(_context.Users.Where(usr => usr.Id == user.Id).Single());
+
+				_context.SaveChanges();
+			}
+
 			return RedirectToAction(nameof(Index));
 		}
 
