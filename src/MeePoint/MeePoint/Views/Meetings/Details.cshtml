@@ -139,9 +139,12 @@
                     }
                     @if ((bool)ViewData["Role"] == true)
                     {
-                        <div class="text-center mt-5 mb-3">
-                            <a id="postpone-meeting" class="btn btn-sm btn-warning">Reagendar Reunião</a>
-                            <a asp-controller="Meetings" asp-action="Delete" asp-route-id="@Model.MeetingID" class="btn btn-sm btn-danger">Cancelar Reunião</a>
+                        <div class="text-center mt-5 mb-3 d-flex justify-content-center align-items-center" >
+                            <a id="postpone-meeting" class="btn btn-sm btn-warning mr-1">Reagendar Reunião</a>
+                            
+							<form method="post" asp-controller="Meetings" asp-action="Delete" asp-route-id="@Model.MeetingID">
+								<button type="submit" class="btn btn-sm btn-danger mr-1">Cancelar Reunião</button>
+							</form>
                             <a asp-controller="Meetings" asp-action="StartMeeting" asp-route-id="@Model.MeetingID" class="btn btn-sm btn-primary">Começar Reunião</a>
                         </div>
                     }

@@ -529,34 +529,16 @@ namespace MeePoint.Controllers
 			return RedirectToAction("Details", "Meetings", new { id = meeting.MeetingID });
 		}
 
-		// GET: Meetings/Delete/5
-		public async Task<IActionResult> Delete(int? id)
-		{
-			if (id == null)
-			{
-				return NotFound();
-			}
-
-			var meeting = await _context.Meetings
-				.Include(m => m.Group)
-				.FirstOrDefaultAsync(m => m.MeetingID == id);
-			if (meeting == null)
-			{
-				return NotFound();
-			}
-
-			return View(meeting);
-		}
-
 		// POST: Meetings/Delete/5
 		[HttpPost, ActionName("Delete")]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> DeleteConfirmed(int id)
+		public async Task<IActionResult> Delete(int id)
 		{
 			var meeting = await _context.Meetings.FindAsync(id);
+			int groupId = meeting.GroupID;
 			_context.Meetings.Remove(meeting);
 			await _context.SaveChangesAsync();
-			return RedirectToAction(nameof(Index));
+			return RedirectToAction("Details", "Groups", new { id = groupId });
 		}
 
 		public async Task<IActionResult> StartMeeting(int? id)
