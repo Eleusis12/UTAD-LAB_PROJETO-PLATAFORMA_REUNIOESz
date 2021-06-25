@@ -33,41 +33,47 @@
 		@{ int i = 1;}
 		@foreach (var meeting in Model.Meetings.OrderBy(x => x.MeetingDate))
 		{
-			<tr>
-				<td>
-					@(i++)
-				</td>
-				<td>
-					<a>
-						@Html.DisplayFor(modelItem => meeting.Name)
+		<tr>
+			<td>
+				@(i++)
+			</td>
+			<td>
+				<a>
+					@Html.DisplayFor(modelItem => meeting.Name)
+				</a>
+			</td>
+			<td>
+				@Html.DisplayFor(modelItem => meeting.MeetingDate)
+			</td>
+			<td>
+
+				@if (meeting.MeetingEndedBool == true)
+				{
+					// Se a reunião ocorreu, então o manager pode verificar as presenças
+					<a asp-controller="Meetings" asp-action="Attendance" asp-route-id="@meeting.MeetingID" class="badge badge-warning">
+						Presenças
 					</a>
-				</td>
-				<td>
-					@Html.DisplayFor(modelItem => meeting.MeetingDate)
-				</td>
-				<td>
 
-					@if (meeting.MeetingEndedBool == true)
-					{
-						// Se a reunião ocorreu, então o manager pode verificar as presenças
-						<a asp-controller="Meetings" asp-action="Attendance" asp-route-id="@meeting.MeetingID" class="badge badge-warning">
-							Presenças
-						</a>
+				}
+			</td>
 
-					}
-				</td>
+			<td class="project-actions text-right">
+				<a class="btn btn-primary btn-sm" asp-controller="Meetings" asp-action="Details" asp-route-id="@meeting.MeetingID">
+					<i class="fas fa-folder">
+					</i>
+					Ver Detalhes
+				</a>
+			</td>
+			<td class="project-actions text-right">
 
-				<td class="project-actions text-right">
-					<a class="btn btn-primary btn-sm" asp-controller="Meetings" asp-action="Details" asp-route-id="@meeting.MeetingID">
-						<i class="fas fa-folder">
-						</i>
-						Ver Detalhes
-					</a>
-				</td>
+				@if (!String.IsNullOrEmpty(meeting.AtaPath))
+				{
 
-				<td class="project-actions text-right">
 					<a asp-controller="Meetings" asp-action="DownloadMinute" asp-route-id="@meeting.MeetingID" class="btn-link text-secondary"><i class="far fa-fw fa-file-pdf"></i> Ver Ata </a>
+				}
+				
 				</td>
+
 			</tr>
 		}
 	</tbody>
