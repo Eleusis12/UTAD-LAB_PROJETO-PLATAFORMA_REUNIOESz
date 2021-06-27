@@ -11,7 +11,6 @@
 	@if (User.IsInRole("EntityManager"))
 	{
 
-
 		<a asp-controller="Groups" asp-action="Delete" asp-route-id="@Model.GroupID" class="btn btn-app bg-danger">
 			<i class="fas fa-inbox"></i> Eliminar Grupo
 		</a>
@@ -123,14 +122,14 @@
 			@foreach (var meeting in Model.Meetings.Where(m => m.MeetingEndedBool == true).OrderByDescending(m => m.MeetingEnded))
 			{
 				<div class="time-label">
-					<span class="bg-green">@meeting.MeetingDate.ToString("dd MMM Y")</span>
+					<span class="bg-green">@meeting.MeetingDate.ToString("dd MMM yyy")</span>
 				</div>
 				<!-- /.timeline-label -->
 				<!-- timeline item -->
 				<div>
 					<i class="fas fa-comments bg-yellow"></i>
 					<div class="timeline-item">
-						<span class="time"><i class="fas fa-clock"></i> 12:05</span>
+						<span class="time"><i class="fas fa-clock"></i> @meeting.MeetingStarted.ToString("HH:m")</span>
 						<h3 class="timeline-header"><a asp-controller="Meetings" asp-action="Details" asp-route-id="@meeting.MeetingID">Reunião</a> foi dada como concluída</h3>
 
 						<div class="timeline-body">
@@ -138,7 +137,11 @@
 						</div>
 						<div class="timeline-footer">
 							<a class="btn btn-primary btn-sm" asp-controller="Meetings" asp-action="Details" asp-route-id="@meeting.MeetingID">Ver Detalhes</a>
-							<a class="btn btn-danger btn-sm" asp-controller="Meetings" asp-action="DownloadMinute" asp-route-id="@meeting.MeetingID">Fazer download da Ata</a>
+							@if (!String.IsNullOrEmpty(meeting.AtaPath))
+							{
+								<a class="btn btn-danger btn-sm" asp-controller="Meetings" asp-action="DownloadMinute" asp-route-id="@meeting.MeetingID">Fazer download da Ata</a>
+
+							}
 						</div>
 					</div>
 				</div>
