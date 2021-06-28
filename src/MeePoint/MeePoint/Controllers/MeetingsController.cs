@@ -115,104 +115,119 @@ namespace MeePoint.Controllers
 		}
 
 		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Schedule(Meeting meeting, string guid, string timeDay)
-		{
-			// Se o utilizador não escolheu a hora de marcação, volta para página
-			if (timeDay == null)
-				return View(meeting);
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Schedule(Meeting meeting, string guid, string timeDay)
+        {
+            // Se o utilizador não escolheu a hora de marcação, volta para página
+            if (timeDay == null)
+                return View(meeting);
 
-			// timeDay tem o seguinte formato "12:30"
-			// Vamos fazer o split de acordo com os dois pontos
-			string[] partsTime = timeDay.Split(':');
-			DateTime meetingDate = new DateTime(meeting.MeetingDate.Year, meeting.MeetingDate.Month, meeting.MeetingDate.Day, Int32.Parse(partsTime[0]), Int32.Parse(partsTime[1]), 0);
+            // timeDay tem o seguinte formato "12:30"
+            // Vamos fazer o split de acordo com os dois pontos
+            string[] partsTime = timeDay.Split(':');
+            DateTime meetingDate = new DateTime(meeting.MeetingDate.Year, meeting.MeetingDate.Month, meeting.MeetingDate.Day, Int32.Parse(partsTime[0]), Int32.Parse(partsTime[1]), 0);
 
-			// Atribuir a data atualizada ao objeto meeting
-			meeting.MeetingDate = meetingDate;
+            // Atribuir a data atualizada ao objeto meeting
+            meeting.MeetingDate = meetingDate;
 
-			// Definir que a reunião não começou assim como não terminou
-			meeting.MeetingStartedBool = false;
-			meeting.MeetingEndedBool = false;
+            // Definir que a reunião não começou assim como não terminou
+            meeting.MeetingStartedBool = false;
+            meeting.MeetingEndedBool = false;
 
-			// Assim como no get, temos que fazer a verificação se o utilizador é manager do grupo
-			// Obtém o utilizador que está autenticado
-			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
-			string email = applicationUser?.Email; // will give the user's Email
-			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+            // Assim como no get, temos que fazer a verificação se o utilizador é manager do grupo
+            // Obtém o utilizador que está autenticado
+            IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+            string email = applicationUser?.Email; // will give the user's Email
+            var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
 
-			// Vamos verificar se o utilizador que pretende agendar a reunião é responsável ou co-responsável pelo grupo
-			var groupMember = _context.GroupMembers.Include(m => m.Group).ThenInclude(m => m.Entity).Where(m => m.GroupID == meeting.GroupID).FirstOrDefault(m => m.User.Email == email);
-			string roleUser = groupMember?.Role;
+            // Vamos verificar se o utilizador que pretende agendar a reunião é responsável ou co-responsável pelo grupo
+            var groupMember = _context.GroupMembers.Include(m => m.Group).ThenInclude(m => m.Entity).Where(m => m.GroupID == meeting.GroupID).FirstOrDefault(m => m.User.Email == email);
+            string roleUser = groupMember?.Role;
 
-			// Aqui fazemos a verificação se é manager ou comanager do grupo
-			if ((roleUser.ToLower() != "manager" && roleUser.ToLower() != "comanager") || roleUser == null)
-			{
-				return StatusCode(403);
-			}
+            // Aqui fazemos a verificação se é manager ou comanager do grupo
+            if ((roleUser.ToLower() != "manager" && roleUser.ToLower() != "comanager") || roleUser == null)
+            {
+                return StatusCode(403);
+            }
 
-			// Obter a que entidade está associado o grupo
-			string entityName = groupMember.Group.Entity.Name;
+            // Obter a que entidade está associado o grupo
+            string entityName = groupMember.Group.Entity.Name;
 
-			meeting.GroupID = groupMember.Group.GroupID;
-			meeting.Group = groupMember.Group;
+            meeting.GroupID = groupMember.Group.GroupID;
+            meeting.Group = groupMember.Group;
 
-			ModelState.Clear();
+            ModelState.Clear();
 
-			// Primeiro vamos adicionar à base de dados, para gerar o id da reunião
-			// TODO: Codificar a funcionalidade de reuniões recurrentes
-			if (TryValidateModel(meeting))
-			{
-				_context.Meetings.Add(meeting);
-				await _context.SaveChangesAsync();
-			}
+            var group = await _context.Groups.Include(g => g.Members).FirstAsync(g => g.GroupID == meeting.GroupID);
 
-			// Depois vamos associar os ficheiros submetidos
-			List<Document> documents = new List<Document>();
+            // Primeiro vamos adicionar à base de dados, para gerar o id da reunião
+            // TODO: Codificar a funcionalidade de reuniões recurrentes
+            if (TryValidateModel(meeting))
+            {
+                foreach (GroupMember gm in group.Members)
+                {
+                    Convocation conv = new Convocation()
+                    {
+                        User = await _context.RegisteredUsers.FirstAsync(r => r.RegisteredUserID == gm.UserID),
+                        Meeting = meeting,
+                        Answer = false,
+                        Justification = null,
+                    };
 
-			string sourcePath = Path.Combine(_he.ContentRootPath, "wwwroot/", entityName, "Meetings/", "Temp/", email, guid);
-			string targetPath = Path.Combine(_he.ContentRootPath, "wwwroot/", entityName, "Meetings/", meeting.MeetingID + "/");
-			string directory = Path.GetDirectoryName(targetPath);
-			if (!Directory.Exists(directory))
-				Directory.CreateDirectory(directory);
+                    _context.Convocations.Add(conv);
+                }
 
-			string fileName = string.Empty;
-			string destFile = string.Empty;
+                _context.Meetings.Add(meeting);
+                await _context.SaveChangesAsync();
+            }
 
-			if (System.IO.Directory.Exists(sourcePath))
-			{
-				string[] getfiles = System.IO.Directory.GetFiles(sourcePath);
+            // Depois vamos associar os ficheiros submetidos
+            List<Document> documents = new List<Document>();
 
-				// Copy the files and overwrite destination files if they already exist.
-				foreach (string s in getfiles)
-				{
-					// Use static Path methods to extract only the file name from the path.
-					fileName = System.IO.Path.GetFileName(s);
-					destFile = System.IO.Path.Combine(targetPath, fileName);
-					System.IO.File.Copy(s, destFile, true);
+            string sourcePath = Path.Combine(_he.ContentRootPath, "wwwroot/", entityName, "Meetings/", "Temp/", email, guid);
+            string targetPath = Path.Combine(_he.ContentRootPath, "wwwroot/", entityName, "Meetings/", meeting.MeetingID + "/");
+            string directory = Path.GetDirectoryName(targetPath);
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
 
-					documents.Add(new Document()
-					{
-						DocumentPath = destFile.Substring(destFile.IndexOf(entityName) - 1),
-						MeetingID = meeting.MeetingID,
-						Meeting = meeting
-					});
+            string fileName = string.Empty;
+            string destFile = string.Empty;
 
-					// Apagar ficheiro na pasta temporária
-					System.IO.File.Delete(s);
-				}
-			}
-			else
-			{
-				Console.WriteLine("Source path does not exist!");
-			}
+            if (System.IO.Directory.Exists(sourcePath))
+            {
+                string[] getfiles = System.IO.Directory.GetFiles(sourcePath);
 
-			await _context.Documents.AddRangeAsync(documents);
-			meeting.Documents = documents;
-			_context.Meetings.Update(meeting);
-			await _context.SaveChangesAsync();
+                // Copy the files and overwrite destination files if they already exist.
+                foreach (string s in getfiles)
+                {
+                    // Use static Path methods to extract only the file name from the path.
+                    fileName = System.IO.Path.GetFileName(s);
+                    destFile = System.IO.Path.Combine(targetPath, fileName);
+                    System.IO.File.Copy(s, destFile, true);
 
-			return RedirectToAction("Details", "Groups", new { id = meeting.GroupID });
-		}
+                    documents.Add(new Document()
+                    {
+                        DocumentPath = destFile.Substring(destFile.IndexOf(entityName) - 1),
+                        MeetingID = meeting.MeetingID,
+                        Meeting = meeting
+                    });
+
+                    // Apagar ficheiro na pasta temporária
+                    System.IO.File.Delete(s);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Source path does not exist!");
+            }
+
+            await _context.Documents.AddRangeAsync(documents);
+            meeting.Documents = documents;
+            _context.Meetings.Update(meeting);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", "Groups", new { id = meeting.GroupID });
+        }
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
@@ -346,43 +361,60 @@ namespace MeePoint.Controllers
 		}
 
 		// GET: Meetings/Details/5
-		public async Task<IActionResult> Details(int? id)
-		{
-			if (id == null)
-			{
-				return NotFound();
-			}
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-			var meeting = await _context.Meetings
-				.Include(m => m.Group)
-				.ThenInclude(m => m.Members)
-				.ThenInclude(m => m.User)
-				.Include(m => m.Documents)
-				.Include(m => m.Convocations)
-				.FirstOrDefaultAsync(m => m.MeetingID == id);
+            var meeting = await _context.Meetings
+                .Include(m => m.Group)
+                .ThenInclude(m => m.Members)
+                .ThenInclude(m => m.User)
+                .Include(m => m.Documents)
+                .Include(m => m.Convocations)
+                .FirstOrDefaultAsync(m => m.MeetingID == id);
 
-			if (meeting == null)
-			{
-				return NotFound();
-			}
+            if (meeting == null)
+            {
+                return NotFound();
+            }
 
-			// Assim como no get, temos que fazer a verificação se o utilizador é manager do grupo
-			// Obtém o utilizador que está autenticado
-			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
-			string email = applicationUser?.Email; // will give the user's Email
-			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+            // Assim como no get, temos que fazer a verificação se o utilizador é manager do grupo
+            // Obtém o utilizador que está autenticado
+            IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+            string email = applicationUser?.Email; // will give the user's Email
+            var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
 
-			// Vamos verificar se o utilizador que pretende agendar a reunião é responsável ou co-responsável pelo grupo
-			var groupMember = _context.GroupMembers.Include(m => m.Group).ThenInclude(m => m.Entity).Where(m => m.GroupID == meeting.GroupID).FirstOrDefault(m => m.User.Email == email);
-			string roleUser = groupMember?.Role;
+            // Vamos verificar se o utilizador que pretende agendar a reunião é responsável ou co-responsável pelo grupo
+            var groupMember = _context.GroupMembers.Include(m => m.Group).ThenInclude(m => m.Entity).Where(m => m.GroupID == meeting.GroupID).FirstOrDefault(m => m.User.Email == email);
+            string roleUser = groupMember?.Role;
 
-			// Aqui fazemos a verificação se é manager ou comanager do grupo
-			if ((roleUser.ToLower() == "manager" || roleUser.ToLower() != "comanager"))
-			{
-				ViewData["Role"] = true;
-			}
-			return View(meeting);
-		}
+            // Aqui fazemos a verificação se é manager ou comanager do grupo
+            ViewData["Role"] = (roleUser.ToLower() == "manager" || roleUser.ToLower() == "comanager");
+
+            var convocation = groupMember.User.Convocations.First(c => c.MeetingID == meeting.MeetingID);
+
+            ViewData["Answerable"] = (!convocation.Answer && convocation.Justification == null);
+            ViewBag.AnswerOptions = new List<SelectListItem>()
+            {
+                new SelectListItem()
+                {
+                    Text = "Vou",
+                    Value = "true",
+                    Selected = false,
+                },
+                 new SelectListItem()
+                {
+                    Text = "Não vou",
+                    Value = "false",
+                    Selected = false,
+                },
+            };
+
+            return View(meeting);
+        }
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
@@ -541,29 +573,44 @@ namespace MeePoint.Controllers
 			return RedirectToAction("Details", "Groups", new { id = groupId });
 		}
 
-		public async Task<IActionResult> StartMeeting(int? id)
-		{
-			if (id == null)
-			{
-				return NotFound();
-			}
+		public async Task<IActionResult> JoinMeeting(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-			var meeting = await _context.Meetings
-				.Include(m => m.Group)
-				.Include(m => m.Messages)
-				.FirstOrDefaultAsync(m => m.MeetingID == id);
+            var meeting = await _context.Meetings
+                .Include(m => m.Group)
+                .Include(m => m.Messages)
+                .FirstOrDefaultAsync(m => m.MeetingID == id);
 
-			meeting.MeetingStarted = DateTime.Now;
-			meeting.MeetingStartedBool = true;
+            if (meeting == null)
+            {
+                return NotFound();
+            }
+            return View(meeting);
+        }
 
-			if (meeting == null)
-			{
-				return NotFound();
-			}
+        [HttpPost, ActionName("StartMeeting")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> StartMeeting(int meetingID)
+        {
 
-			await _context.SaveChangesAsync();
-			return View(meeting);
-		}
+            var meeting = await _context.Meetings.FirstOrDefaultAsync(m => m.MeetingID == meetingID);
+
+            if (meeting == null)
+            {
+                return NotFound();
+            }
+
+            meeting.MeetingStarted = DateTime.Now;
+            meeting.MeetingStartedBool = true;
+
+            await _context.SaveChangesAsync();
+
+            return Json(new { url = this.Url.Action("Details", new { id = meetingID }) });
+        }
 
 		[HttpPost, ActionName("SendMessage")]
 		public async Task<IActionResult> SendMessage(int meetingID, string msg,
@@ -599,6 +646,84 @@ namespace MeePoint.Controllers
 				return Json(new { url = this.Url.Action("StartMeeting", new { id = meetingID }) });
 			}
 		}
+
+        public async Task<IActionResult> MakeConvocation(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var meeting = await _context.Meetings.FirstOrDefaultAsync(m => m.MeetingID == id);
+
+            if (meeting == null)
+            {
+                return NotFound();
+            }
+
+            var groupParticipants = _context.GroupMembers
+                .Include(gm => gm.Group)
+                .Include("Group.Entity")
+                .Include(gm => gm.User)
+                .Where(gm => gm.GroupID == meeting.GroupID);
+
+            ViewBag.GroupMembers = groupParticipants
+               .Select(c => new SelectListItem()
+               { Text = c.User.Email, Value = c.User.RegisteredUserID.ToString() })
+               .ToList();
+
+            return View(meeting);
+        }
+
+        [HttpPost, ActionName("MakeConvocation")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MakeConvocation(int meetingID, int[] newConvocations)
+        {
+            var meeting = await _context.Meetings
+                .Include(m => m.Convocations)
+                .FirstAsync(m => m.MeetingID == meetingID);
+
+            // Obtém o utilizador que está autenticado
+            IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+            string email = applicationUser?.Email; // will give the user's Email
+            var user = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.Email == email);
+            var member = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.UserID == user.RegisteredUserID);
+
+            if (member.Role == "Participant")
+            {
+                return StatusCode(403);
+            }
+            foreach (var usr in newConvocations)
+            {
+                var newConvocationUser = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.RegisteredUserID == usr);
+
+                meeting.Convocations.Add(new Convocation() { User = newConvocationUser, Meeting = meeting, Answer = false, Justification = null });
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new { id = meetingID });
+        }
+
+        [HttpPost, ActionName("AnswerConvocation")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AnswerConvocation(int meetingID, string answer, string justification)
+        {
+
+            IdentityUser applicationUser = await _userManager.GetUserAsync(User);
+            string email = applicationUser?.Email;
+            var user = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.Email == email);
+
+            var conv = await _context.Convocations.FirstAsync(c => c.UserID == user.RegisteredUserID && c.MeetingID == meetingID);
+
+            conv.Answer = answer == "true";
+            conv.Justification = conv.Answer ? null : justification;
+
+            _context.Convocations.Update(conv);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new { id = meetingID });
+        }
 
 		private bool MeetingExists(int id)
 		{
@@ -665,73 +790,72 @@ namespace MeePoint.Controllers
 
 			document.Close();
 		}
+        private static void AddTitle(iText.Layout.Document document, string titleName)
+        {
+            PdfFont font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
 
-		private static void AddTitle(iText.Layout.Document document, string titleName)
-		{
-			PdfFont font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+            Paragraph paragraph1 = new Paragraph(titleName)
+                .SetTextAlignment(TextAlignment.LEFT)
+                .SetFont(font)
+                .SetFontSize(14);
+            document.Add(paragraph1);
+        }
 
-			Paragraph paragraph1 = new Paragraph(titleName)
-				.SetTextAlignment(TextAlignment.LEFT)
-				.SetFont(font)
-				.SetFontSize(14);
-			document.Add(paragraph1);
-		}
+        private static void AddText(iText.Layout.Document document, string text)
+        {
+            PdfFont font = PdfFontFactory.CreateFont(StandardFonts.TIMES_ROMAN);
 
-		private static void AddText(iText.Layout.Document document, string text)
-		{
-			PdfFont font = PdfFontFactory.CreateFont(StandardFonts.TIMES_ROMAN);
+            Paragraph paragraph1 = new Paragraph(text)
+                .SetTextAlignment(TextAlignment.JUSTIFIED)
+                .SetFont(font)
+                .SetFontSize(12); ;
 
-			Paragraph paragraph1 = new Paragraph(text)
-				.SetTextAlignment(TextAlignment.JUSTIFIED)
-				.SetFont(font)
-				.SetFontSize(12); ;
+            document.Add(paragraph1);
+        }
 
-			document.Add(paragraph1);
-		}
+        private static void AddParticipant(iText.Layout.Document document, string text)
+        {
+            PdfFont font = PdfFontFactory.CreateFont(StandardFonts.TIMES_ITALIC);
 
-		private static void AddParticipant(iText.Layout.Document document, string text)
-		{
-			PdfFont font = PdfFontFactory.CreateFont(StandardFonts.TIMES_ITALIC);
+            Paragraph paragraph1 = new Paragraph(text)
+                .SetTextAlignment(TextAlignment.LEFT)
+                .SetFont(font)
+                .SetFontSize(12); ;
 
-			Paragraph paragraph1 = new Paragraph(text)
-				.SetTextAlignment(TextAlignment.LEFT)
-				.SetFont(font)
-				.SetFontSize(12); ;
+            document.Add(paragraph1);
+        }
 
-			document.Add(paragraph1);
-		}
+        private static void AddSignature(iText.Layout.Document document, string manager, string coManager)
+        {
+            PdfFont font = PdfFontFactory.CreateFont(StandardFonts.TIMES_ROMAN);
 
-		private static void AddSignature(iText.Layout.Document document, string manager, string coManager)
-		{
-			PdfFont font = PdfFontFactory.CreateFont(StandardFonts.TIMES_ROMAN);
+            Table table = new Table(UnitValue.CreatePercentArray(2)).UseAllAvailableWidth().SetMarginTop(40);
 
-			Table table = new Table(UnitValue.CreatePercentArray(2)).UseAllAvailableWidth().SetMarginTop(40);
+            // Adiciona o espaço para cada um dos responsáveis poder assinar depois de imprimir
+            Paragraph signatureManager = new Paragraph(manager).SetFont(font)
+                .SetFontSize(11);
 
-			// Adiciona o espaço para cada um dos responsáveis poder assinar depois de imprimir
-			Paragraph signatureManager = new Paragraph(manager).SetFont(font)
-				.SetFontSize(11);
+            Paragraph signatureCoManager = new Paragraph(coManager).SetFont(font)
+                .SetFontSize(11);
 
-			Paragraph signatureCoManager = new Paragraph(coManager).SetFont(font)
-				.SetFontSize(11);
+            LineSeparator dottedline = new LineSeparator(new DottedLine()).SetMaxWidth(200).SetMarginTop(10);
 
-			LineSeparator dottedline = new LineSeparator(new DottedLine()).SetMaxWidth(200).SetMarginTop(10);
+            AddCell(table, signatureManager);
+            AddCell(table, signatureCoManager);
 
-			AddCell(table, signatureManager);
-			AddCell(table, signatureCoManager);
+            AddCell(table, dottedline);
+            AddCell(table, dottedline);
 
-			AddCell(table, dottedline);
-			AddCell(table, dottedline);
+            document.Add(table);
+            document.Close();
 
-			document.Add(table);
-			document.Close();
-
-			static void AddCell(Table table, IBlockElement signature)
-			{
-				Cell cell = new Cell();
-				cell.Add(signature);
-				cell.SetBorder(Border.NO_BORDER);
-				table.AddCell(cell);
-			}
-		}
-	}
+            static void AddCell(Table table, IBlockElement signature)
+            {
+                Cell cell = new Cell();
+                cell.Add(signature);
+                cell.SetBorder(Border.NO_BORDER);
+                table.AddCell(cell);
+            }
+        }
+    }
 }

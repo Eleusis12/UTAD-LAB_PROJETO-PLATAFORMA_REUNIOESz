@@ -11,32 +11,9 @@ namespace MeePoint.Services
 
         static HashSet<string> CurrentConnections = new HashSet<string>();
 
-        public override Task OnConnectedAsync()
-        {
-            var user = Context.User;
-            CurrentConnections.Add(user.Identity.Name);
-
-            UpdateOnline();
-
-            return base.OnConnectedAsync();
-        }
-
         async public void UpdateOnline()
         {
             await Clients.All.SendAsync("UpdateOnline", CurrentConnections.ToList());
-        }
-
-        public override Task OnDisconnectedAsync(Exception exception)
-        {
-            var connection = CurrentConnections.FirstOrDefault(x => x == Context.ConnectionId);
-
-            if (connection != null)
-            {
-                CurrentConnections.Remove(connection);
-                UpdateOnline();
-            }
-
-            return base.OnDisconnectedAsync(exception);
         }
 
         public List<string> GetAllActiveConnections()
@@ -46,11 +23,21 @@ namespace MeePoint.Services
 
         public Task JoinRoom(string meetingId)
         {
+            var user = Context.User;
+            CurrentConnections.Add(user.Identity.Name);
+
+            UpdateOnline();
+
             return Groups.AddToGroupAsync(Context.ConnectionId, meetingId);
         }
 
         public Task LeaveRoom(string meetingId)
         {
+            var user = Context.User;
+
+                CurrentConnections.Remove(user.Identity.Name);
+                UpdateOnline();
+
             return Groups.RemoveFromGroupAsync(Context.ConnectionId, meetingId);
         }
     }

@@ -60,21 +60,23 @@
                                     <tr>
                                         <th style="width: 10px">#</th>
                                         <th>Nome do Convocado</th>
-                                        <th style="width: 40px">Label</th>
+                                        <th style="width: 40px">Email</th>
                                         <th>Função</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var member in Model.Group.Members)
+                                    @foreach (var convocation in Model.Convocations)
                                     {
                                         <tr>
                                             <td>1.</td>
-                                            <td>@(member.User.Name??"Nome não definido")</td>
-                                            <td><span class="badge bg-gradient-info">@member.User.Email</span></td>
+                                            <td>@(convocation.User.Name ?? "Nome não definido")</td>
+                                            <td><span class="badge bg-gradient-info">@convocation.User.Email</span></td>
                                             <td>
                                                 @{
 
+                                                    var member = Model.Group.Members.First(m => m.UserID == convocation.UserID);
                                                     var roleName = string.Empty;
+
                                                     // Temos que traduzir as roles para português
                                                     switch (member.Role.ToLower())
                                                     {
@@ -92,6 +94,7 @@
                                                 }
                                             </td>
                                         </tr>
+
                                     }
                                 </tbody>
                             </table>
@@ -137,19 +140,56 @@
                         }
 
                     }
-                    @if ((bool)ViewData["Role"] == true)
-                    {
-                        <div class="text-center mt-5 mb-3 d-flex justify-content-center align-items-center" >
-                            <a id="postpone-meeting" class="btn btn-sm btn-warning mr-1">Reagendar Reunião</a>
-                            
-							<form method="post" asp-controller="Meetings" asp-action="Delete" asp-route-id="@Model.MeetingID">
-								<button type="submit" class="btn btn-sm btn-danger mr-1">Cancelar Reunião</button>
-							</form>
-                            <a asp-controller="Meetings" asp-action="StartMeeting" asp-route-id="@Model.MeetingID" class="btn btn-sm btn-primary">Começar Reunião</a>
-                        </div>
-                    }
+                    <div class="text-center mt-5 mb-3">
+                        @if (!Model.MeetingStartedBool)
+                        {
+                            if ((bool)ViewData["Role"])
+                            {
 
-                    <flash dismissable="true" />
+                                <div class="text-center mt-5 mb-3 d-flex justify-content-center align-items-center">
+                                    <a id="postpone-meeting" class="btn btn-sm btn-warning mr-1">Reagendar Reunião</a>
+
+                                    <form method="post" asp-controller="Meetings" asp-action="Delete" asp-route-id="@Model.MeetingID">
+                                        <button type="submit" class="btn btn-sm btn-danger mr-1">Cancelar Reunião</button>
+                                    </form>
+                                    <button id="startMeetingBtn" class="btn btn-sm btn-primary">Começar Reunião</button>
+                                </div>
+                                <a asp-controller="Meetings" asp-action="MakeConvocation" asp-route-id="@Model.MeetingID" class="btn btn-sm btn-primary">Convocar</a>
+
+                            }
+                            else if ((bool)ViewData["Answerable"])
+                            {
+                                <button id="answerConvocation" class="btn btn-sm btn-primary">Responder à convocatória</button>
+
+                                <div id="popup" style="display:none">
+                                    <form asp-action="AnswerConvocation" asp-controller="Meetings" method="post" enctype="multipart/form-data" id="answerForm">
+                                        <input asp-for="MeetingID" value="@Model.MeetingID" hidden />
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <label>Resposta</label>
+                                                    <div class="select2-purple">
+                                                        <select name="answer" onchange="toggleJustification()" class="select2" data-placeholder="Resposta" data-dropdown-css-class="select2-purple" style="width: 100%;" asp-items="@ViewBag.AnswerOptions">
+                                                        </select>
+                                                    </div>
+                                                    <div id="justification" style="display:none">
+                                                        <label>Justificação</label>
+                                                        <textarea asp-for="Convocations.First().Justification" class="form-control" rows="3" placeholder="Justificação" style="resize: none"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-success ">Submeter resposta</button>
+                                    </form>
+                                </div>
+                            }
+                        }
+                        else if (!Model.MeetingEndedBool)
+                        {
+                            <a asp-controller="Meetings" asp-action="JoinMeeting" asp-route-id="@Model.MeetingID" class="btn btn-sm btn-primary">Entrar na Reunião</a>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
@@ -235,5 +275,42 @@
         });
     </script>
 
-    
+    <script>
+        $('#startMeetingBtn').click(function () {
+            // Get the value fo the Anti Forgery Token
+            var token = '@Html.AntiForgeryToken()';
+
+            $.ajax({
+                url: '@Url.Action("StartMeeting", "Meetings")',
+                type: 'POST',
+                dataType: 'html',
+                data: {
+                    meetingID: @Model.MeetingID,
+                    // Send the token as a parameter of the POST request in order for it to be accepted by the server
+                    __RequestVerificationToken: $(token).val()
+                },
+                success: function (response) {
+                    var url = JSON.parse(response).url;
+                    window.location.href = url;
+                },
+                error: function (response) {
+                    var url = JSON.parse(response).url;
+                    window.location.href = url;
+                }
+
+            });
+        });
+
+        $('#answerConvocation').click(function () {
+            $('#popup').toggle();
+        });
+
+        function toggleJustification() {
+            $('#justification').toggle();
+        }
+
+    </script>
+
+
+
 }

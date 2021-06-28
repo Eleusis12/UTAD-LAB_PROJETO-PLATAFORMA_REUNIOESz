@@ -1,0 +1,47 @@
+﻿@model MeePoint.Models.Meeting
+
+@{
+    ViewData["Title"] = "MakeConvocation";
+}
+@Html.Partial("_BreadCrumb", @ViewData["Title"])
+<h1>Fazer Convocatória</h1>
+
+<h4>Reunião</h4>
+<hr />
+<div class="card card-default">
+    <div class="card-body">
+        <form asp-action="MakeConvocation">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="MeetingID" />
+            <div class="col-6 col-sm-3">
+                <div class="form-group">
+                    <label>Participantes</label>
+                    <div class="select2-purple">
+                        <select name="newConvocations" class="select2" multiple="multiple" data-placeholder="Seleciona os participantes a convocar" data-dropdown-css-class="select2-purple" style="width: 100%;" asp-items="@ViewBag.GroupMembers">
+                        </select>
+                    </div>
+                </div>
+                <!-- /.form-group -->
+            </div>
+            <button type="submit" class="btn btn-success ">Adicionar</button>
+        </form>
+    </div>
+</div>
+
+
+
+<div>
+    <a asp-controller="Meetings"
+       asp-action="Details"
+       asp-route-id="@Model.MeetingID">Back to meeting details</a>
+</div>
+
+@section Scripts
+
+{
+    <script>
+		$(function () {
+			$('.select2').select2()
+		});
+    </script>
+}
