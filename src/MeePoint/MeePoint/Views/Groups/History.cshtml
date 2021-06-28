@@ -15,7 +15,7 @@
 				Nome
 			</th>
 			<th style="width: 10%">
-				Hora que decorreu reunião
+				Dia
 			</th>
 			<th style="width: 10%">
 				Presenças
@@ -31,49 +31,47 @@
 	</thead>
 	<tbody>
 		@{ int i = 1;}
-		@foreach (var meeting in Model.Meetings.OrderBy(x => x.MeetingDate))
+		@foreach (var meeting in Model.Meetings.Where(x => x.MeetingEndedBool == true).OrderBy(x => x.MeetingDate))
 		{
-		<tr>
-			<td>
-				@(i++)
-			</td>
-			<td>
-				<a>
-					@Html.DisplayFor(modelItem => meeting.Name)
-				</a>
-			</td>
-			<td>
-				@Html.DisplayFor(modelItem => meeting.MeetingDate)
-			</td>
-			<td>
-
-				@if (meeting.MeetingEndedBool == true)
-				{
-					// Se a reunião ocorreu, então o manager pode verificar as presenças
-					<a asp-controller="Meetings" asp-action="Attendance" asp-route-id="@meeting.MeetingID" class="badge badge-warning">
-						Presenças
+			<tr>
+				<td>
+					@(i++)
+				</td>
+				<td>
+					<a>
+						@Html.DisplayFor(modelItem => meeting.Name)
 					</a>
+				</td>
+				<td>
+					@meeting.MeetingStarted.ToString("d MMMM")
+				</td>
+				<td>
 
-				}
-			</td>
+					@if (meeting.MeetingEndedBool == true)
+					{
+						// Se a reunião ocorreu, então o manager pode verificar as presenças
+						<a asp-controller="Meetings" asp-action="Attendance" asp-route-id="@meeting.MeetingID" class="badge badge-warning">
+							Presenças
+						</a>
 
-			<td class="project-actions text-right">
-				<a class="btn btn-primary btn-sm" asp-controller="Meetings" asp-action="Details" asp-route-id="@meeting.MeetingID">
-					<i class="fas fa-folder">
-					</i>
-					Ver Detalhes
-				</a>
-			</td>
-			<td class="project-actions text-right">
-
-				@if (!String.IsNullOrEmpty(meeting.AtaPath))
-				{
-
-					<a asp-controller="Meetings" asp-action="DownloadMinute" asp-route-id="@meeting.MeetingID" class="btn-link text-secondary"><i class="far fa-fw fa-file-pdf"></i> Ver Ata </a>
-				}
-				
+					}
 				</td>
 
+				<td class="project-actions text-right">
+					<a class="btn btn-primary btn-sm" asp-controller="Meetings" asp-action="Details" asp-route-id="@meeting.MeetingID">
+						<i class="fas fa-folder">
+						</i>
+						Ver Detalhes
+					</a>
+				</td>
+				<td class="project-actions text-right">
+
+					@if (!String.IsNullOrEmpty(meeting.AtaPath))
+					{
+
+						<a asp-controller="Meetings" asp-action="DownloadMinute" asp-route-id="@meeting.MeetingID" class="btn-link text-secondary"><i class="far fa-fw fa-file-pdf"></i> Ver Ata </a>
+					}
+				</td>
 			</tr>
 		}
 	</tbody>

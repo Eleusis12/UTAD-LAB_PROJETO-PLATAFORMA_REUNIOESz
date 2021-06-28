@@ -42,7 +42,7 @@
 				<h3>
 					@{
 						var firstDay = DateTime.Today.AddDays(-30);
-						var countMeetings = Model.Meetings.Where(x => x.MeetingDate >= firstDay && x.MeetingDate <= DateTime.Now).Count();
+						var countMeetings = Model.Meetings.Where(x => x.MeetingStarted >= firstDay && x.MeetingStarted <= DateTime.Now && x.MeetingEndedBool == true).Count();
 					}
 					@countMeetings
 				</h3>
@@ -118,12 +118,19 @@
 		<!-- The time line -->
 		<div class="timeline">
 
-			@{bool timelineExists = false; }
+			@{bool timelineExists = false;
+				DateTime currentDate = new DateTime(0002, 04, 30);}
 			@foreach (var meeting in Model.Meetings.Where(m => m.MeetingEndedBool == true).OrderByDescending(m => m.MeetingEnded))
 			{
-				<div class="time-label">
-					<span class="bg-green">@meeting.MeetingDate.ToString("dd MMM yyy")</span>
-				</div>
+
+				if (currentDate.Date != meeting.MeetingDate)
+				{
+					<div class="time-label">
+						<span class="bg-green">@meeting.MeetingDate.ToString("dd MMM yyy")</span>
+					</div>
+				}
+				currentDate = meeting.MeetingDate;
+
 				<!-- /.timeline-label -->
 				<!-- timeline item -->
 				<div>
