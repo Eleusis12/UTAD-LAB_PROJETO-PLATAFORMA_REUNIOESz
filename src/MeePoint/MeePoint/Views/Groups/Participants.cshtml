@@ -167,12 +167,10 @@
                 },
                 success: function (response) {
                     var url = JSON.parse(response).url;
-                    console.log(response);
                     window.location.href = url;
                 },
                 error: function (response) {
                     var url = JSON.parse(response).url;
-                    console.log(response);
                     window.location.href = url;
                 }
 

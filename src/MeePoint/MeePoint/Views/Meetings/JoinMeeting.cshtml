@@ -75,6 +75,7 @@
 
         connection.on("UpdateOnline", function (conns) {
             document.getElementById("onlineCount").innerHTML = conns.length;
+            console.log(conns.length);
         })
 
         connection.start()
@@ -86,10 +87,8 @@
                 console.log(err);
             });
 
-        window.addEventListener('onunload', function () {
-            console.log("Saiu da sala");
+        window.addEventListener('beforeunload', function () {
             connection.invoke('leaveRoom', "@Model.MeetingID");
-            //connection.Stop();
         });
 
         var sendMessage = function (event) {
