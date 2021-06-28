@@ -38,13 +38,15 @@
 										<th>Função</th>
 										<th>Presente</th>
 										<th>Falta</th>
+										<th>Justificação</th>
 									</tr>
 								</thead>
 								<tbody>
+									@{ int j = 1;}
 									@foreach (var member in Model.Group.Members)
 									{
 										<tr>
-											<td>1.</td>
+											<td>@(j++)</td>
 											<td>@(member.User.Name??"Nome não definido")</td>
 											<td><span class="badge bg-gradient-info">@member.User.Email</span></td>
 											<td>
@@ -71,11 +73,13 @@
 
 												// Inicializar a Resposat como sendo falsa
 												bool answer = false;
+												string justification = string.Empty;
 												int userID = member.UserID;
 
 												var convocation = Model.Convocations.FirstOrDefault(m => m.UserID == userID);
 
 												answer = convocation?.Answer ?? false;
+												justification = convocation?.Justification ?? string.Empty;
 
 											}
 											<form asp-controller="Meetings" asp-action="Present" asp-route-meetingID="@Model.MeetingID" asp-route-userID="@userID" data-ajax="true" data-ajax-method="post"
@@ -95,7 +99,22 @@
 												</div>
 												<button type="submit" id='Submit_@userID' hidden></button>
 											</form>
+											<td>
+												@if (justification != string.Empty)
+												{
+
+													<button class="btn btn-info" data-toggle="popover" data-placement="right" title="Justificação" data-content="@justification">
+														<i class="far fa-comment-alt"></i>
+													</button>
+
+												}
+												else
+												{
+
+												}
+											</td>
 										</tr>
+
 									}
 								</tbody>
 							</table>
@@ -109,3 +128,18 @@
 	<!-- /.card -->
 </section>
 <!-- /.content -->
+
+@section Scripts
+{
+
+	<script>
+		$(document).ready(function () {
+			$('[data-toggle="tooltip"]').tooltip();
+		});
+
+		$(function () {
+			$('[data-toggle="popover"]').popover()
+		})
+	</script>
+
+} 
