@@ -62,8 +62,6 @@
                                         <th>Nome do Convocado</th>
                                         <th style="width: 40px">Email</th>
                                         <th>Função</th>
-                                        <th>Resposta</th>
-                                        <th>Justificação</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -97,7 +95,7 @@
                                             </td>
                                         </tr>
 
-                                                            }
+                                    }
                                 </tbody>
                             </table>
                         </div>
@@ -148,9 +146,14 @@
                             if ((bool)ViewData["Role"])
                             {
 
-                                <a id="postpone-meeting" class="btn btn-sm btn-warning">Reagendar Reunião</a>
-                                <a asp-controller="Meetings" asp-action="Delete" asp-route-id="@Model.MeetingID" class="btn btn-sm btn-danger">Cancelar Reunião</a>
-                                <button id="startMeetingBtn" class="btn btn-sm btn-primary">Começar Reunião</button>
+                                <div class="text-center mt-5 mb-3 d-flex justify-content-center align-items-center">
+                                    <a id="postpone-meeting" class="btn btn-sm btn-warning mr-1">Reagendar Reunião</a>
+
+                                    <form method="post" asp-controller="Meetings" asp-action="Delete" asp-route-id="@Model.MeetingID">
+                                        <button type="submit" class="btn btn-sm btn-danger mr-1">Cancelar Reunião</button>
+                                    </form>
+                                    <button id="startMeetingBtn" class="btn btn-sm btn-primary">Começar Reunião</button>
+                                </div>
                                 <a asp-controller="Meetings" asp-action="MakeConvocation" asp-route-id="@Model.MeetingID" class="btn btn-sm btn-primary">Convocar</a>
 
                             }
@@ -181,7 +184,6 @@
                                     </form>
                                 </div>
                             }
-
                         }
                         else if (!Model.MeetingEndedBool)
                         {
@@ -278,8 +280,6 @@
             // Get the value fo the Anti Forgery Token
             var token = '@Html.AntiForgeryToken()';
 
-            console.log("yes");
-
             $.ajax({
                 url: '@Url.Action("StartMeeting", "Meetings")',
                 type: 'POST',
@@ -291,12 +291,10 @@
                 },
                 success: function (response) {
                     var url = JSON.parse(response).url;
-                    console.log("succ");
                     window.location.href = url;
                 },
                 error: function (response) {
                     var url = JSON.parse(response).url;
-                    console.log("fai");
                     window.location.href = url;
                 }
 

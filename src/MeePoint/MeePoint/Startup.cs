@@ -66,7 +66,7 @@ namespace MeePoint
 				}).AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>()
 			.AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>(TokenOptions.DefaultProvider);
-			services.AddControllersWithViews();
+			services.AddControllersWithViews().AddRazorRuntimeCompilation();
 			services.AddRazorPages().AddRazorRuntimeCompilation();
 
 			services.ConfigureApplicationCookie(options =>
