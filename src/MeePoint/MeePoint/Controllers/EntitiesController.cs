@@ -94,7 +94,7 @@ namespace MeePoint.Controllers
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		[Authorize(Roles = "Administrator")]
-		public IActionResult ApproveEntity(int? id)
+		public async Task<IActionResult> ApproveEntity(int? id)
 		{
 			// The Post method is incomplete
 			if (id == null)
@@ -105,7 +105,7 @@ namespace MeePoint.Controllers
 			Entity entity = new Entity();
 
 			// Obtain correct Entity object
-			entity = _context.Entities.FirstOrDefault(x => x.EntityID == id);
+			entity = await _context.Entities.FirstOrDefaultAsync(x => x.EntityID == id);
 
 			// Update Entity status
 			entity.StatusEntity = true;
@@ -123,10 +123,10 @@ namespace MeePoint.Controllers
 			// Obtém o utilizador que está autenticado
 			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
 			string email = applicationUser?.Email; // will give the user's Email
-			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+			var user = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.Email == email);
 
 			// Obtém a entidade
-			var entity = _context.Entities.Include(m => m.Groups).Include("Groups.Members").First(m => m.User.Email == user.Email);
+			var entity = await _context.Entities.Include(m => m.Groups).Include("Groups.Members").FirstOrDefaultAsync(m => m.User.Email == user.Email);
 
 			// Se a empresa não existe
 			if (entity == null)
@@ -164,10 +164,10 @@ namespace MeePoint.Controllers
 			// Obtém o utilizador que está autenticado
 			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
 			string email = applicationUser?.Email; // will give the user's Email
-			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+			var user = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.Email == email);
 
 			// Obtém a entidade
-			var entity = _context.Entities.Include(m => m.Groups).Include("Groups.Members").First(m => m.User.Email == user.Email);
+			var entity = await _context.Entities.Include(m => m.Groups).Include("Groups.Members").FirstOrDefaultAsync(m => m.User.Email == user.Email);
 
 			// Se a empresa não existe
 			if (entity == null)
@@ -241,13 +241,15 @@ namespace MeePoint.Controllers
 					group.Members = new List<GroupMember>();
 				}
 
+				var u = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.Email == singleEmail);
+
 				group.Members.Add(new GroupMember
 				{
 					Group = group,
 					GroupID = group.GroupID,
 					Role = "User",
-					User = _context.RegisteredUsers.FirstOrDefault(m => m.Email == singleEmail),
-					UserID = _context.RegisteredUsers.FirstOrDefault(m => m.Email == singleEmail).RegisteredUserID
+					User = u,
+					UserID = u.RegisteredUserID,
 				});
 			}
 
@@ -291,10 +293,10 @@ namespace MeePoint.Controllers
 			// Obtém o utilizador que está autenticado
 			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
 			string email = applicationUser?.Email; // will give the user's Email
-			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+			var user = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.Email == email);
 
 			// Obtém a entidade
-			var entity = _context.Entities.Include(m => m.Groups).Include("Groups.Members").First(m => m.User.Email == user.Email);
+			var entity = await _context.Entities.Include(m => m.Groups).Include("Groups.Members").FirstOrDefaultAsync(m => m.User.Email == user.Email);
 
 			string filename = Path.Combine(_he.ContentRootPath, "wwwroot/", entity.Name, "Credenciais/", "Credenciais.txt");
 
@@ -322,6 +324,7 @@ namespace MeePoint.Controllers
 		}
 
 		[HttpPost]
+		[Authorize(Roles = "EntityManager")]
 		public async Task<string> CreateNewRegisteredUserAsync(string email)
 		{
 			ModelState.Clear();

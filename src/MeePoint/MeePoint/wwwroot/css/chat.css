@@ -43,7 +43,7 @@
     flex-direction: column;
     padding-bottom: 1rem;
     overflow: auto;
-    height: 100vh;
+    height: 70vh;
 }
 
 .chatContainer {
@@ -54,23 +54,38 @@
     flex: 2 1 auto;
 }
 
-.sideBox{
+.sideBox {
     display: flex;
     flex-direction: column;
     flex: 1;
 }
 
 .participants {
-    flex: 10 1 auto;
-    background-color: #000000;
+    flex: 1 2 auto;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
 }
 
 .actions {
-    flex: 1;
-    background-color: #ff0000;
+    flex: 1 3 1;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
 }
+
+.speakRequests {
+    display: flex;
+    flex-direction: column;
+    flex: 3 0 auto;
+    background-color: #ffffff;
+}
+
+    .speakRequests > * {
+        flex: 1 3 1;
+    }
 
 .online {
-    background-color: #00ff21;
+    flex: 1;
+    background-color: #ffffff;
 }
-

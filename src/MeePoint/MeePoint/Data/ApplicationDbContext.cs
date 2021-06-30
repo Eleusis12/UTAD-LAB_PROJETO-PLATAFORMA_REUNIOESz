@@ -22,6 +22,7 @@ namespace MeePoint.Data
         public DbSet<GroupMember> GroupMembers { get; set; }
         public DbSet<Document> Documents { get; set; }
         public DbSet<ChatMessage> Messages { get; set; }
+        public DbSet<SpeakRequest> SpeakRequests { get; set; }
 
         //FluentAPI for table customization
         protected override void OnModelCreating(ModelBuilder builder)

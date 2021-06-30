@@ -1,13 +1,10 @@
 ﻿@model MeePoint.Models.Meeting
 
 @{
-    ViewData["Title"] = "Reunião a decorrer";
+    ViewData["Title"] = "Reunião a decorrer - " + Model.Name;
 }
 @Html.Partial("_BreadCrumb", @ViewData["Title"])
 @addTagHelper *, Vereyon.Web.FlashMessage
-
-<flash dismissable="true" />
-
 
 <div class="chatContainer">
     <div class="chatWindow">
@@ -22,20 +19,45 @@
 
             }
         </div>
-        <form class="chatInput" onsubmit="sendMessage(event)">
+        <form class="chatInput form-control" onsubmit="sendMessage(event)">
             <input type="hidden" name="meetingID" value="@Model.MeetingID" />
-            <input type="text" name="msg" id="messageInput" />
-            <button type="submit">Send</button>
+            <input type="text" class="form-control" name="msg" id="messageInput" />
+            <button type="submit" class="btn btn-sm btn-primary" >Send</button>
         </form>
     </div>
 
     <div class="sideBox">
         <div class="participants">
-            <div class="online">
-                <p>Online: </p> <p id="onlineCount"></p>
+            <div class="online bg-primary color-palette" >
+                <p id="onlineCount"></p>
+            </div>
+            <div class="online bg-primary color-palette" >
+                <p id="quorum"></p>
             </div>
         </div>
-        <div class="actions"></div>
+        <label style="margin: auto">Pedidos para falar</label>
+        <div class="speakRequests form-group">
+            <select id="requestList" size="10" multiple class="custom-select">
+                @foreach (var request in Model.SpeakRequests)
+                {
+                    <option value="@request.WhoRequested.RegisteredUserID">@request.WhoRequested.Name</option>
+                }
+            </select>
+            @if ((bool)ViewData["Role"])
+            {
+                <input type="button" id="removeRequest" class="btn btn-sm btn-primary" value="Fechar pedido" />
+            }
+        </div>
+        <div class="actions">
+            @if ((bool)ViewData["Role"])
+            {
+                <input type="button" id="endMeeting" class="btn btn-sm btn-primary" value="Terminar Reunião" />
+            }
+            @if (!(bool)ViewData["Role"])
+            {
+                <input type="button" id="askToSpeak" class="btn btn-sm btn-primary" value="Pedir para falar" />
+            }
+        </div>
     </div>
 
 </div>
@@ -46,6 +68,102 @@
     <script src="~/js/axios.min.js"></script>
 
     <script>
+    $('#endMeeting').click( function () {
+            var token = '@Html.AntiForgeryToken()';
+
+            $.ajax({
+                url: '@Url.Action("EndMeeting", "Meetings")',
+                type: 'POST',
+                dataType: 'html',
+                data: {
+                    meetingID: @Model.MeetingID,
+                    // Send the token as a parameter of the POST request in order for it to be accepted by the server
+                    __RequestVerificationToken: $(token).val()
+                },
+                success: function (response) {
+                    var url = JSON.parse(response).url;
+                    window.location.href = url;
+                },
+                error: function (response) {
+                    var url = JSON.parse(response).url;
+                    window.location.href = url;
+                }
+            });
+    });
+
+        $('#askToSpeak').click(function () {
+
+            var token = '@Html.AntiForgeryToken()'
+
+                $.ajax({
+                    url: '@Url.Action("AskToSpeak", "Meetings")',
+                    type: 'POST',
+                    dataType: 'html',
+                    data: {
+                       meetingID: @Model.MeetingID,
+                        // Send the token as a parameter of the POST request in order for it to be accepted by the server
+                        __RequestVerificationToken: $(token).val()
+                    },
+                    success: function (response) {
+                    },
+                    error: function (response) {
+
+                    }
+                });
+
+        });
+
+        $('#removeRequest').click(function () {
+
+            var token = '@Html.AntiForgeryToken()';
+
+            var slc = document.getElementById("requestList");
+            var opt = slc.options[slc.selectedIndex].value;
+
+            $.ajax({
+                url: '@Url.Action("RemoveRequest", "Meetings")',
+                type: 'POST',
+                dataType: 'html',
+                data: {
+                    meetingID: @Model.MeetingID,
+                    usrID: opt,
+                    // Send the token as a parameter of the POST request in order for it to be accepted by the server
+                    __RequestVerificationToken: $(token).val()
+                },
+                success: function (response) {
+                },
+                error: function (response) {
+
+                }
+            });
+        });
+
+        function addRequest(user, add) {
+
+            var select = document.querySelector('#requestList');
+
+            if (add) {
+                console.log(user);
+                console.log(user.registeredUserID);
+                var option = document.createElement("option");
+                option.setAttribute("value", user.registeredUserID);
+                option.innerHTML = user.name;
+
+                select.append(option);
+
+            } else {
+                for (var i = 0; i < select.options.length; i++) {
+                    if (select.options[i].innerHTML == user.name) {
+                        select.remove(i);
+                    }
+                }
+            }
+
+        }
+    </script>
+
+    <script>
+
         var connection = new signalR.HubConnectionBuilder()
             .withUrl("/chatHub")
             .build();
@@ -73,14 +191,18 @@
             document.querySelector('.chatBody').append(message);
         });
 
-        connection.on("UpdateOnline", function (conns) {
-            document.getElementById("onlineCount").innerHTML = conns.length;
-            console.log(conns.length);
+        connection.on("UpdateSpeakRequests", function (data) {
+            addRequest(data.usr, data.add);
         })
+
+        connection.on("UpdateOnline", function (conns) {
+            document.getElementById("onlineCount").innerHTML = "Online: " + conns.length;
+        });
 
         connection.start()
             .then(function () {
                 connection.invoke("joinRoom", "@Model.MeetingID");
+                document.getElementById("quorum").innerHTML = "Quorum: " + @ViewData["Quorum"];
 
             })
             .catch(function (err) {
@@ -91,7 +213,10 @@
             connection.invoke('leaveRoom', "@Model.MeetingID");
         });
 
+
         var sendMessage = function (event) {
+
+
             event.preventDefault();
 
             var token = '@Html.AntiForgeryToken()';
@@ -101,36 +226,14 @@
 
             axios.post('/Meetings/SendMessage', data)
                 .then(res => {
-                    console.log("Message Sent!")
                 })
                 .catch(err => {
                     console.log(err.response)
-                })
-
-            @*$.ajax({
-                url: '@Url.Action("SendMessage", "Meetings")',
-                type: 'POST',
-                dataType: 'html',
-                data: {
-                    meetingID: @Model.MeetingID,
-                    msg: document.getElementById('messageInput').value,
-                    // Send the token as a parameter of the POST request in order for it to be accepted by the server
-                    __RequestVerificationToken: $(token).val()
-                },
-                success: function (response) {
-                    var url = JSON.parse(response).url;
-                    document.getElementById('messageInput').value = '';
-                    window.location.href = url;
-                },
-                error: function (response) {
-                    var url = JSON.parse(response).url;
-                    document.getElementById('messageInput').value = '';
-                    window.location.href = url;
-                }
-            });*@
+                });
         }
 
     </script>
+
 }
 
 

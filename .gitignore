@@ -330,8 +330,6 @@ StyleCopReport.xml
 *.iobj
 *.ipdb
 *_wpftmp.csproj
-*.csproj
-*.sln
 
 # Chutzpah Test files
 

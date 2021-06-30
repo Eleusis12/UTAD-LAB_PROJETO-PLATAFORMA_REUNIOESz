@@ -79,7 +79,7 @@
 					@{
 						var nextMeetingDate = Model.Meetings.OrderBy(x => x.MeetingDate).Where(x => x.MeetingDate >= DateTime.Now).FirstOrDefault();
 						string dateString;
-						if (nextMeetingDate != null)
+						if (nextMeetingDate != null && !nextMeetingDate.MeetingEndedBool)
 						{
 							dateString = String.Format("{0:ddd d MMM }", nextMeetingDate.MeetingDate);
 						}
@@ -97,7 +97,7 @@
 				<i class="ion ion-pie-graph"></i>
 			</div>
 
-			@if (nextMeetingDate != null)
+			@if (nextMeetingDate != null && !nextMeetingDate.MeetingEndedBool)
 			{
 				<a asp-controller="Meetings" asp-action="Details" asp-route-id="@nextMeetingDate.MeetingID" class="small-box-footer">Ver Detalhes da Reunião <i class="fas fa-arrow-circle-right"></i></a>
 

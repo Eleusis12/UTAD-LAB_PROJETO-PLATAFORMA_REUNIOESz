@@ -10,54 +10,64 @@
 		<h3 class="card-title">Agendamento</h3>
 	</div>
 	<div class="card-body">
-		<form asp-action="Schedule" asp-controller="Meetings" method="post" enctype="multipart/form-data" id="main-form">
-			<input asp-for="GroupID" value="@ViewBag.GroupId" hidden />
-			<input name="guid" value="@ViewBag.GUID" hidden />
-			<div class="row">
-				<div class="col-sm-12">
+        <form asp-action="Schedule" asp-controller="Meetings" method="post" enctype="multipart/form-data" id="main-form">
+            <input asp-for="GroupID" value="@ViewBag.GroupId" hidden />
+            <input name="guid" value="@ViewBag.GUID" hidden />
+            <div class="row">
+                <div class="col-sm-12">
 
-					<div class="form-group">
-						<label>Tópico da Reunião</label>
-						<textarea asp-for="Name" class="form-control" rows="3" placeholder="Tema da reunião"></textarea>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-sm-6">
-					<!-- text input -->
-					<div class="form-group">
-						<label>Data de Início</label>
-						<input id="txtDate" asp-for="MeetingDate" class="form-control" placeholder="Dia de Início">
-					</div>
-				</div>
-				<div class="col-sm-6">
-					<!-- text input -->
-					<div class="form-group">
-						<label>Hora de começo</label>
-						<input name="timeDay" type="time" class="form-control" placeholder="Hora de Início" value="17:00">
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-sm-12">
-					<!-- text input -->
-					<div class="form-group">
-						<label>Duração da reunião (expectável)</label>
-						<select asp-for="ExpectedDuration" class="form-control" placeholder="Tempo da Reunião" asp-items="@ViewBag.ExpectedDuration">
-						</select>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-sm-12">
-					<!-- text input -->
-					<div class="form-check">
-						<input asp-for="Recurring" class="form-check-input" type="checkbox">
-						<label class="form-check-label">Reunião recorrente</label>
-					</div>
-				</div>
-			</div>
-		</form>
+                    <div class="form-group">
+                        <label>Tópico da Reunião</label>
+                        <textarea asp-for="Name" class="form-control" rows="3" placeholder="Tema da reunião"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <!-- text input -->
+                    <div class="form-group">
+                        <label>Data de Início</label>
+                        <input id="txtDate" asp-for="MeetingDate" class="form-control" placeholder="Dia de Início">
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <!-- text input -->
+                    <div class="form-group">
+                        <label>Hora de começo</label>
+                        <input name="timeDay" type="time" class="form-control" placeholder="Hora de Início" value="17:00">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <!-- text input -->
+                    <div class="form-group">
+                        <label>Duração da reunião (expectável)</label>
+                        <select asp-for="ExpectedDuration" class="form-control" placeholder="Tempo da Reunião" asp-items="@ViewBag.ExpectedDuration">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <!--text input -->
+                    <div class="form-group">
+                        <label>Quorum</label>
+                        <select asp-for="Quorum" class="form-control" placeholder="Quorum" asp-items="@ViewBag.QuorumOptions">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <!-- text input -->
+                    <div class="form-check">
+                        <input asp-for="Recurring" class="form-check-input" type="checkbox">
+                        <label class="form-check-label">Reunião recorrente</label>
+                    </div>
+                </div>
+            </div>
+        </form>
 	</div>
 	<div class='containerdropzone'>
 		<div id="dropzone">

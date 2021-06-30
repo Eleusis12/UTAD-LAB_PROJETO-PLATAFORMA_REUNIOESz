@@ -37,10 +37,10 @@ namespace MeePoint.Controllers
 			// Obtém o utilizador que está autenticado
 			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
 			string email = applicationUser?.Email; // will give the user's Email
-			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+			var user = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.Email == email);
 
 			// Verifica se o utilizador que quer aceder a esta página é de facto um entityManager de alguma entidade
-			var entity = _context.Entities.First(m => m.User.Email == user.Email);
+			var entity = await _context.Entities.FirstOrDefaultAsync(m => m.User.Email == user.Email);
 
 			// Entidade == null, significa que o utilizador não tem permissões. FORBIDDEN
 			if (entity == null)
@@ -70,7 +70,7 @@ namespace MeePoint.Controllers
 			// Obtém o utilizador que está autenticado
 			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
 			string email = applicationUser?.Email; // will give the user's Email
-			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+			var user = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.Email == email);
 
 			// Agora temos que confirmar se o utilizador que pretende aceder a esta informação, pertence ao grupo
 			var member = group.Members.SingleOrDefault(m => m.User.RegisteredUserID == user.RegisteredUserID);
@@ -134,10 +134,10 @@ namespace MeePoint.Controllers
 			// Obtém o utilizador que está autenticado
 			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
 			string email = applicationUser?.Email; // will give the user's Email
-			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+			var user = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.Email == email);
 
 			// Obtém a entidade que pretende adicionar um novo grupo
-			var entity = _context.Entities.First(m => m.User.Email == user.Email);
+			var entity = await _context.Entities.FirstOrDefaultAsync(m => m.User.Email == user.Email);
 
 			// Proceder à criação do grupo
 			Group group = new Group()
@@ -159,17 +159,17 @@ namespace MeePoint.Controllers
 
 			// Agora que as incongruências foram resolvidas, basta apenas adicionar os membros ao grupo
 			// Adicionar o manager ao grupo
-			group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = manager, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == manager), Role = GroupRoles.Manager.ToString() });
+			group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = manager, User = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.RegisteredUserID == manager), Role = GroupRoles.Manager.ToString() });
 
 			// Adicionar os comanagers aos membros do grupo
 			foreach (var coManager in coManagers)
 			{
-				group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = coManager, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == coManager), Role = GroupRoles.CoManager.ToString() });
+				group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = coManager, User = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.RegisteredUserID == coManager), Role = GroupRoles.CoManager.ToString() });
 			}
 			// Adicionar os participantes aos membros do grupo
 			foreach (var participant in participantsList)
 			{
-				group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = participant, User = _context.RegisteredUsers.FirstOrDefault(m => m.RegisteredUserID == participant), Role = GroupRoles.Participant.ToString() });
+				group.Members.Add(new GroupMember() { Group = group, GroupID = group.GroupID, UserID = participant, User = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.RegisteredUserID == participant), Role = GroupRoles.Participant.ToString() });
 			}
 
 			if (TryValidateModel(group))
@@ -180,63 +180,10 @@ namespace MeePoint.Controllers
 			return RedirectToAction(nameof(Create));
 		}
 
-		//// GET: Groups/Edit/5
-		//[Authorize(Roles = "EntityManager")]
-		//public async Task<IActionResult> Edit(int? id)
-		//{
-		//    if (id == null)
-		//    {
-		//        return NotFound();
-		//    }
-
-		//    var @group = await _context.Groups.FindAsync(id);
-		//    if (@group == null)
-		//    {
-		//        return NotFound();
-		//    }
-		//    ViewData["EntityID"] = new SelectList(_context.Entities, "EntityID", "Name", @group.EntityID);
-		//    return View(@group);
-		//}
-
-		//// POST: Groups/Edit/5
-		//// To protect from overposting attacks, enable the specific properties you want to bind to, for
-		//// more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-		//[HttpPost]
-		//[ValidateAntiForgeryToken]
-		//[Authorize(Roles = "EntityManager")]
-		//public async Task<IActionResult> Edit(int id, [Bind("GroupID,Name,EntityID")] Group @group)
-		//{
-		//    if (id != @group.GroupID)
-		//    {
-		//        return NotFound();
-		//    }
-
-		//    if (ModelState.IsValid)
-		//    {
-		//        try
-		//        {
-		//            _context.Update(@group);
-		//            await _context.SaveChangesAsync();
-		//        }
-		//        catch (DbUpdateConcurrencyException)
-		//        {
-		//            if (!GroupExists(@group.GroupID))
-		//            {
-		//                return NotFound();
-		//            }
-		//            else
-		//            {
-		//                throw;
-		//            }
-		//        }
-		//        return RedirectToAction(nameof(Index));
-		//    }
-		//    ViewData["EntityID"] = new SelectList(_context.Entities, "EntityID", "Name", @group.EntityID);
-		//    return View(@group);
-		//}
 
 		// GET: Groups/Delete/5
 		[HttpGet("{id}")]
+		[Authorize(Roles = "EntityManager,User")]
 		public async Task<IActionResult> Delete(int? id)
 		{
 			if (id == null)
@@ -258,6 +205,7 @@ namespace MeePoint.Controllers
 		// POST: Groups/Delete/5
 		[HttpPost("{id}"), ActionName("Delete")]
 		[ValidateAntiForgeryToken]
+		[Authorize(Roles = "EntityManager,User")]
 		public async Task<IActionResult> DeleteConfirmed(int id)
 		{
 			var @group = await _context.Groups.FindAsync(id);
@@ -271,7 +219,7 @@ namespace MeePoint.Controllers
 		[Authorize(Roles = "EntityManager, User")]
 		public async Task<IActionResult> ManageGroupRole(int id, int groupID, string role)
 		{
-			var groupMember = await _context.GroupMembers.Include(gm => gm.User).FirstAsync(gm => gm.UserID == id && gm.GroupID == groupID);
+			var groupMember = await _context.GroupMembers.Include(gm => gm.User).FirstOrDefaultAsync(gm => gm.UserID == id && gm.GroupID == groupID);
 
 			try
 			{
@@ -307,7 +255,7 @@ namespace MeePoint.Controllers
 			// Obtém o utilizador que está autenticado
 			IdentityUser applicationUser = await _userManager.GetUserAsync(User);
 			string email = applicationUser?.Email; // will give the user's Email
-			var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
+			var user = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.Email == email);
 
 			// Verifica se o int recebido é válido
 			if (id == null)
@@ -316,7 +264,7 @@ namespace MeePoint.Controllers
 			}
 
 			// Incluir os membros do grupo
-			var group = _context.Groups.Include(m => m.Entity).Include("Entity.User").Include(m => m.Members).Include("Members.User").FirstOrDefault(m => m.GroupID == id);
+			var group = await _context.Groups.Include(m => m.Entity).Include("Entity.User").Include(m => m.Members).Include("Members.User").FirstOrDefaultAsync(m => m.GroupID == id);
 
 			// Não encontrou o grupo na base de dados
 			if (group == null)
@@ -344,6 +292,7 @@ namespace MeePoint.Controllers
 
 		[HttpPost, ActionName("RemoveParticipant")]
 		[ValidateAntiForgeryToken]
+		[Authorize(Roles = "EntityManager,User")]
 		public async Task<IActionResult> RemoveParticipant(int userID, int groupID)
 		{
 			var groupMember = await _context.GroupMembers.Include(gm => gm.User).FirstAsync(gm => gm.UserID == userID && gm.GroupID == groupID);
@@ -387,7 +336,7 @@ namespace MeePoint.Controllers
 			var member = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.UserID == user.RegisteredUserID);
 
 			// Verifica se o utilizador que quer aceder a esta página é de facto o entityManager desta entidade
-			var entity = await _context.Entities.FirstAsync(m => m.User.Email == user.Email && m.EntityID == group.EntityID);
+			var entity = await _context.Entities.FirstOrDefaultAsync(m => m.User.Email == user.Email && m.EntityID == group.EntityID);
 
 			// Se o user nao for manager desta entidade onde nao for manager do grupo
 			if (entity == null || member.Role == "Participant")
@@ -426,6 +375,7 @@ namespace MeePoint.Controllers
 		{
 			var group = await _context.Groups
 				.Include(g => g.Members)
+				.Include(g => g.Meetings)
 				.FirstAsync(g => g.GroupID == groupID);
 
 			// Obtém o utilizador que está autenticado
@@ -435,7 +385,7 @@ namespace MeePoint.Controllers
 			var member = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.UserID == user.RegisteredUserID);
 
 			// Verifica se o utilizador que quer aceder a esta página é de facto o entityManager desta entidade
-			var entity = await _context.Entities.FirstAsync(m => m.User.Email == user.Email && m.EntityID == group.EntityID);
+			var entity = await _context.Entities.FirstOrDefaultAsync(m => m.User.Email == user.Email && m.EntityID == group.EntityID);
 
 			// Se o user nao for manager desta entidade onde nao for manager do grupo
 			if (entity == null || member.Role == "Participant")
@@ -445,6 +395,22 @@ namespace MeePoint.Controllers
 			foreach (var usr in newParticipants)
 			{
 				var newParticipant = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.RegisteredUserID == usr);
+
+				foreach (var meeting in group.Meetings)
+				{
+					if (!meeting.MeetingStartedBool)
+					{
+						Convocation conv = new Convocation()
+						{
+							User = newParticipant,
+							Meeting = meeting,
+							Answer = false,
+							Justification = null,
+						};
+
+						_context.Convocations.Add(conv);
+					}
+				}
 
 				group.Members.Add(new GroupMember() { User = newParticipant, Group = group, Role = "Participant" });
 			}

@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using MeePoint.Data;
+using MeePoint.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +13,7 @@ namespace MeePoint.Services
     {
 
         static HashSet<string> CurrentConnections = new HashSet<string>();
+        bool quorumAlert = false;
 
         async public void UpdateOnline()
         {

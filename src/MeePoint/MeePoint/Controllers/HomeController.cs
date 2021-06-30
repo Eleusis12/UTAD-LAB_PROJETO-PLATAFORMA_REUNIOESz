@@ -33,35 +33,24 @@ namespace MeePoint.Controllers
             _userManager = userManager;
         }
 
-        [Authorize]
+        [Authorize(Roles = "EntityManager,User")]
         public ActionResult MainPage()
         {
-            //// Obtém o utilizador que está autenticado
-            //IdentityUser applicationUser = await _userManager.GetUserAsync(User);
-            //string email = applicationUser?.Email; // will give the user's Email
-            //var user = _context.RegisteredUsers.FirstOrDefault(m => m.Email == email);
-
-            //var entity = _context.Groups.FirstOrDefault(m => m.Name.ToLower() == "main")
-            //MainPageViewModel mainPageViewModel = new MainPageViewModel()
-            //{
-            //	AmountGroups = _context.GroupMembers.Where(m => m.UserID == user.RegisteredUserID).Count(),
-            //	//AmountMeetingsHeldLastMonth = _context.Meetings.Where(m=> m.GroupID).Where(m => m.MeetingDate >= DateTime.Now.AddDays(-30))
-            //	EntityName = _context.Entities.FirstOrDefault(m => m.EntityID == user.Groups)
-            //}
 
             return View();
         }
 
+        [Authorize(Roles = "EntityManager,User")]
         public async Task<ActionResult> GetCalendarData()
         {
             // Obtém o utilizador que está autenticado
             IdentityUser applicationUser = await _userManager.GetUserAsync(User);
             string email = applicationUser?.Email; // will give the user's Email
-            var user = _context.RegisteredUsers
+            var user = await _context.RegisteredUsers
                 .Include(m => m.Convocations)
                 .ThenInclude(m => m.Meeting)
                 .ThenInclude(m => m.Group)
-                .FirstOrDefault(m => m.Email == email);
+                .FirstOrDefaultAsync(m => m.Email == email);
 
             // Queremos obter a lista de reuniões agendadas para o específico user
             ICollection<Convocation> convocations = user.Convocations;

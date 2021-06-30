@@ -23,7 +23,7 @@
 					<button type="submit" class="btn btn-success ">Adicionar novos logins</button>
 				</form>
 			</div>
-		</div>
+		</div>@*
 		@if ((double)@ViewData["filenameLength"] != 0)
 		{
 			<div class="row mt-5">
@@ -31,7 +31,7 @@
 					<a asp-controller="Entities" asp-action="DownloadCredentialsFile" class="btn btn-outline-primary btn-block"><i class="fa fa-download"></i> @ViewData["filename"] (@String.Format("{0:0.00}", ViewData["filenameLength"]) KB)</a>
 				</div>
 			</div>
-		}
+		}*@
 </section>
 
 @section Scripts{
