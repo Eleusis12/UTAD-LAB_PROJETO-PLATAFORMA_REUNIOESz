@@ -120,10 +120,10 @@
 
 			@{bool timelineExists = false;
 				DateTime currentDate = new DateTime(0002, 04, 30);}
-			@foreach (var meeting in Model.Meetings.Where(m => m.MeetingEndedBool == true).OrderByDescending(m => m.MeetingEnded))
+			@foreach (var meeting in Model.Meetings.Where(m => m.MeetingEndedBool == true).OrderByDescending(m => m.MeetingEnded).Take(10))
 			{
 
-				if (currentDate.Date != meeting.MeetingDate)
+				if (currentDate.DayOfYear != meeting.MeetingDate.DayOfYear)
 				{
 					<div class="time-label">
 						<span class="bg-green">@meeting.MeetingDate.ToString("dd MMM yyy")</span>

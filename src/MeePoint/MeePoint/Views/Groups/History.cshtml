@@ -31,7 +31,7 @@
 	</thead>
 	<tbody>
 		@{ int i = 1;}
-		@foreach (var meeting in Model.Meetings.Where(x => x.MeetingEndedBool == true).OrderBy(x => x.MeetingDate))
+		@foreach (var meeting in Model.Meetings.Where(x => x.MeetingEndedBool == true).OrderBy(x => x.MeetingDate).Take(30))
 		{
 			<tr>
 				<td>
@@ -43,7 +43,7 @@
 					</a>
 				</td>
 				<td>
-					@meeting.MeetingStarted.ToString("d MMMM")
+					@meeting.MeetingDate.ToString("dd MMM yyy")
 				</td>
 				<td>
 
