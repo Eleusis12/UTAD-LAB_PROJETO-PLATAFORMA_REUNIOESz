@@ -6,7 +6,15 @@
 @Html.Partial("_BreadCrumb", @ViewData["Title"])
 
 <div class="d-flex justify-content-lg-between align-items-center">
-	<a asp-controller="Meetings" asp-action="Schedule" asp-route-id="@Model.GroupID" class="btn btn-group-lg btn-danger">Convocar Reunião</a>
+
+	@{if ((bool)ViewData["Role"])
+		{
+
+			<a asp-controller="Meetings" asp-action="Schedule" asp-route-id="@Model.GroupID" class="btn btn-group-lg btn-danger">Convocar Reunião</a>
+
+		}
+
+	}
 
 	@if (User.IsInRole("EntityManager"))
 	{
@@ -77,7 +85,7 @@
 			<div class="inner">
 				<h3>
 					@{
-						var nextMeetingDate = Model.Meetings.OrderBy(x => x.MeetingDate).FirstOrDefault(x => x.MeetingDate >= DateTime.Now && x.MeetingStartedBool == false && x.MeetingEndedBool == false);
+						var nextMeetingDate = Model.Meetings.OrderBy(x => x.MeetingDate).FirstOrDefault(x => x.MeetingDate >= DateTime.Now  && x.MeetingEndedBool == false);
 						string dateString;
 						if (nextMeetingDate != null && !nextMeetingDate.MeetingEndedBool)
 						{

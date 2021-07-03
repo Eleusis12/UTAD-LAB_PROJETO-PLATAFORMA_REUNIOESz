@@ -505,6 +505,7 @@ namespace MeePoint.Controllers
 			return RedirectToAction("Details", "Groups", new { id = groupId });
 		}
 
+		[Authorize]
 		public async Task<IActionResult> JoinMeeting(int? id)
 		{
 			if (id == null)
@@ -536,6 +537,14 @@ namespace MeePoint.Controllers
 
 			var groupMember = await _context.GroupMembers.Include(m => m.Group).ThenInclude(m => m.Entity).Where(m => m.GroupID == meeting.GroupID).FirstOrDefaultAsync(m => m.User.Email == email);
 			string roleUser = groupMember?.Role;
+
+			// Obter Convocação
+			var convocation = _context.Convocations.FirstOrDefault(m => m.UserID == user.RegisteredUserID && m.MeetingID == id);
+
+			// Registar Presença do utilizador
+			convocation.Answer = true;
+			_context.Convocations.Update(convocation);
+			await _context.SaveChangesAsync();
 
 			ViewData["Role"] = (roleUser.ToLower() == "manager" || roleUser.ToLower() == "comanager");
 			ViewBag.Requests = new List<RegisteredUser>();
