@@ -401,10 +401,27 @@ namespace MeePoint.Controllers
 			// Aqui fazemos a verificação se é manager ou comanager do grupo
 			ViewData["Role"] = (roleUser.ToLower() == "manager" || roleUser.ToLower() == "comanager");
 
-			var convocation = groupMember.User.Convocations.First(c => c.MeetingID == meeting.MeetingID);
+			var convocation = groupMember.User.Convocations?.FirstOrDefault(c => c.MeetingID == meeting.MeetingID);
 
-			ViewData["Answerable"] = (!convocation.Answer && convocation.Justification == null);
-			ViewBag.AnswerOptions = new List<SelectListItem>()
+			if (meeting.MeetingEndedBool == false)
+			{
+				// Criar convocação para o novo membro
+				if (convocation == null)
+				{
+					convocation = new Convocation()
+					{
+						User = await _context.RegisteredUsers.FirstOrDefaultAsync(r => r.RegisteredUserID == user.RegisteredUserID),
+						Meeting = meeting,
+						Answer = false,
+						Justification = null,
+					};
+
+					_context.Convocations.Add(convocation);
+					_context.SaveChanges();
+				}
+
+				ViewData["Answerable"] = (!convocation.Answer && convocation.Justification == null);
+				ViewBag.AnswerOptions = new List<SelectListItem>()
 			{
 				new SelectListItem()
 				{
@@ -419,6 +436,7 @@ namespace MeePoint.Controllers
 					Selected = false,
 				},
 			};
+			}
 
 			return View(meeting);
 		}
