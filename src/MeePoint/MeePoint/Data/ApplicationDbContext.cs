@@ -73,7 +73,7 @@ namespace MeePoint.Data
 
             builder.Entity<Entity>()
             .HasIndex(e => e.Name)
-            .IsUnique();
+            ;
 
             builder.Entity<Entity>()
             .Property(e => e.NIF)

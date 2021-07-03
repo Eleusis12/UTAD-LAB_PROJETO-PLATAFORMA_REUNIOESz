@@ -64,39 +64,40 @@
                                         <th>Função</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach (var convocation in Model.Convocations)
-                                    {
-                                        <tr>
-                                            <td>1.</td>
-                                            <td>@(convocation.User.Name ?? "Nome não definido")</td>
-                                            <td><span class="badge bg-gradient-info">@convocation.User.Email</span></td>
-                                            <td>
-                                                @{
+								<tbody>
+									@{ int i = 1;}
+									@foreach (var convocation in Model.Convocations)
+									{
+										<tr>
+											<td>@(i++).</td>
+											<td>@(convocation.User.Name ?? "Nome não definido")</td>
+											<td><span class="badge bg-gradient-info">@convocation.User.Email</span></td>
+											<td>
+												@{
 
-                                                    var member = Model.Group.Members.First(m => m.UserID == convocation.UserID);
-                                                    var roleName = string.Empty;
+													var member = Model.Group.Members.First(m => m.UserID == convocation.UserID);
+													var roleName = string.Empty;
 
-                                                    // Temos que traduzir as roles para português
-                                                    switch (member.Role.ToLower())
-                                                    {
-                                                        case "manager":
-                                                            roleName = "Responsável";
-                                                            break;
-                                                        case "comanager":
-                                                            roleName = "Co-Responsável"; break;
-                                                        case "participant":
-                                                            roleName = "Partipante"; break;
+													// Temos que traduzir as roles para português
+													switch (member.Role.ToLower())
+													{
+														case "manager":
+															roleName = "Responsável";
+															break;
+														case "comanager":
+															roleName = "Co-Responsável"; break;
+														case "participant":
+															roleName = "Partipante"; break;
 
-                                                        default: break;
-                                                    }
-                                                    @roleName
-                                                }
-                                            </td>
-                                        </tr>
+														default: break;
+													}
+													@roleName
+												}
+											</td>
+										</tr>
 
-                                    }
-                                </tbody>
+									}
+								</tbody>
                             </table>
                         </div>
                     </div>

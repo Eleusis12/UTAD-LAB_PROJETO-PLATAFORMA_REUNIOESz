@@ -23,7 +23,7 @@ namespace MeePoint.ViewComponents
 		{
 			// Enviar o user para a view
 			var registeredUser = await _context.RegisteredUsers.FirstOrDefaultAsync(m => m.Email == email);
-			string userName = registeredUser.Name;
+			string userName = registeredUser.Name ?? "Nome não definido";
 
 			// Temos que perguntar à base de dados se o utilizador autenticado é um administrador
 			var entity = _context.Entities.Include(m => m.User)

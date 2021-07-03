@@ -85,6 +85,8 @@ namespace MeePoint.Controllers
 				return NotFound();
 			}
 
+			ViewData["Role"] = (member.Role.ToLower() == "manager" || member.Role.ToLower() == "comanager");
+
 			if (@group == null)
 			{
 				return NotFound();
@@ -179,7 +181,6 @@ namespace MeePoint.Controllers
 			}
 			return RedirectToAction(nameof(Create));
 		}
-
 
 		// GET: Groups/Delete/5
 		[HttpGet("{id}")]
