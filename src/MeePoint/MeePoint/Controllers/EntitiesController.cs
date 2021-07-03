@@ -78,16 +78,65 @@ namespace MeePoint.Controllers
 		[Authorize(Roles = "Administrator")]
 		public async Task<IActionResult> Create([Bind("EntityID,NIF,Name,Description,PhoneNumber,ManagerName,StatusEntity,SubscriptionDays,MaxUsers,PostalCode,Address,Manager,User")] Entity entity)
 		{
-			// Limpar os erros
-			ModelState.Clear();
+			IdentityUser IsUserRegistered;
+			IsUserRegistered = await _userManager.FindByEmailAsync(entity.User.Email);
 
-			if (TryValidateModel(entity))
+			// A conta de email já está registado na base de dados
+			if (IsUserRegistered != null)
 			{
+				ModelState.AddModelError(string.Empty, "A conta de email já está registada.");
+				return View(entity);
+			}
+
+			if (ModelState.IsValid)
+			{
+				// Vamos registar as contas
+				string password = await CreateNewRegisteredUserAsync(entity.User.Email);
+
+				// Deu erro
+				if (password == null)
+				{
+					ModelState.AddModelError(string.Empty, "Não foi possível criar conta.");
+					return View(entity);
+				}
+
+				// Agora que temos o User criado, vamos associá-lo à entidade
+				entity.User = _context.RegisteredUsers.FirstOrDefault(m => m.Email == entity.User.Email);
+
+				// Vamos criar um grupo de trabalho com o nome de "main" ao qual vamos adicionar o admin que estamos agora a registar
+				Group group = new Group();
+
+				group.Entity = entity;
+				group.EntityID = entity.EntityID;
+				group.Name = "main";
+
+				// Agora que temos o grupo criado, vamos adicionar o membro
+				group.Members = new List<GroupMember>();
+
+				group.Members.Add(new GroupMember
+				{
+					Group = group,
+					GroupID = group.GroupID,
+					Role = "User",
+					User = entity.User,
+					UserID = entity.User.RegisteredUserID,
+				});
+
+				// Criar uma lista de grupos
+				List<Group> Groups = new List<Group>();
+				Groups.Add(group);
+				entity.Groups = Groups;
+
+				// fim
+				// Add Entity to database
 				_context.Add(entity);
 				await _context.SaveChangesAsync();
+
+				// Enviar o email com os dados da conta para o utilizador em questão
+				_emailService.SendAccountCreated("oda.senger@ethereal.email", entity.User.Email, entity.Name, password);
+
 				return RedirectToAction(nameof(Index));
 			}
-			ViewData["Manager"] = new SelectList(_context.RegisteredUsers, "RegisteredUserID", "Email", entity.Manager);
 			return View(entity);
 		}
 
